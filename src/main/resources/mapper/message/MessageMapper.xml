@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.wqk.serverwebsocket.mapper.MessageMapper">
+    <resultMap id="MessageInfo" type="cn.wqk.serverwebsocket.socket.pojo.MessageInfo">
+        <id property="id" column="id"/>
+        <result property="message" column="message"/>
+        <result property="fromName" column="from_name"/>
+        <result property="toName" column="to_name"/>
+        <result property="time" column="send_time"/>
+    </resultMap>
+
+    <insert id="addMessage" parameterType="cn.wqk.serverwebsocket.socket.pojo.MessageInfo">
+        insert into message (message, from_name, to_name, send_at)
+        values (#{message}, #{fromName}, #{toName}, #{time});
+    </insert>
+
+
+    <select id="findAll" resultMap="MessageInfo" >
+        select *
+        from message
+        <where>
+            <if test="fromName!=null and fromName!='' and toName!=null and toName!=''">
+                (from_name = #{fromName}
+                and to_name = #{toName})
+                or (to_name = #{fromName}
+                and from_name = #{toName})
+            </if>
+            <if test="toName==null or toName==''">
+                to_name=""
+            </if>
+        </where>
+    </select>
+
+</mapper>

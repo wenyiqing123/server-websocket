@@ -1,0 +1,13 @@
+package cn.wqk.serverwebsocket.exception;
+
+import lombok.Data;
+
+@Data
+public class ServiceException extends RuntimeException{
+    private int code;
+
+    public ServiceException(String message, int code) {
+        super(message);
+        this.code = code;
+    }
+}
