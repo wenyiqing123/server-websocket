@@ -36,7 +36,7 @@ public class WebSocket {
     /**
      * 通过上下文获取实例
      */
-    private MessageService messageService=(MessageService) ApplicationHelper.getBean("messageService");
+    private MessageService messageService = (MessageService) ApplicationHelper.getBean("messageService");
 
     /**
      * 静态注入
@@ -77,8 +77,6 @@ public class WebSocket {
          */
         //1，将session进行保存
         this.httpSession = (HttpSession) config.getUserProperties().get(HttpSession.class.getName());
-//        String user = (String) this.httpSession.getAttribute("user");
-//        System.out.println("user = " + user);
         onlineUsers.put(username, session);
         //2，广播消息。需要将登陆的所有的用户推送给所有的用户
         String message = MessageUtils.getMessage(true, null, getFriends());
@@ -144,10 +142,8 @@ public class WebSocket {
         try {
             messageService.addMessage(messageInfo);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
             throw new ServiceException("消息发送失败", 400);
         }
-        System.out.println("messageInfo = " + messageInfo);
         log.info("时间[{}]：来自连接编号为[{}]的消息：[{}]", new Date().toLocaleString(), session.getId(), message);
         sendAllMessage(message);
     }
@@ -168,7 +164,6 @@ public class WebSocket {
 
     public Set getFriends() {
         Set<String> keys = onlineUsers.keySet();
-        System.out.println("keys = " + keys);
         return keys;
     }
 

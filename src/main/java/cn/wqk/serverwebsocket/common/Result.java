@@ -64,11 +64,11 @@ public class Result extends HashMap<String, Object> implements Serializable {
      * @param msg
      * @return Result
      */
-    public static Result toAjax(int i, String msg) {
+    public static Result toAjax(int i, int code, String msg) {
         if (i > 0)
             return success();
         if (msg != null)
-            return error(msg);
+            return error(code, msg);
         return error();
     }
 
