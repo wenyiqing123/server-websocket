@@ -1,3 +1,21 @@
+spring:
+  #  数据库配置
+  datasource:
+    url: jdbc:mysql://localhost:3306/chat?useSSL=false&serverTimezone=UTC
+    username: root
+    password: yq040809
+    driver-class-name: com.mysql.cj.jdbc.Driver
+#    mybatis配置
+mybatis:
+  #  mapper.xml路径
+  mapper-locations: classpath:mapper/**/*Mapper.xml
+#  日志
+logging:
+  #  配置
+  config: classpath:log4j2_dev.xml
+  pattern:
+    #    控制台输出颜色
+    console: '%clr(%d{yyyyMMdd HH:mm:ss}){yellow} [%clr(%thread){red}] %-5level --- %clr(%logger){blue} | %msg%n'
+#端口
 server:
   port: 8000
-
