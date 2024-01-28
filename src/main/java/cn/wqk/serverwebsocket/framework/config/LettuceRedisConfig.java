@@ -1,4 +1,4 @@
-package cn.wqk.serverwebsocket.config;
+package cn.wqk.serverwebsocket.framework.config;
 
 
 import org.springframework.cache.annotation.CachingConfigurerSupport;

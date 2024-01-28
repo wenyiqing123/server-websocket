@@ -1,6 +1,6 @@
-package cn.wqk.serverwebsocket.exception;
+package cn.wqk.serverwebsocket.framework.exception;
 
-import cn.wqk.serverwebsocket.common.Result;
+import cn.wqk.serverwebsocket.framework.common.Result;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 

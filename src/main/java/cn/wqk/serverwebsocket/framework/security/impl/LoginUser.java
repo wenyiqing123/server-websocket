@@ -1,4 +1,4 @@
-package cn.wqk.serverwebsocket.impl;
+package cn.wqk.serverwebsocket.framework.security.impl;
 
 
 import cn.wqk.serverwebsocket.pojo.User;

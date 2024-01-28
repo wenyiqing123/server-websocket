@@ -1,8 +1,8 @@
 package cn.wqk.serverwebsocket.socket;
 
-import cn.wqk.serverwebsocket.common.ApplicationHelper;
-import cn.wqk.serverwebsocket.config.WebSocketConfig;
-import cn.wqk.serverwebsocket.exception.ServiceException;
+import cn.wqk.serverwebsocket.framework.common.ApplicationHelper;
+import cn.wqk.serverwebsocket.framework.config.WebSocketConfig;
+import cn.wqk.serverwebsocket.framework.exception.ServiceException;
 import cn.wqk.serverwebsocket.service.MessageService;
 import cn.wqk.serverwebsocket.socket.pojo.MessageInfo;
 import cn.wqk.serverwebsocket.utils.MessageUtils;

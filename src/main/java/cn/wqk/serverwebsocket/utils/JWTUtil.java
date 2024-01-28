@@ -13,7 +13,7 @@ public class JWTUtil {
     public static String generateToken(User user) {
         return JWT.create()
                 .withSubject(String.valueOf(user.getId()))
-                .withAudience(user.getPhone(), user.getUserName(), user.getPassword())
+                .withAudience(user.getUserName(), user.getPassword())
                 .withExpiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 60))
                 .sign(Algorithm.HMAC256(SECRET));
     }
@@ -21,7 +21,6 @@ public class JWTUtil {
     public static int decodeToken(String token) {
         String userId = JWT.decode(token).getSubject();
         return Integer.parseInt(userId);
-
     }
 
     public static boolean verifyToken(String token) {

@@ -1,4 +1,4 @@
-package cn.wqk.serverwebsocket.config;
+package cn.wqk.serverwebsocket.framework.config;
 
 import jakarta.servlet.http.HttpSession;
 import jakarta.websocket.HandshakeResponse;

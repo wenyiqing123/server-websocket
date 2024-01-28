@@ -1,13 +1,16 @@
-package cn.wqk.serverwebsocket.common;
+package cn.wqk.serverwebsocket.framework.common;
+
+import lombok.Data;
 
 import java.io.Serializable;
 import java.util.HashMap;
 
+@Data
 public class Result extends HashMap<String, Object> implements Serializable {
-    private static final int SUCCESS_CODE=200;
-    private static final String SUCCESS_MSG="操作成功";
-    private static final int ERROR_CODE=400;
-    private static final String ERROR_MSG="操作失败";
+    private static final int SUCCESS_CODE = 200;
+    private static final String SUCCESS_MSG = "操作成功";
+    private static final int ERROR_CODE = 400;
+    private static final String ERROR_MSG = "操作失败";
     private static final long serialVersionUID=1881899354058984967L;
 
     public Result() {

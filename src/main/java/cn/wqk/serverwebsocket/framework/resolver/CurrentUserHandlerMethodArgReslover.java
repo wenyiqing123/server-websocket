@@ -1,7 +1,7 @@
-package cn.wqk.serverwebsocket.resolver;
+package cn.wqk.serverwebsocket.framework.resolver;
 
 
-import cn.wqk.serverwebsocket.annotation.CurrentUser;
+import cn.wqk.serverwebsocket.framework.annotation.CurrentUser;
 import cn.wqk.serverwebsocket.pojo.User;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.core.MethodParameter;

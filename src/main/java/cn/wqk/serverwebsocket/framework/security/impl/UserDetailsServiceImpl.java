@@ -1,7 +1,7 @@
-package cn.wqk.serverwebsocket.impl;
+package cn.wqk.serverwebsocket.framework.security.impl;
 
 
-import cn.wqk.serverwebsocket.exception.ServiceException;
+import cn.wqk.serverwebsocket.framework.exception.ServiceException;
 import cn.wqk.serverwebsocket.mapper.UserMapper;
 import cn.wqk.serverwebsocket.pojo.User;
 import org.springframework.beans.factory.annotation.Autowired;

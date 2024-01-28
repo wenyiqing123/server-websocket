@@ -1,9 +1,9 @@
-package cn.wqk.serverwebsocket.config;
+package cn.wqk.serverwebsocket.framework.config;
 
 
-import cn.wqk.serverwebsocket.exception.AuthenticationEntryPointException;
-import cn.wqk.serverwebsocket.filter.TokenFilter;
-import cn.wqk.serverwebsocket.impl.UserDetailsServiceImpl;
+import cn.wqk.serverwebsocket.framework.exception.AuthenticationEntryPointException;
+import cn.wqk.serverwebsocket.framework.filter.TokenFilter;
+import cn.wqk.serverwebsocket.framework.security.impl.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,7 +31,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class SecurityConfig implements WebMvcConfigurer {
 
     @Autowired
-
     private UserDetailsService userDetailsService;
     @Autowired
     private TokenFilter tokenFilter;
@@ -96,7 +95,7 @@ public class SecurityConfig implements WebMvcConfigurer {
                 // 配置请求授权规则
                 .authorizeHttpRequests(auth -> auth
                         // 允许访问 "/api/auth/**" 路径的请求，不进行身份验证
-                        .requestMatchers("/user/login", "/user/register", "/user/logout", "/websocket/**")
+                        .requestMatchers("/user/login", "/user/register", "/user/logout", "/websocket/**", "/user/hello", "/static/**", "/user/users", "/test/remoteProcedureCall")
                         //随意访问
                         .permitAll()
                         // 对于其他任何请求，要求进行身份验证
@@ -115,7 +114,7 @@ public class SecurityConfig implements WebMvcConfigurer {
         // 配置全局CORS策略，允许所有的跨域请求
         registry.addMapping("/**")
                 // 允许的来源，明确指定允许的域，根据实际情况修改
-                .allowedOrigins("http://localhost:8080", "ws://localhost:8080")
+                .allowedOrigins("http://localhost:8080", "ws://localhost:8080", "http://47.99.45.73:8000")
 //                .allowedOrigins("*")
                 // 是否允许发送Cookie信息，此处设置为允许
                 .allowCredentials(true)
@@ -127,6 +126,14 @@ public class SecurityConfig implements WebMvcConfigurer {
                 .maxAge(3600);
     }
 
+    //    public void configure(WebSecurity web) throws Exception {
+//        web.ignoring().antMatchers("/user/login", "/user/register", "/user/logout", "/websocket/**");
+//    }
+//    @Bean
+//    public WebSecurityCustomizer securityCustomizer() {
+//        return (web) -> web.ignoring().requestMatchers();
+//
+//    }
 //    @Override
 //    public void addCorsMappings(CorsRegistry registry) {
 //        // 配置全局CORS策略，允许所有的跨域请求

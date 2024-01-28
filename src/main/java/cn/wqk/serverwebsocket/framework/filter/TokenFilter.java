@@ -1,8 +1,8 @@
-package cn.wqk.serverwebsocket.filter;
+package cn.wqk.serverwebsocket.framework.filter;
 
 
-import cn.wqk.serverwebsocket.annotation.LoginNotRequired;
-import cn.wqk.serverwebsocket.impl.LoginUser;
+import cn.wqk.serverwebsocket.framework.annotation.LoginNotRequired;
+import cn.wqk.serverwebsocket.framework.security.impl.LoginUser;
 import cn.wqk.serverwebsocket.mapper.UserMapper;
 import cn.wqk.serverwebsocket.pojo.User;
 import cn.wqk.serverwebsocket.utils.JWTUtil;
@@ -107,10 +107,14 @@ public class TokenFilter extends OncePerRequestFilter {
      */
     private boolean shouldFilter(HttpServletRequest request) {
         ArrayList<String> arrayList = new ArrayList<String>();
+        arrayList.add("/user/hello");
         arrayList.add("/user/login");
         arrayList.add("/user/register");
         arrayList.add("/user/logout");
+        arrayList.add("/user/users");
+        arrayList.add("/test/remoteProcedureCall");
         arrayList.add("/websocket/**");
+        arrayList.add("/");
         String requestURI = request.getRequestURI();
         // 根据实际需求检查请求路径是否需要进行拦截
         for (String s : arrayList) {

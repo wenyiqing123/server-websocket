@@ -1,4 +1,4 @@
-package cn.wqk.serverwebsocket.exception;
+package cn.wqk.serverwebsocket.framework.exception;
 
 import lombok.Data;
 

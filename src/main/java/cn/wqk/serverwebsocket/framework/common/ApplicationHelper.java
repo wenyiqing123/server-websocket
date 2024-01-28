@@ -1,4 +1,4 @@
-package cn.wqk.serverwebsocket.common;
+package cn.wqk.serverwebsocket.framework.common;
 
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;

@@ -1,7 +1,7 @@
 package cn.wqk.serverwebsocket.service;
 
 
-import cn.wqk.serverwebsocket.common.Result;
+import cn.wqk.serverwebsocket.framework.common.Result;
 import cn.wqk.serverwebsocket.pojo.User;
 import jakarta.servlet.http.HttpSession;
 

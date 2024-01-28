@@ -1,7 +1,7 @@
 package cn.wqk.serverwebsocket.service.impl;
 
-import cn.wqk.serverwebsocket.common.Result;
-import cn.wqk.serverwebsocket.impl.LoginUser;
+import cn.wqk.serverwebsocket.framework.common.Result;
+import cn.wqk.serverwebsocket.framework.security.impl.LoginUser;
 import cn.wqk.serverwebsocket.mapper.UserMapper;
 import cn.wqk.serverwebsocket.pojo.User;
 import cn.wqk.serverwebsocket.service.UserService;

@@ -1,7 +1,7 @@
-package cn.wqk.serverwebsocket.exception;
+package cn.wqk.serverwebsocket.framework.exception;
 
 
-import cn.wqk.serverwebsocket.common.Result;
+import cn.wqk.serverwebsocket.framework.common.Result;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

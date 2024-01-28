@@ -1,4 +1,4 @@
-package cn.wqk.serverwebsocket.interceptor;
+package cn.wqk.serverwebsocket.framework.interceptor;
 
 import cn.wqk.serverwebsocket.utils.JWTUtil;
 import cn.wqk.serverwebsocket.utils.RedisUtil;

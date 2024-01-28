@@ -1,7 +1,7 @@
-package cn.wqk.serverwebsocket.config;
+package cn.wqk.serverwebsocket.framework.config;
 
-import cn.wqk.serverwebsocket.interceptor.LogOutFilter;
-import cn.wqk.serverwebsocket.resolver.CurrentUserHandlerMethodArgReslover;
+import cn.wqk.serverwebsocket.framework.interceptor.LogOutFilter;
+import cn.wqk.serverwebsocket.framework.resolver.CurrentUserHandlerMethodArgReslover;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;

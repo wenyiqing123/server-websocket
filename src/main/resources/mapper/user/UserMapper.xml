@@ -25,7 +25,7 @@
         from user
         where user_name = #{userName}
     </select>
-    <select id="findAllUsers">
+    <select id="findAllUsers" resultMap="User">
         select *
         from user
     </select>

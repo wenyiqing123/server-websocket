@@ -1,21 +1,53 @@
 spring:
-  #  数据库配置
+  springdoc:
+    swagger-ui:
+      path: "/swagger-ui.html"
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+  # mysql数据库配置
   datasource:
     url: jdbc:mysql://localhost:3306/chat?useSSL=false&serverTimezone=UTC
     username: root
     password: yq040809
     driver-class-name: com.mysql.cj.jdbc.Driver
-#    mybatis配置
+  # redis数据库配置
+  data:
+    redis:
+      # redis数据库索引(默认为0)
+      database: 0
+      # redis服务器地址（默认为localhost）
+      host: localhost
+      # redis端口（默认为6379）
+      port: 6379
+      # redis访问密码（默认为空）
+      password:
+      # redis连接超时时间（单位毫秒）:不能设置为0，否则报无法连接
+      timeout: 6000ms
+      # redis高级客户端
+      lettuce:
+        pool:
+          # 最大可用连接数（默认为8，负数表示无限）
+          max-active: 8
+          # 最大空闲连接数（默认为8，负数表示无限）
+          max-idle: 8
+          # 最小空闲连接数（默认为0，该值只有为正数才有用）
+          min-idle: 0
+          # 从连接池中获取连接最大等待时间（默认为-1，单位为毫秒，负数表示无限）
+          max-wait: -1
+# mybatis配置
 mybatis:
-  #  mapper.xml路径
+  # mapper.xml路径
   mapper-locations: classpath:mapper/**/*Mapper.xml
-#  日志
+# 日志
 logging:
-  #  配置
+  # 配置
   config: classpath:log4j2_dev.xml
   pattern:
-    #    控制台输出颜色
+    # 控制台输出颜色
     console: '%clr(%d{yyyyMMdd HH:mm:ss}){yellow} [%clr(%thread){red}] %-5level --- %clr(%logger){blue} | %msg%n'
-#端口
+# 端口
 server:
   port: 8000
+
+
