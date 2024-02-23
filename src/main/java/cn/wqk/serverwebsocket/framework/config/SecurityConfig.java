@@ -114,7 +114,7 @@ public class SecurityConfig implements WebMvcConfigurer {
         // 配置全局CORS策略，允许所有的跨域请求
         registry.addMapping("/**")
                 // 允许的来源，明确指定允许的域，根据实际情况修改
-                .allowedOrigins("http://localhost:8080", "ws://localhost:8080", "http://47.99.45.73:8000")
+                .allowedOrigins("http://localhost:8080", "ws://localhost:8080", "http://47.99.45.73:8001")
 //                .allowedOrigins("*")
                 // 是否允许发送Cookie信息，此处设置为允许
                 .allowCredentials(true)

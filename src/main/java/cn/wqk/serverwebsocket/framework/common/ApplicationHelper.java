@@ -14,9 +14,11 @@ public class ApplicationHelper implements ApplicationContextAware {
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         ApplicationHelper.applicationContext = applicationContext;
     }
+
     public static ApplicationContext getApplicationContext() {
         return applicationContext;
     }
+
     public static Object getBean(String beanName) {
         return applicationContext.getBean(beanName);
     }

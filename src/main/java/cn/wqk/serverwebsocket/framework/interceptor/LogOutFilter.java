@@ -13,21 +13,23 @@ import java.util.ArrayList;
 
 @Component
 public class LogOutFilter implements HandlerInterceptor {
+
     @Autowired
     private RedisUtil redisUtil;
+
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         //从请求头中获取token
-        String Authorization = request.getHeader("Authorization");
+        String authorization = request.getHeader("Authorization");
         int userId = 0;
         // 如果Token为空，抛出未认证异常
-        if (Authorization == null || Authorization.equals("")) {
+        if (authorization == null || authorization.equals("")) {
             ServletUtil.renderString(response, "请登录", 401);
             return false;
         }
         try {
-            userId = JWTUtil.decodeToken(Authorization);
+            userId = JWTUtil.decodeToken(authorization);
         } catch (Exception e) {
             ServletUtil.renderString(response, "请勿伪造token(解析token失败)", 401);
             return false;
@@ -37,7 +39,7 @@ public class LogOutFilter implements HandlerInterceptor {
             ServletUtil.renderString(response, "登录已过期", 401);
             return false;
         }
-        if (!token.equals(Authorization)) {
+        if (!token.equals(authorization)) {
             ServletUtil.renderString(response, "登录已过期", 401);
             return false;
         }

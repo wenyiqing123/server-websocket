@@ -14,8 +14,7 @@
         values (#{message}, #{fromName}, #{toName}, #{time});
     </insert>
 
-
-    <select id="findAll" resultMap="MessageInfo" >
+    <select id="findAll" resultMap="MessageInfo">
         select *
         from message
         <where>
@@ -30,5 +29,4 @@
             </if>
         </where>
     </select>
-
 </mapper>

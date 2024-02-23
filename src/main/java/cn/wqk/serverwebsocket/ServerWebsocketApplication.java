@@ -14,7 +14,6 @@ import java.time.format.DateTimeFormatter;
 @ComponentScan("cn.wqk.serverwebsocket.*")
 @Slf4j
 class ServerWebsocketApplication {
-
     public static void main(String[] args) {
         SpringApplication.run(ServerWebsocketApplication.class, args);
         System.out.println(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(LocalDateTime.now()));
@@ -24,5 +23,4 @@ class ServerWebsocketApplication {
     public RestTemplate restTemplate() {
         return new RestTemplate();
     }
-
 }
