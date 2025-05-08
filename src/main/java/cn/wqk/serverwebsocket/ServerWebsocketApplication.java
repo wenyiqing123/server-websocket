@@ -16,7 +16,7 @@ import java.time.format.DateTimeFormatter;
 class ServerWebsocketApplication {
     public static void main(String[] args) {
         SpringApplication.run(ServerWebsocketApplication.class, args);
-        System.out.println(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(LocalDateTime.now()));
+        System.out.println("当前时间：" + DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(LocalDateTime.now()));
     }
 
     @Bean

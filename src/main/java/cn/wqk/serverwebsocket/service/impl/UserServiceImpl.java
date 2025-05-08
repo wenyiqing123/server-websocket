@@ -67,12 +67,25 @@ public class UserServiceImpl implements UserService {
         return userMapper.findById(id);
     }
 
+    /**
+     * 实现用户注册功能。
+     * 首先检查传入用户的用户名是否已存在于数据库中，若存在则返回 0 表示注册失败；
+     * 若不存在则调用 UserMapper 的 register 方法执行注册操作，并返回注册结果。
+     *
+     * @param user 包含用户注册信息的 User 对象
+     * @return 若用户名已存在，返回 0；若注册成功，返回 UserMapper.register 方法的执行结果（通常为受影响的数据库记录行数）
+     */
     @Override
     public int register(User user) {
+        // 根据传入用户对象的用户名，从数据库中查找对应的用户记录
         User byUsername = userMapper.findByUsername(user.getUserName());
+        // 若查找到的用户记录不为 null，说明该用户名已存在
         if (byUsername != null) {
+            // 用户名已存在，返回 0 表示注册失败
             return 0;
         }
+        // 用户名不存在，调用 UserMapper 的 register 方法执行注册操作，并返回注册结果
         return userMapper.register(user);
     }
+
 }

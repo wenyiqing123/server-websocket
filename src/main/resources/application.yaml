@@ -7,8 +7,8 @@ spring:
       matching-strategy: ant_path_matcher
   # mysql数据库配置
   datasource:
-    url: jdbc:mysql://47.99.45.73:3306/chat?useSSL=false&serverTimezone=UTC
-    username: chat
+    url: jdbc:mysql://localhost:3306/chat?useSSL=false&serverTimezone=UTC
+    username: root
     password: yq040809
     driver-class-name: com.mysql.cj.jdbc.Driver
   # redis数据库配置
