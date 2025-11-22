@@ -8,14 +8,13 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static cn.wqk.serverwebsocket.framework.config.SecurityConfig.passwordEncoder;
 
 @RestController
 @RequestMapping("/user")
@@ -25,6 +24,8 @@ import static cn.wqk.serverwebsocket.framework.config.SecurityConfig.passwordEnc
 public class UserController {
     @Autowired
     private UserService userService;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     //    @LoginNotRequired
     @GetMapping("/hello")
@@ -44,11 +45,12 @@ public class UserController {
      */
 //    @LoginNotRequired
     @ApiResponses(value = {
-            @ApiResponse(code = 200, response = User.class, message = "hello")
+            @ApiResponse(code = 200, response = User.class, message = "")
     })
     @PostMapping("/login")
-    public Result login(@RequestBody User user, HttpSession session) {
-        return userService.login(user, session);
+    public Result login(@RequestBody User user) {
+        System.out.println("user = " + user);
+        return userService.login(user);
     }
 
     /**
@@ -60,9 +62,8 @@ public class UserController {
     @PostMapping("/register")
     public Result register(@RequestBody User user) {
         //密码加密
-        String password = passwordEncoder().encode(user.getPassword());
         //设置密码
-        user.setPassword(password);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         //调service
         int register = userService.register(user);
         return Result.toAjax(register, 401, "该用户已存在");
@@ -92,5 +93,12 @@ public class UserController {
     @GetMapping("/logout")
     public Result logout() {
         return Result.success("退出登录成功");
+    }
+
+    @GetMapping("/path")
+    public Result getPath(@RequestParam String username) {
+        System.out.println("username = " + username);
+        String path = userService.getPath(username);
+        return Result.success(path);
     }
 }

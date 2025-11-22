@@ -7,9 +7,19 @@
         <result property="fromName" column="from_name"/>
         <result property="toName" column="to_name"/>
         <result property="time" column="send_time"/>
+        <result property="recalled" column="recalled"/>
+    </resultMap>
+    <resultMap id="MessageFull" type="cn.wqk.serverwebsocket.pojo.entity.Message">
+        <id property="id" column="id"/>
+        <result property="message" column="message"/>
+        <result property="fromName" column="from_name"/>
+        <result property="toName" column="to_name"/>
+        <result property="sendAt" column="send_at"/>
+        <!--        <result property="time" column="send_time"/>-->
     </resultMap>
 
-    <insert id="addMessage" parameterType="cn.wqk.serverwebsocket.socket.pojo.MessageInfo">
+    <insert id="addMessage" parameterType="cn.wqk.serverwebsocket.socket.pojo.MessageInfo" useGeneratedKeys="true"
+            keyProperty="id">
         insert into message (message, from_name, to_name, send_at)
         values (#{message}, #{fromName}, #{toName}, #{time});
     </insert>
@@ -26,6 +36,28 @@
             </if>
             <if test="toName==null or toName==''">
                 to_name=""
+            </if>
+        </where>
+    </select>
+
+    <select id="pageQuery" resultType="cn.wqk.serverwebsocket.pojo.entity.Message">
+        select id, message, from_name, to_name, send_at
+        from message
+        <where>
+            <if test="id!=null and id!=0">
+                and id=#{id}
+            </if>
+            <if test="message!=null and message!=''">
+                and message like concat('%',#{message},'%')
+            </if>
+            <if test="fromName!=null and fromName!=''">
+                and from_name like concat('%',#{fromName},'%')
+            </if>
+            <if test="toName!=null and toName!=''">
+                and to_name like concat('%',#{toName},'%')
+            </if>
+            <if test="sendAtStart != null  and sendAtEnd != null ">
+                and send_at BETWEEN #{sendAtStart} AND #{sendAtEnd}
             </if>
         </where>
     </select>

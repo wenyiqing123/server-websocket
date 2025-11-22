@@ -5,6 +5,8 @@
         <id property="id" column="id"></id>
         <result property="userName" column="user_name"></result>
         <result property="password" column="password"></result>
+        <result property="path" column="path"></result>
+        <result property="role" column="role"></result>
     </resultMap>
 
     <select id="findByToken" resultMap="User">
@@ -20,8 +22,8 @@
     </select>
 
     <insert id="register">
-        insert into user (phone, username, password)
-        values (#{username}, #{username}, #{password})
+        insert into user (user_name, password, path, role)
+        values (#{userName}, #{password}, #{path}, #{role})
     </insert>
 
     <select id="findByUsername" resultMap="User">
@@ -33,6 +35,11 @@
     <select id="findAllUsers" resultMap="User">
         select *
         from user
+    </select>
+    <select id="getPath" resultType="java.lang.String">
+        select path
+        from user
+        where user_name = #{username}
     </select>
 
 </mapper>

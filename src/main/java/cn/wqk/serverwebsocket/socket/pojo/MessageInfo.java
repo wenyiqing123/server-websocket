@@ -13,5 +13,6 @@ public class MessageInfo {
     private String fromName;
     private String toName;
     private LocalDateTime time;
+//    private int recalled;
 
 }

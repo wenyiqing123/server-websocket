@@ -2,8 +2,10 @@ package cn.wqk.serverwebsocket.socket;
 
 import cn.wqk.serverwebsocket.framework.common.ApplicationHelper;
 import cn.wqk.serverwebsocket.framework.config.WebSocketConfig;
-import cn.wqk.serverwebsocket.framework.exception.ServiceException;
+import cn.wqk.serverwebsocket.pojo.User;
 import cn.wqk.serverwebsocket.service.MessageService;
+import cn.wqk.serverwebsocket.service.UserService;
+import cn.wqk.serverwebsocket.socket.pojo.MessageFull;
 import cn.wqk.serverwebsocket.socket.pojo.MessageInfo;
 import cn.wqk.serverwebsocket.utils.MessageUtils;
 import com.alibaba.fastjson.JSON;
@@ -15,9 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.Date;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -25,8 +25,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Created with IntelliJ IDEA.
  *
- * @Auther: 吴青珂
- * @Date: 2021/05/31/16:16
+ * @Auther: wyq
+ * @Date: 2025/9/28
  * @Description:
  */
 @Component
@@ -34,9 +34,17 @@ import java.util.concurrent.atomic.AtomicInteger;
 @ServerEndpoint(value = "/websocket/{username}", configurator = WebSocketConfig.class) //暴露的ws应用的路径
 public class WebSocket {
     /**
-     * 通过上下文获取实例
+     *
      */
-    private MessageService messageService = (MessageService) ApplicationHelper.getBean("messageService");
+    private static final Map<String, Session> onlineUsers = new ConcurrentHashMap<>();
+    /**
+     * 当前在线客户端数量（线程安全的）
+     */
+    private static AtomicInteger onlineClientNumber = new AtomicInteger(0);
+    /**
+     * 当前在线客户端集合（线程安全的）：以键值对方式存储，key是连接的编号，value是连接的对象
+     */
+    private static Map<String, Session> onlineClientMap = new ConcurrentHashMap<>();
 
     /**
      * 静态注入
@@ -47,21 +55,11 @@ public class WebSocket {
 //    public void setINoticeService(MessageService messageService) {
 //        WebSocket.messageService = messageService;
 //    }
-
-
+    private UserService userService = ApplicationHelper.getBean(UserService.class);
     /**
-     * 当前在线客户端数量（线程安全的）
+     * 通过上下文获取实例
      */
-    private static AtomicInteger onlineClientNumber = new AtomicInteger(0);
-
-    /**
-     * 当前在线客户端集合（线程安全的）：以键值对方式存储，key是连接的编号，value是连接的对象
-     */
-    private static Map<String, Session> onlineClientMap = new ConcurrentHashMap<>();
-    /**
-     *
-     */
-    private static final Map<String, Session> onlineUsers = new ConcurrentHashMap<>();
+    private MessageService messageService = (MessageService) ApplicationHelper.getBean("messageService");
     private HttpSession httpSession;
 
     /**
@@ -75,11 +73,20 @@ public class WebSocket {
         /*
             与当前客户端连接成功时
          */
+        //0.获取token
+        List<String> protocols = session.getRequestParameterMap().get("Sec-WebSocket-Protocol");
+        if (protocols != null && !protocols.isEmpty()) {
+            String token = protocols.get(0);
+            System.out.println("websocketToken = " + token);
+            // 校验 token，决定是否允许连接
+        }
         //1，将session进行保存
         this.httpSession = (HttpSession) config.getUserProperties().get(HttpSession.class.getName());
         onlineUsers.put(username, session);
         //2，广播消息。需要将登陆的所有的用户推送给所有的用户
         String message = MessageUtils.getMessage(true, null, getFriends());
+
+        System.out.println("message = " + message);
         broadcastAllUsers(message);
         onlineClientNumber.incrementAndGet();//在线数+1
         onlineClientMap.put(session.getId(), session);//添加当前连接的session
@@ -138,18 +145,19 @@ public class WebSocket {
             do something for onMessage
             收到来自当前客户端的消息时
          */
+
         MessageInfo messageInfo = JSON.parseObject(message, MessageInfo.class);
-        try {
-            messageService.addMessage(messageInfo);
-        } catch (Exception e) {
-            throw new ServiceException("消息发送失败", 400);
-        }
-        log.info("时间[{}]：来自连接编号为[{}]的消息：[{}]", new Date().toLocaleString(), session.getId(), message);
-        sendAllMessage(message);
+        Integer id = messageService.addMessage(messageInfo);
+        MessageFull messageFull = JSON.parseObject(message, MessageFull.class);
+        messageFull.setId(id);
+        String strmessageFull = JSON.toJSONString(messageFull);
+        log.info("时间[{}]：来自连接编号为[{}]的消息：[{}]", new Date().toLocaleString(), session.getId(), strmessageFull);
+        sendAllMessage(strmessageFull);
     }
 
     //向所有客户端发送消息（广播）
     private void sendAllMessage(String message) {
+
         Set<String> sessionIdSet = onlineClientMap.keySet(); //获得Map的Key的集合
         for (String sessionId : sessionIdSet) { //迭代Key集合
             Session session = onlineClientMap.get(sessionId); //根据Key得到value
@@ -164,7 +172,14 @@ public class WebSocket {
 
     public Set getFriends() {
         Set<String> keys = onlineUsers.keySet();
-        return keys;
+        HashSet<User> users = new HashSet<>();
+        for (String key : keys) {
+            String path = userService.getPath(key);
+            users.add(new User().builder().userName(key).path(path).build());
+
+        }
+        System.out.println("users = " + users);
+        return users;
     }
 
 
@@ -182,5 +197,4 @@ public class WebSocket {
             //记录日志
         }
     }
-
 }

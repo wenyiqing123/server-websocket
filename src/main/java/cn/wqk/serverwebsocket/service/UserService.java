@@ -3,12 +3,11 @@ package cn.wqk.serverwebsocket.service;
 
 import cn.wqk.serverwebsocket.framework.common.Result;
 import cn.wqk.serverwebsocket.pojo.User;
-import jakarta.servlet.http.HttpSession;
 
 import java.util.List;
 
 public interface UserService {
-    Result login(User user, HttpSession session);
+    Result login(User user);
 
     User findByToken(String token);
 
@@ -18,4 +17,8 @@ public interface UserService {
 
 
     List<User> findAllUsers();
+
+    User validateToken(String token);
+
+    String getPath(String username);
 }

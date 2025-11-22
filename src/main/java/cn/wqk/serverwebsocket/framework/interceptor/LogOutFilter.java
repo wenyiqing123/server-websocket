@@ -1,6 +1,5 @@
 package cn.wqk.serverwebsocket.framework.interceptor;
 
-import cn.wqk.serverwebsocket.utils.JWTUtil;
 import cn.wqk.serverwebsocket.utils.RedisUtil;
 import cn.wqk.serverwebsocket.utils.ServletUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -29,7 +28,8 @@ public class LogOutFilter implements HandlerInterceptor {
             return false;
         }
         try {
-            userId = JWTUtil.decodeToken(authorization);
+//            userId = JWTUtil.decodeToken(authorization);
+            userId = 1;
         } catch (Exception e) {
             ServletUtil.renderString(response, "请勿伪造token(解析token失败)", 401);
             return false;

@@ -1,6 +1,7 @@
 package cn.wqk.serverwebsocket;
 
 import lombok.extern.slf4j.Slf4j;
+import org.nd4j.linalg.factory.Nd4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -17,6 +18,7 @@ class ServerWebsocketApplication {
     public static void main(String[] args) {
         SpringApplication.run(ServerWebsocketApplication.class, args);
         System.out.println("当前时间：" + DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(LocalDateTime.now()));
+        System.out.println(Nd4j.getExecutioner().getClass().getSimpleName());
     }
 
     @Bean

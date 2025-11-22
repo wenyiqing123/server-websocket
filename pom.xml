@@ -15,17 +15,55 @@
     <description>Demo project for Spring Boot</description>
     <properties>
         <java.version>17</java.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
     <dependencies>
-        <!--        fastjson-->
+
+        <!-- DL4J 核心 -->
+        <dependency>
+            <groupId>org.deeplearning4j</groupId>
+            <artifactId>deeplearning4j-core</artifactId>
+            <version>1.0.0-M2.1</version>
+        </dependency>
+
+        <!-- ND4J: 数值计算（CPU版本） -->
+        <dependency>
+            <groupId>org.datavec</groupId>
+            <artifactId>datavec-api</artifactId>
+            <version>1.0.0-M2.1</version>
+        </dependency>
+
+        <!-- 图像数据工具 -->
+        <dependency>
+            <groupId>com.microsoft.onnxruntime</groupId>
+            <artifactId>onnxruntime</artifactId>
+            <version>1.18.0</version>
+        </dependency>
+
+
+        <!-- ONNX Runtime Java -->
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
             <version>1.2.83</version>
         </dependency>
+        <!--        fastjson-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jdbc</artifactId>
+        </dependency>
+        <!--        <dependency>-->
+        <!--            <groupId>org.nd4j</groupId>-->
+        <!--            <artifactId>nd4j-native-platform</artifactId>-->
+        <!--            <version>1.0.0-M2.1</version>-->
+        <!--        </dependency>-->
+
+        <dependency>
+            <groupId>org.nd4j</groupId>
+            <artifactId>nd4j-cuda-11.6-platform</artifactId>
+            <!--            <artifactId>nd4j-cuda-11.8-platform</artifactId>-->
+            <version>1.0.0-M2.1</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -37,11 +75,24 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <!--        springsecurity-->
+        <!--        &lt;!&ndash;        springsecurity&ndash;&gt;-->
+        <!--        <dependency>-->
+        <!--            <groupId>org.springframework.boot</groupId>-->
+        <!--            <artifactId>spring-boot-starter-security</artifactId>-->
+        <!--        </dependency>-->
 
+        <!--        springsecurity的passwordencoder-->
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-security</artifactId>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-crypto</artifactId>
+            <version>6.2.1</version> <!-- 与你项目匹配的版本即可 -->
+        </dependency>
+
+        <!--        接口文档knife4j-->
+        <dependency>
+            <groupId>com.github.xiaoymin</groupId>
+            <artifactId>knife4j-openapi3-jakarta-spring-boot-starter</artifactId>
+            <version>4.5.0</version>
         </dependency>
         <!--        jwt-->
         <dependency>
@@ -80,6 +131,13 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-pool2</artifactId>
             <version>2.11.1</version>
+        </dependency>
+
+        <!--        pagehelper-->
+        <dependency>
+            <groupId>com.github.pagehelper</groupId>
+            <artifactId>pagehelper-spring-boot-starter</artifactId>
+            <version>1.4.7</version>
         </dependency>
 
         <!--        日志-->
