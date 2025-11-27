@@ -4,10 +4,10 @@ import cn.wqk.serverwebsocket.framework.annotation.CurrentUser;
 import cn.wqk.serverwebsocket.framework.common.Result;
 import cn.wqk.serverwebsocket.pojo.User;
 import cn.wqk.serverwebsocket.service.UserService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
@@ -20,7 +20,7 @@ import java.util.List;
 @RequestMapping("/user")
 @CrossOrigin
 @Validated
-@Api(value = "用户Controller", tags = {"用户相关接口"})
+@Tag(name = "用户服务", description = "登录")
 public class UserController {
     @Autowired
     private UserService userService;
@@ -29,7 +29,8 @@ public class UserController {
 
     //    @LoginNotRequired
     @GetMapping("/hello")
-    @ApiOperation(value = "测试security放行接口")
+    @Operation(summary = "点击测试security是否放行",
+            description = "测试security放行接口")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "hello")
     })

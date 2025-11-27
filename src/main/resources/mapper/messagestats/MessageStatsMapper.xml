@@ -44,7 +44,6 @@
           AND #{now}
         GROUP BY DATE (m.send_at), m.from_name
         ORDER BY sendAt ASC, messageCount DESC;
-
     </select>
     <select id="getActiveUsersAndMessages" resultType="cn.wqk.serverwebsocket.pojo.vo.UsersAndMessages">
         SELECT
@@ -54,7 +53,6 @@
           AND #{now}
         GROUP BY DATE (send_at)
         ORDER BY DATE (send_at);
-
     </select>
 
 

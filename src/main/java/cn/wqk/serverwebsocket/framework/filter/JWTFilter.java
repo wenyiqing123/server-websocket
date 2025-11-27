@@ -116,6 +116,9 @@ public class JWTFilter extends OncePerRequestFilter {
      */
     private void addCorsHeaders(HttpServletResponse response) {
         response.setHeader("Access-Control-Allow-Origin", "http://localhost:8080");
+//        response.setHeader("Access-Control-Allow-Origin", "http://localhost:8000");
+        //前端打包后的本地运行ip
+//        response.setHeader("Access-Control-Allow-Origin", "http://127.0.0.1:5500");
         response.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS,PATCH"); // ✅ 加上 PATCH
         response.setHeader("Access-Control-Allow-Headers", "Authorization,Content-Type");
         response.setHeader("Access-Control-Allow-Credentials", "true");

@@ -1,46 +1,63 @@
-//package cn.wqk.serverwebsocket.controller;
-//
-//import cn.wqk.serverwebsocket.service.GarbageModelService;
-//import org.springframework.beans.factory.annotation.Value;
-//import org.springframework.web.bind.annotation.*;
-//import org.springframework.web.multipart.MultipartFile;
-//
-//import java.io.File;
-//import java.io.IOException;
-//import java.util.Map;
-//
-//@RestController
-//@CrossOrigin
-//@RequestMapping("/garbage")
-//public class GarbageController {
-//
-//    private final GarbageModelService garbageModelService;
-//
-//    // 构造器注入 PredictService
-//    public GarbageController(@Value("${model.path:model/garbage_classifier.zip}") String modelPath) throws Exception {
-////        this.garbageModelService = new GarbageModelService(modelPath);
-//    }
-//
-//    /**
-//     * 上传图片预测垃圾类别
-//     * @param file 前端上传图片
-//     * @return Map 包含 name(具体垃圾名称) 和 bigCategory(大类)
-//     */
-//    @PostMapping("/predict")
-//    public Map<String, String> predict(@RequestParam("file") MultipartFile file) throws IOException {
-//        // 保存上传的临时文件
-//        File tempFile = File.createTempFile("upload_", ".jpg");
-//        file.transferTo(tempFile);
-//
-//        try {
-//            // 调用预测服务
-////            return garbageModelService.predict(tempFile);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            throw new RuntimeException("预测失败: " + e.getMessage());
-//        } finally {
-//            // 删除临时文件
-//            tempFile.delete();
-//        }
-//    }
-//}
+package cn.wqk.serverwebsocket.controller;
+
+import ai.djl.modality.Classifications;
+import ai.djl.translate.TranslateException;
+import cn.wqk.serverwebsocket.service.GarbageClassifierService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@RestController
+@RequestMapping("/api/classify")
+public class GarbageController {
+
+    @Autowired
+    private GarbageClassifierService garbageClassifierService;
+
+    // POST 请求，接收文件上传
+    // ⭐️ 核心：使用 @Autowired 注入 Service 实例
+    @Autowired
+    private GarbageClassifierService classifierService; // 实例名称与 Service 类名对应
+
+    // POST 请求，接收文件上传
+    @PostMapping(consumes = {"multipart/form-data"})
+    public ResponseEntity<?> predictImage(@RequestParam("file") MultipartFile file) {
+        String localImagePath = "dataset/train/儿童玩具/img_8270.jpg";
+        File fileToTest = new File(localImagePath);
+        if (file.isEmpty()) {
+            return ResponseEntity.badRequest().body("上传文件不能为空。");
+        }
+
+        try {
+            byte[] bytes = file.getBytes();
+            Path path = fileToTest.toPath();
+            byte[] imageBytes = Files.readAllBytes(path);
+
+
+            // ⭐️ 调用 Service 中的 predict 方法
+            Classifications classifications = classifierService.predict(bytes);
+
+            // 格式化输出 (只显示 Top 5 结果)
+            List<String> results = classifications.topK(5).stream()
+                    .map(item -> String.format("%s: %.2f%%", item.getClassName(), item.getProbability() * 100))
+                    .collect(Collectors.toList());
+
+            return ResponseEntity.ok(results);
+
+        } catch (IOException | TranslateException e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body("模型推理失败：" + e.getMessage());
+        }
+    }
+}
