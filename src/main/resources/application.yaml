@@ -1,5 +1,4 @@
 spring:
-
   web:
     resources:
       static-locations:
@@ -7,35 +6,26 @@ spring:
   servlet:
     multipart:
       max-file-size: 10MB
-
-
-
   # ===========================
   # SpringDoc-OpenAPI 配置示例
   # ===========================
-
   springdoc:
     swagger-ui:
       # 自定义 Swagger 前端访问路径。
       # 例如访问 http://localhost:8000/swagger-ui
       # 会自动重定向到 Swagger 可视化页面。
       path: /doc.html
-
       # 对标签 (tags) 进行排序，alpha 表示按字母顺序排序。
       tags-sorter: alpha
-
       # 对接口 (operations) 进行排序，alpha 表示按字母顺序排序。
       operations-sorter: alpha
-
     api-docs:
       # Swagger/OpenAPI 的后端文档请求地址。
       # 通常用于前端 Swagger-UI 获取接口定义。
       path: /v3/api-docs
-
       # 是否启用接口文档功能。
       # 设置为 false 可在生产环境关闭接口文档。
       enabled: true
-
     group-configs:
       # -------- 分组配置开始 --------
       # 当项目接口较多或模块化较强时，
@@ -46,12 +36,6 @@ spring:
       # - group: 'admin-api'           # （示例）另一个分组，可按需启用
       #   paths-to-match: '/admin/**'  # 仅扫描 /admin 路径下的接口
       #   packages-to-scan: com.example.newtest.admin  # 扫描 admin 模块包
-
-
-
-
-
-
     mvc:
     pathmatch:
       matching-strategy: ant_path_matcher

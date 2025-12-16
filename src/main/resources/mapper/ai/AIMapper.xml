@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.wqk.serverwebsocket.mapper.AIMapper">
+
+    <resultMap id="Conversation" type="cn.wqk.serverwebsocket.pojo.entity.Conversation">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="DATE"/>
+        <result column="update_time" property="updateTime" jdbcType="DATE"/>
+        <result column="user_name" property="userName" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <resultMap id="ConversationMessage" type="cn.wqk.serverwebsocket.pojo.entity.ConversationMessage">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="conversation_id" property="conversationId" jdbcType="INTEGER"/>
+        <result column="content" property="content" jdbcType="VARCHAR"/>
+        <result column="role" property="role" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <select id="findAllConversations" resultMap="Conversation">
+        SELECT id, name, create_time, update_time, user_name
+        FROM conversation
+        ORDER BY update_time DESC
+    </select>
+
+    <insert id="insertConversation" parameterType="cn.wqk.serverwebsocket.pojo.entity.Conversation"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO conversation (name, create_time, update_time, user_name)
+        VALUES (#{name}, #{createTime}, #{updateTime}, #{userName})
+    </insert>
+
+    <update id="updateConversationUpdateTime" parameterType="cn.wqk.serverwebsocket.pojo.entity.Conversation">
+        UPDATE conversation
+        SET update_time = #{updateTime}
+        WHERE id = #{id}
+    </update>
+
+    <select id="selectMessagesByConversationId" resultMap="ConversationMessage">
+        SELECT id, conversation_id, content, role
+        FROM conversation_message
+        WHERE conversation_id = #{conversationId}
+        ORDER BY id ASC
+    </select>
+
+    <insert id="insertMessage" parameterType="cn.wqk.serverwebsocket.pojo.entity.ConversationMessage">
+        INSERT INTO conversation_message (conversation_id, content, role)
+        VALUES (#{conversationId}, #{content}, #{role})
+    </insert>
+
+</mapper>
