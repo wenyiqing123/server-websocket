@@ -48,7 +48,7 @@ public class MessageController {
     }
 
 
-    @GetMapping("/list")
+    @GetMapping("/list")                //以requestParam的形式传递参数，后端以对象形式接收
     public PageResult<List<Message>> list(@ParameterObject MessageQueryDTO messageQueryDTO) {
         PageResult<List<Message>> pageResult = messageService.pageQuery(messageQueryDTO);
         return pageResult;

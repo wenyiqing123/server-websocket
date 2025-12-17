@@ -87,13 +87,12 @@ public class AIServiceImpl implements AIService {
      * 保存【AI】返回的回复消息到数据库
      */
     @Override
-    public void saveAIMessage(ConversationMessage aiMessage) {
-        if (aiMessage.getConversationId() == null || aiMessage.getContent() == null) {
+    public void saveConversationMessage(ConversationMessage conversationMessage) {
+        if (conversationMessage.getConversationId() == null || conversationMessage.getContent() == null) {
             return;
         }
-
         // 强制设置为 AI 角色 (Role = 2)
-        aiMessage.setRole(2);
-        aiMapper.insertMessage(aiMessage); // 使用 AiMapper 插入消息
+//        conversationMessage.setRole(2);
+        aiMapper.insertMessage(conversationMessage); // 使用 AiMapper 插入消息
     }
 }

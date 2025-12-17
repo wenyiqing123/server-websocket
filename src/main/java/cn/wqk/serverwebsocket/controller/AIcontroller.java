@@ -7,6 +7,7 @@ import cn.wqk.serverwebsocket.pojo.entity.ConversationMessage;
 import cn.wqk.serverwebsocket.service.AIService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,11 +38,12 @@ public class AIcontroller {
     }
 
     // 3. 核心功能：发送消息
-//    @PostMapping("/send")
-//    public AjaxResult<String> sendMessage(@RequestBody ChatRequestDto request) {
-//        // 逻辑较复杂，详见 Service 层说明
-//        return aiService.chat(request);
-//    }
+    @PostMapping("/send")
+    public AjaxResult<Void> sendMessage(@ParameterObject ConversationMessage conversationMessage) {
+        // 逻辑较复杂，详见 Service 层说明
+        aiService.saveConversationMessage(conversationMessage);
+        return AjaxResult.success();
+    }
 
     // 4. 开启新对话
     @PostMapping("/new")
@@ -57,11 +59,5 @@ public class AIcontroller {
         return AjaxResult.success("用户消息存储成功");
     }
 
-    // 4. 新增：前端调用AI后，将AI的回复发回后端存储
-    @PostMapping("/send/ai")
-    public AjaxResult<String> saveAIMessage(@RequestBody ConversationMessage aiMessage) {
-        // 后端只负责存储AI回复
-        aiService.saveAIMessage(aiMessage);
-        return AjaxResult.success("AI消息存储成功");
-    }
+
 }

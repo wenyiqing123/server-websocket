@@ -49,11 +49,9 @@ public interface AIService {
     void saveUserMessage(ChatRequestDto request);
 
     /**
-     * 保存【AI】返回的回复消息到数据库。
-     * 这个接口由前端在调用 AI 接口成功后，将 AI 的回复传回后端进行存储。
-     * 对应 Controller: @PostMapping("/send/ai")
+     * 保存消息
      *
-     * @param aiMessage 包含 conversationId, content 和 role(2) 的消息实体
+     * @param conversationMessage
      */
-    void saveAIMessage(ConversationMessage aiMessage);
+    void saveConversationMessage(ConversationMessage conversationMessage);
 }

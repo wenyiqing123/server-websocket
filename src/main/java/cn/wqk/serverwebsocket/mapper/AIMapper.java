@@ -58,8 +58,8 @@ public interface AIMapper {
      * 插入一条新消息（用户消息或 AI 消息）。
      * 对应 AiMapper.xml 中的 insertMessage
      *
-     * @param message 要插入的消息实体
+     * @param conversationMessage 要插入的消息实体
      * @return 影响的行数
      */
-    int insertMessage(ConversationMessage message);
+    int insertMessage(ConversationMessage conversationMessage);
 }
