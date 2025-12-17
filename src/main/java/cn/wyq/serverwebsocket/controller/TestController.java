@@ -4,6 +4,8 @@ import cn.wyq.serverwebsocket.framework.common.Result;
 import cn.wyq.serverwebsocket.framework.exception.ServiceException;
 import cn.wyq.serverwebsocket.pojo.Test;
 import cn.wyq.serverwebsocket.pojo.User;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +33,7 @@ import java.util.List;
 @Validated
 @RequiredArgsConstructor
 @Slf4j
+@Tag(name = "测试接口")
 public class TestController {
     private final RestTemplate restTemplate;
 
@@ -40,6 +43,7 @@ public class TestController {
      * @return
      */
     @GetMapping("/remoteProcedureCall")
+    @Operation(summary = "远程调用/user/users")
     public Result test() throws IllegalAccessException {
         // 使用 resttemplate 发送 http 请求获取 response
         ResponseEntity<Result> response = restTemplate.exchange(
@@ -93,6 +97,7 @@ public class TestController {
     }
 
     @GetMapping("/reflect")
+    @Operation(summary = "反射测试")
     public void reflect() {
         User user = new User();
         log.info("user.getClass().getSuperclass()", user.getClass().getSuperclass());
@@ -105,6 +110,7 @@ public class TestController {
 
 
     @GetMapping("/stream-message")
+    @Operation(summary = "流式返回文本")
     public void streamText(HttpServletResponse response) throws IOException, InterruptedException {
         response.setContentType("text/event-stream"); // SSE
         response.setCharacterEncoding("UTF-8");

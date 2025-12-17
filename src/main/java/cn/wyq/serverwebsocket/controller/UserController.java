@@ -7,6 +7,8 @@ import cn.wyq.serverwebsocket.service.UserService;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.extensions.Extension;
+import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,8 +22,12 @@ import java.util.List;
 @RequestMapping("/user")
 @CrossOrigin
 @Validated
+@Tag(name = "用户服务", description = "登录", extensions = {
+        @Extension(properties = {
+                @ExtensionProperty(name = "x-order", value = "1")
+        })
+})
 
-@Tag(name = "用户服务", description = "登录")
 public class UserController {
     @Autowired
     private UserService userService;
@@ -49,8 +55,15 @@ public class UserController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, response = User.class, message = "")
     })
-    @Operation(summary = "用户登录",
-            description = "用户登录接口")
+    @Operation(
+            summary = "用户登录",
+            description = "用户登录接口",
+            extensions = {
+            @Extension(
+                    properties = {
+                    @ExtensionProperty(name = "x-order", value = "1")
+            })
+    })
     @PostMapping("/login")
     public Result login(@RequestBody User user) {
         System.out.println("user = " + user);
