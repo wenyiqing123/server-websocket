@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="cn.wqk.serverwebsocket.mapper.AIMapper">
+<mapper namespace="cn.wyq.serverwebsocket.mapper.AIMapper">
 
-    <resultMap id="Conversation" type="cn.wqk.serverwebsocket.pojo.entity.Conversation">
+    <resultMap id="Conversation" type="cn.wyq.serverwebsocket.pojo.entity.Conversation">
         <id column="id" property="id" jdbcType="INTEGER"/>
         <result column="name" property="name" jdbcType="VARCHAR"/>
         <result column="create_time" property="createTime" jdbcType="DATE"/>
@@ -10,7 +10,7 @@
         <result column="user_name" property="userName" jdbcType="VARCHAR"/>
     </resultMap>
 
-    <resultMap id="ConversationMessage" type="cn.wqk.serverwebsocket.pojo.entity.ConversationMessage">
+    <resultMap id="ConversationMessage" type="cn.wyq.serverwebsocket.pojo.entity.ConversationMessage">
         <id column="id" property="id" jdbcType="INTEGER"/>
         <result column="conversation_id" property="conversationId" jdbcType="INTEGER"/>
         <result column="content" property="content" jdbcType="VARCHAR"/>
@@ -23,13 +23,13 @@
         ORDER BY update_time DESC
     </select>
 
-    <insert id="insertConversation" parameterType="cn.wqk.serverwebsocket.pojo.entity.Conversation"
+    <insert id="insertConversation" parameterType="cn.wyq.serverwebsocket.pojo.entity.Conversation"
             useGeneratedKeys="true" keyProperty="id">
         INSERT INTO conversation (name, create_time, update_time, user_name)
         VALUES (#{name}, #{createTime}, #{updateTime}, #{userName})
     </insert>
 
-    <update id="updateConversationUpdateTime" parameterType="cn.wqk.serverwebsocket.pojo.entity.Conversation">
+    <update id="updateConversationUpdateTime" parameterType="cn.wyq.serverwebsocket.pojo.entity.Conversation">
         UPDATE conversation
         SET update_time = #{updateTime}
         WHERE id = #{id}
@@ -42,7 +42,7 @@
         ORDER BY id ASC
     </select>
 
-    <insert id="insertMessage" parameterType="cn.wqk.serverwebsocket.pojo.entity.ConversationMessage">
+    <insert id="insertMessage" parameterType="cn.wyq.serverwebsocket.pojo.entity.ConversationMessage">
         INSERT INTO conversation_message (conversation_id, content, role)
         VALUES (#{conversationId}, #{content}, #{role})
     </insert>

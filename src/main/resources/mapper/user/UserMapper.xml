@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="cn.wqk.serverwebsocket.mapper.UserMapper">
-    <resultMap id="User" type="cn.wqk.serverwebsocket.pojo.User">
+<mapper namespace="cn.wyq.serverwebsocket.mapper.UserMapper">
+    <resultMap id="User" type="cn.wyq.serverwebsocket.pojo.User">
         <id property="id" column="id"></id>
         <result property="userName" column="user_name"></result>
         <result property="password" column="password"></result>

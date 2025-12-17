@@ -1,0 +1,28 @@
+package cn.wyq.serverwebsocket;
+
+import lombok.extern.slf4j.Slf4j;
+import org.nd4j.linalg.factory.Nd4j;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.web.client.RestTemplate;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
+@SpringBootApplication
+@ComponentScan("cn.wyq.serverwebsocket.*")
+@Slf4j
+class ServerWebsocketApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(ServerWebsocketApplication.class, args);
+        System.out.println("当前时间：" + DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(LocalDateTime.now()));
+        System.out.println(Nd4j.getExecutioner().getClass().getSimpleName());
+    }
+
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
+}

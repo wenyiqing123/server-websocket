@@ -8,7 +8,7 @@
         <version>3.2.1</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>cn.wqk</groupId>
+    <groupId>cn.wyq</groupId>
     <artifactId>server-websocket</artifactId>
     <version>0.0.1</version>
     <name>server-websocket</name>

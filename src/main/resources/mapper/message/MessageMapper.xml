@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="cn.wqk.serverwebsocket.mapper.MessageMapper">
-    <resultMap id="MessageInfo" type="cn.wqk.serverwebsocket.socket.pojo.MessageInfo">
+<mapper namespace="cn.wyq.serverwebsocket.mapper.MessageMapper">
+    <resultMap id="MessageInfo" type="cn.wyq.serverwebsocket.socket.pojo.MessageInfo">
         <id property="id" column="id"/>
         <result property="message" column="message"/>
         <result property="fromName" column="from_name"/>
@@ -9,16 +9,15 @@
         <result property="time" column="send_time"/>
         <result property="recalled" column="recalled"/>
     </resultMap>
-    <resultMap id="MessageFull" type="cn.wqk.serverwebsocket.pojo.entity.Message">
+    <resultMap id="MessageFull" type="cn.wyq.serverwebsocket.pojo.entity.Message">
         <id property="id" column="id"/>
         <result property="message" column="message"/>
         <result property="fromName" column="from_name"/>
         <result property="toName" column="to_name"/>
         <result property="sendAt" column="send_at"/>
-        <!--        <result property="time" column="send_time"/>-->
     </resultMap>
 
-    <insert id="addMessage" parameterType="cn.wqk.serverwebsocket.socket.pojo.MessageInfo" useGeneratedKeys="true"
+    <insert id="addMessage" parameterType="cn.wyq.serverwebsocket.socket.pojo.MessageInfo" useGeneratedKeys="true"
             keyProperty="id">
         insert into message (message, from_name, to_name, send_at)
         values (#{message}, #{fromName}, #{toName}, #{time});
@@ -40,7 +39,7 @@
         </where>
     </select>
 
-    <select id="pageQuery" resultType="cn.wqk.serverwebsocket.pojo.entity.Message">
+    <select id="pageQuery" resultType="cn.wyq.serverwebsocket.pojo.entity.Message">
         select id, message, from_name, to_name, send_at
         from message
         <where>

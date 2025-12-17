@@ -32,7 +32,7 @@ spring:
       # 可以通过分组来分别展示不同模块的接口文档。
       - group: 'default'              # 分组名称（默认组）
         paths-to-match: '/**'         # 匹配的接口路径（支持通配符）
-        packages-to-scan: cn.wqk.serverwebsocket   # 要扫描的包路径，一般为启动类所在包
+        packages-to-scan: cn.wyq.serverwebsocket   # 要扫描的包路径，一般为启动类所在包
       # - group: 'admin-api'           # （示例）另一个分组，可按需启用
       #   paths-to-match: '/admin/**'  # 仅扫描 /admin 路径下的接口
       #   packages-to-scan: com.example.newtest.admin  # 扫描 admin 模块包

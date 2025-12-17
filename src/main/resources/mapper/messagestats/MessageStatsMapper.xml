@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="cn.wqk.serverwebsocket.mapper.MessageStatsMapper">
-    <resultMap id="ActiveUsersAndMessageCount" type="cn.wqk.serverwebsocket.pojo.vo.ActiveUsersAndMessageCount">
+<mapper namespace="cn.wyq.serverwebsocket.mapper.MessageStatsMapper">
+    <resultMap id="ActiveUsersAndMessageCount" type="cn.wyq.serverwebsocket.pojo.vo.ActiveUsersAndMessageCount">
         <result property="userName" column="userName"/>
         <result property="messageCount" column="messageCount"/>
         <result property="path" column="path"/>
     </resultMap>
     <resultMap id="RencetSevenDayUsersAndMessageCount"
-               type="cn.wqk.serverwebsocket.pojo.vo.RencetSevenDayUsersAndMessageCount">
+               type="cn.wyq.serverwebsocket.pojo.vo.RencetSevenDayUsersAndMessageCount">
         <result property="sendAt" column="sendAt"/>
         <result property="userName" column="userName"/>
         <result property="messageCount" column="messageCount"/>
     </resultMap>
     <resultMap id="UsersAndMessages"
-               type="cn.wqk.serverwebsocket.pojo.vo.UsersAndMessages">
+               type="cn.wyq.serverwebsocket.pojo.vo.UsersAndMessages">
         <result property="sendAt" column="sendAt"/>
         <result property="userCount" column="userCount"/>
         <result property="messageCount" column="messageCount"/>
@@ -21,12 +21,10 @@
 
     <select id="getTodayActiveUsersAndMessageCount"
             resultMap="ActiveUsersAndMessageCount">
-        --         as需要对应result的column
         SELECT m.from_name AS userName,
                COUNT(m.id) AS messageCount,
                u.path      AS path
         FROM user u
---             inner join 相当于取交集
                  Inner JOIN message m
                             ON m.from_name = u.user_name
                                 AND m.send_at BETWEEN #{sendAtStart} AND #{sendAtEnd}
@@ -35,19 +33,18 @@
     </select>
 
     <select id="getRencetSevenDayUsersAndMessageCount"
-            resultType="cn.wqk.serverwebsocket.pojo.vo.RencetSevenDayUsersAndMessageCount">
-        --         as需要对应result的column
+            resultType="cn.wyq.serverwebsocket.pojo.vo.RencetSevenDayUsersAndMessageCount">
         SELECT
-            DATE (m.send_at) AS sendAt, m.from_name AS userName, COUNT (m.id) AS messageCount
+            DATE (m.send_at) AS sendAt, m.from_name AS userName, COUNT(m.id) AS messageCount
         FROM message m
         WHERE m.send_at BETWEEN #{minus}
           AND #{now}
         GROUP BY DATE (m.send_at), m.from_name
         ORDER BY sendAt ASC, messageCount DESC;
     </select>
-    <select id="getActiveUsersAndMessages" resultType="cn.wqk.serverwebsocket.pojo.vo.UsersAndMessages">
+    <select id="getActiveUsersAndMessages" resultType="cn.wyq.serverwebsocket.pojo.vo.UsersAndMessages">
         SELECT
-            DATE (send_at) AS sendAt, COUNT (*) AS messageCount, COUNT (DISTINCT from_name) AS userCount
+            DATE (send_at) AS sendAt, COUNT(*) AS messageCount, COUNT(DISTINCT from_name) AS userCount
         FROM message
         WHERE send_at BETWEEN #{minus}
           AND #{now}

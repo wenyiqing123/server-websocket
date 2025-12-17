@@ -27,7 +27,7 @@
             <!--            <AppenderRef ref="RollingRandomAccessFile" />-->
         </Root>
         <!--        name需要指向实际的dao包或者mapper包-->
-        <Logger name="cn.wqk.serverwebsocket.mapper" level="debug" additivity="false">
+        <Logger name="cn.wyq.serverwebsocket.mapper" level="debug" additivity="false">
             <AppenderRef ref="Console"/>
         </Logger>
     </Loggers>
