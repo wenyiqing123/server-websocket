@@ -1,6 +1,7 @@
 package cn.wyq.serverwebsocket.service;
 
 import cn.wyq.serverwebsocket.pojo.dto.ChatRequestDto;
+import cn.wyq.serverwebsocket.pojo.dto.ConversationMessageDTO;
 import cn.wyq.serverwebsocket.pojo.entity.Conversation;
 import cn.wyq.serverwebsocket.pojo.entity.ConversationMessage;
 
@@ -51,7 +52,7 @@ public interface AIService {
     /**
      * 保存消息
      *
-     * @param conversationMessage
+     * @param conversationMessageDTO
      */
-    void saveConversationMessage(ConversationMessage conversationMessage);
+    void saveConversationMessage(ConversationMessageDTO conversationMessageDTO);
 }

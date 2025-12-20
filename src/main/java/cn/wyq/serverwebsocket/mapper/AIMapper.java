@@ -1,5 +1,6 @@
 package cn.wyq.serverwebsocket.mapper;
 
+import cn.wyq.serverwebsocket.pojo.dto.ConversationMessageDTO;
 import cn.wyq.serverwebsocket.pojo.entity.Conversation;
 import cn.wyq.serverwebsocket.pojo.entity.ConversationMessage;
 import org.apache.ibatis.annotations.Mapper;
@@ -61,5 +62,5 @@ public interface AIMapper {
      * @param conversationMessage 要插入的消息实体
      * @return 影响的行数
      */
-    int insertMessage(ConversationMessage conversationMessage);
+    int insertMessage(ConversationMessageDTO conversationMessage);
 }

@@ -55,5 +55,33 @@ public class AjaxResult<T> implements Serializable {
     public static <T> AjaxResult<T> error() {
         return error(ResultConstant.DefaultEroor, ResultConstant.DefaultEroor_MSG, null);
     }
+    /**
+     * 响应返回结果
+     * * @param rows 影响行数
+     * @return 操作结果
+     */
+    public static <T> AjaxResult<T> toAjax(int rows) {
+        return rows > 0 ? AjaxResult.success() : AjaxResult.error();
+    }
+
+    /**
+     * 响应返回结果（带自定义错误消息）
+     *
+     * @param rows 影响行数
+     * @param errorMsg 失败时的错误提示
+     * @return 操作结果
+     */
+    public static <T> AjaxResult<T> toAjax(int rows, String errorMsg) {
+        return rows > 0 ? AjaxResult.success() : AjaxResult.error(errorMsg);
+    }
+
+    /**
+     * 响应返回结果（布尔值形式）
+     * * @param result 是否成功
+     * @return 操作结果
+     */
+    public static <T> AjaxResult<T> toAjax(boolean result) {
+        return result ? AjaxResult.success() : AjaxResult.error();
+    }
 
 }

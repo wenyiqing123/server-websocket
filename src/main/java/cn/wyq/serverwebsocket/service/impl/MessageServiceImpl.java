@@ -78,11 +78,9 @@ public class MessageServiceImpl implements MessageService {
         PageHelper.startPage(messageQueryDTO.getPage(), messageQueryDTO.getPageSize());
         //执行查询逻辑，获取分页结果集，使用pagehelper内置的page对象接收结果集
         Page<Message> page = messageMapper.pageQuery(messageQueryDTO);
-        System.out.println("page = " + page);
         //从page对象钟获取total和list
         long total = page.getTotal();
         List<Message> result = page.getResult();
-        System.out.println("result = " + result);
         //封装返回结果集
         return PageResult.success(total, result);
     }

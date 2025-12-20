@@ -2,6 +2,7 @@ package cn.wyq.serverwebsocket.service.impl;
 
 import cn.wyq.serverwebsocket.mapper.AIMapper;
 import cn.wyq.serverwebsocket.pojo.dto.ChatRequestDto;
+import cn.wyq.serverwebsocket.pojo.dto.ConversationMessageDTO;
 import cn.wyq.serverwebsocket.pojo.entity.Conversation;
 import cn.wyq.serverwebsocket.pojo.entity.ConversationMessage;
 import cn.wyq.serverwebsocket.service.AIService;
@@ -74,7 +75,7 @@ public class AIServiceImpl implements AIService {
         userMsg.setConversationId(request.getConversationId());
         userMsg.setContent(request.getContent());
         userMsg.setRole(1); // 1 代表用户
-        aiMapper.insertMessage(userMsg); // 使用 AiMapper 插入消息
+//        aiMapper.insertMessage(userMsg); // 使用 AiMapper 插入消息
 
         // 2. 更新对话的 update_time
         Conversation conversation = new Conversation();
@@ -87,12 +88,12 @@ public class AIServiceImpl implements AIService {
      * 保存【AI】返回的回复消息到数据库
      */
     @Override
-    public void saveConversationMessage(ConversationMessage conversationMessage) {
-        if (conversationMessage.getConversationId() == null || conversationMessage.getContent() == null) {
+    public void saveConversationMessage(ConversationMessageDTO conversationMessageDTO) {
+        if (conversationMessageDTO.getConversationId() == 0 || conversationMessageDTO.getContent() == null) {
             return;
         }
         // 强制设置为 AI 角色 (Role = 2)
 //        conversationMessage.setRole(2);
-        aiMapper.insertMessage(conversationMessage); // 使用 AiMapper 插入消息
+        aiMapper.insertMessage(conversationMessageDTO); // 使用 AiMapper 插入消息
     }
 }

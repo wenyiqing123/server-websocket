@@ -2,12 +2,12 @@ package cn.wyq.serverwebsocket.controller;
 
 import cn.wyq.serverwebsocket.framework.common.AjaxResult;
 import cn.wyq.serverwebsocket.pojo.dto.ChatRequestDto;
+import cn.wyq.serverwebsocket.pojo.dto.ConversationMessageDTO;
 import cn.wyq.serverwebsocket.pojo.entity.Conversation;
 import cn.wyq.serverwebsocket.pojo.entity.ConversationMessage;
 import cn.wyq.serverwebsocket.service.AIService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,12 +40,13 @@ public class AIcontroller {
     }
 
     // 3. 核心功能：发送消息
+
+    @PostMapping("/send")
     @Operation(summary = "发送消息",
             description = "发送消息到AI模型，返回模型回复")
-    @PostMapping("/send")
-    public AjaxResult<Void> sendMessage(@ParameterObject ConversationMessage conversationMessage) {
+    public AjaxResult<Void> sendMessage(@RequestBody ConversationMessageDTO conversationMessageDTO) {
         // 逻辑较复杂，详见 Service 层说明
-        aiService.saveConversationMessage(conversationMessage);
+        aiService.saveConversationMessage(conversationMessageDTO);
         return AjaxResult.success();
     }
 

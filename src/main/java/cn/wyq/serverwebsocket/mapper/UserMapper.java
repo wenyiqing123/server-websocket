@@ -2,6 +2,9 @@ package cn.wyq.serverwebsocket.mapper;
 
 
 import cn.wyq.serverwebsocket.pojo.User;
+import cn.wyq.serverwebsocket.pojo.dto.UserQueryDTO;
+import cn.wyq.serverwebsocket.pojo.entity.UserEntity;
+import com.github.pagehelper.Page;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
@@ -9,11 +12,19 @@ import java.util.List;
 
 @Mapper
 public interface UserMapper {
+    // 查询所有
+    Page<UserEntity> selectAllUsers(UserQueryDTO userQueryDTO);
+
+    // 删除
+    int deleteById(Integer id);
+
+    // 动态修改
+    int updateUser(UserEntity user);
     @Select("select path from user where user_name=#{username}")
     String getStatusAndPathByUserName(String username);
 
     //登录
-    @Select("select * from user where user_name=#{userName}")
+
     User login(User user);
 
     //通过token查询用户

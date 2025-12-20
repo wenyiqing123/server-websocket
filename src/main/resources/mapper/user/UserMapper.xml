@@ -8,6 +8,58 @@
         <result property="path" column="path"></result>
         <result property="role" column="role"></result>
     </resultMap>
+    <resultMap id="UserResultMap" type="cn.wyq.serverwebsocket.pojo.entity.UserEntity">
+        <id property="id" column="id" />
+        <result property="userName" column="user_name" />
+        <result property="password" column="password" />
+        <result property="path" column="path" />
+        <result property="role" column="role" />
+    </resultMap>
+    <select id="login" parameterType="cn.wyq.serverwebsocket.pojo.User" resultMap="User">
+        select *
+        from user
+        where user_name = #{userName}
+    </select>
+
+    <select id="selectAllUsers" resultMap="UserResultMap">
+        SELECT id, user_name, password, path, role
+        FROM user
+        <where>
+            <if test="id!=null and id!=''">
+                id = #{id}
+            </if>
+            <if test="userName!=null and userName!=''">
+                user_name like concat('%',#{userName},'%')
+            </if>
+            <if test="role!=null and role!=''">
+                role = #{role}
+            </if>
+        </where>
+        ORDER BY id DESC
+    </select>
+
+    <delete id="deleteById">
+        DELETE FROM user WHERE id = #{id}
+    </delete>
+
+    <update id="updateUser" parameterType="cn.wyq.serverwebsocket.pojo.entity.UserEntity">
+        UPDATE user
+        <set>
+            <if test="userName != null and userName != ''">
+                user_name = #{userName},
+            </if>
+            <if test="password != null and password != ''">
+                password = #{password},
+            </if>
+            <if test="path != null">
+                path = #{path},
+            </if>
+            <if test="role != null">
+                role = #{role},
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
 
     <select id="findByToken" resultMap="User">
         select *

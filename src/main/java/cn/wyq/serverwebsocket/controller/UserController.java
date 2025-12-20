@@ -1,8 +1,12 @@
 package cn.wyq.serverwebsocket.controller;
 
 import cn.wyq.serverwebsocket.framework.annotation.CurrentUser;
+import cn.wyq.serverwebsocket.framework.common.AjaxResult;
+import cn.wyq.serverwebsocket.framework.common.PageResult;
 import cn.wyq.serverwebsocket.framework.common.Result;
 import cn.wyq.serverwebsocket.pojo.User;
+import cn.wyq.serverwebsocket.pojo.dto.UserQueryDTO;
+import cn.wyq.serverwebsocket.pojo.entity.UserEntity;
 import cn.wyq.serverwebsocket.service.UserService;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -10,6 +14,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.extensions.Extension;
 import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
@@ -59,11 +64,11 @@ public class UserController {
             summary = "用户登录",
             description = "用户登录接口",
             extensions = {
-            @Extension(
-                    properties = {
-                    @ExtensionProperty(name = "x-order", value = "1")
+                    @Extension(
+                            properties = {
+                                    @ExtensionProperty(name = "x-order", value = "1")
+                            })
             })
-    })
     @PostMapping("/login")
     public Result login(@RequestBody User user) {
         System.out.println("user = " + user);
@@ -127,5 +132,38 @@ public class UserController {
         System.out.println("username = " + username);
         String path = userService.getPath(username);
         return Result.success(path);
+    }
+
+
+    /**
+     * 删除用户
+     */
+    @DeleteMapping("/{id}")
+    @Operation(summary = "删除用户", description = "根据ID物理删除用户")
+    public AjaxResult<Void> deleteUser(@PathVariable Integer id) {
+        int result = userService.deleteUserById(id); // 请在 service 中实现该方法
+        return AjaxResult.toAjax(result);
+    }
+
+    /**
+     * 修改用户信息
+     */
+    @PutMapping("/update")
+    @Operation(summary = "修改用户", description = "支持修改用户名、权限和头像路径")
+    public AjaxResult<Void> updateUser(@RequestBody UserEntity user) {
+        // 如果修改了密码，需要重新加密
+        if (user.getPassword() != null && !user.getPassword().isEmpty()) {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+        }
+        int result = userService.updateUser(user); // 请在 service 中实现该方法
+        return AjaxResult.toAjax(result);
+    }
+
+    @GetMapping("/list")
+    @Operation(summary = "查询所有用户",
+            description = "查询所有用户接口")
+    public PageResult<List<UserEntity>> Userlist(@ParameterObject UserQueryDTO userQueryDTO) {
+        System.out.println("userQueryDTO = " + userQueryDTO);
+        return userService.userList(userQueryDTO);
     }
 }

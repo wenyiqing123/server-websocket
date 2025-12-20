@@ -118,7 +118,9 @@ public class JWTFilter extends OncePerRequestFilter {
         // 3.5. 校验通过，存入 request 属性
         String username = JWTUtil.getUsername(token);
         request.setAttribute("userId", userId);
+        System.out.println("userId = " + userId);
         request.setAttribute("username", username);
+        System.out.println("username = " + username);
         log.info("JWT check passed for User: {} (ID: {}) on URI: {}", username, userId, uri);
 
 

@@ -42,7 +42,7 @@
         ORDER BY id ASC
     </select>
 
-    <insert id="insertMessage" parameterType="cn.wyq.serverwebsocket.pojo.entity.ConversationMessage">
+    <insert id="insertMessage" parameterType="cn.wyq.serverwebsocket.pojo.dto.ConversationMessageDTO">
         INSERT INTO conversation_message (conversation_id, content, role)
         VALUES (#{conversationId}, #{content}, #{role})
     </insert>

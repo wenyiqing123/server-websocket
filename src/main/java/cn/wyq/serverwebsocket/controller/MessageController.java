@@ -59,8 +59,7 @@ public class MessageController {
     @Operation(summary = "分页查询消息",
             description = "根据分页查询条件分页查询消息，返回消息列表")
     public PageResult<List<Message>> list(@ParameterObject MessageQueryDTO messageQueryDTO) {
-        PageResult<List<Message>> pageResult = messageService.pageQuery(messageQueryDTO);
-        return pageResult;
+        return messageService.pageQuery(messageQueryDTO);
     }
 
     @DeleteMapping("/{id}")

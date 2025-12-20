@@ -1,12 +1,19 @@
 package cn.wyq.serverwebsocket.service.impl;
 
+import cn.wyq.serverwebsocket.framework.common.PageResult;
 import cn.wyq.serverwebsocket.framework.common.Result;
 import cn.wyq.serverwebsocket.framework.exception.ServiceException;
 import cn.wyq.serverwebsocket.mapper.UserMapper;
 import cn.wyq.serverwebsocket.pojo.User;
+import cn.wyq.serverwebsocket.pojo.dto.UserQueryDTO;
+import cn.wyq.serverwebsocket.pojo.entity.UserEntity;
+import cn.wyq.serverwebsocket.pojo.vo.UserVo;
 import cn.wyq.serverwebsocket.service.UserService;
 import cn.wyq.serverwebsocket.utils.JWTUtil;
 import cn.wyq.serverwebsocket.utils.RedisUtil;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -23,28 +30,37 @@ public class UserServiceImpl implements UserService {
 //    @Autowired
 //    private AuthenticationManager authenticationManager;
 
+
+    @Override
+    public PageResult<List<UserEntity>> userList(UserQueryDTO userQueryDTO) {
+        PageHelper.startPage(userQueryDTO.getPage(), userQueryDTO.getPageSize());
+        Page<UserEntity> page = userMapper.selectAllUsers(userQueryDTO);
+        long total = page.getTotal();
+        List<UserEntity> userList = page.getResult();
+        return PageResult.success(total, userList);
+    }
+
+    @Override
+    public int deleteUserById(Integer id) {
+        return userMapper.deleteById(id);
+    }
+
+    @Override
+    public int updateUser(UserEntity user) {
+        return userMapper.updateUser(user);
+    }
     @Override
     public Result login(User user) {
-
         User loginUser = userMapper.login(user);
+        System.out.println("loginUser = " + loginUser);
         if (!passwordEncoder.matches(user.getPassword(), loginUser.getPassword())) {
             return Result.error("用户名或密码错误");
         } else {
-
-//        //传入用户名和密码
-//        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(user.getUserName(), user.getPassword());
-//        //实现登录逻辑，调用UserDetailsServiceImpl中重写的loadUserByUsername方法
-//        //返回userDeyails
-//        Authentication authenticate = null;
-//        try {
-//            authenticate = authenticationManager.authenticate(authenticationToken);
-//        } catch (AuthenticationException e) {
-//            return Result.error("用户名或密码错误");
-//        }
-//        LoginUser loginUser = (LoginUser) authenticate.getPrincipal();
-//        User user1 = loginUser.getUser();
             //此处采用“普通用户类和用户详细类分开的方式”
             String token = JWTUtil.generateToken(loginUser);
+            UserEntity userEntity = new UserEntity();
+            BeanUtils.copyProperties(loginUser,userEntity);
+            UserVo userVo = new UserVo(token, userEntity);
             RedisUtil redisUtil = new RedisUtil();
             /**
              * K:userId
@@ -53,7 +69,7 @@ public class UserServiceImpl implements UserService {
              * TimeUnit: hour
              */
             redisUtil.set(String.valueOf(loginUser.getId()), token, 1, TimeUnit.HOURS);
-            return Result.toToken(token);
+            return Result.success(userVo);
         }
     }
 
