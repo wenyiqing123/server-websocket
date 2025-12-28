@@ -3,6 +3,7 @@ package cn.wyq.serverwebsocket.service.impl;
 import cn.wyq.serverwebsocket.mapper.AIMapper;
 import cn.wyq.serverwebsocket.pojo.dto.ChatRequestDto;
 import cn.wyq.serverwebsocket.pojo.dto.ConversationMessageDTO;
+import cn.wyq.serverwebsocket.pojo.dto.UpdateConversationNameDTO;
 import cn.wyq.serverwebsocket.pojo.entity.Conversation;
 import cn.wyq.serverwebsocket.pojo.entity.ConversationMessage;
 import cn.wyq.serverwebsocket.service.AIService;
@@ -10,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -44,19 +45,15 @@ public class AIServiceImpl implements AIService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Integer createConversation(String name) {
-        Conversation conversation = new Conversation();
-        conversation.setName(name);
-
-        Date now = new Date();
-        conversation.setCreateTime(now);
-        conversation.setUpdateTime(now);
-
-        conversation.setUserName("DefaultUser"); // 暂时写死
-
+    public Integer createConversation(String username) {
+        Conversation conversation = Conversation.builder()
+                .name("新对话")
+                .userName(username)
+                .createTime(LocalDateTime.now())
+                .updateTime(LocalDateTime.now())
+                .build();
         // 使用 AiMapper 插入对话
         aiMapper.insertConversation(conversation);
-
         return conversation.getId();
     }
 
@@ -69,18 +66,16 @@ public class AIServiceImpl implements AIService {
         if (request.getConversationId() == null || request.getContent() == null) {
             return;
         }
-
         // 1. 存储用户消息 (Role = 1)
         ConversationMessage userMsg = new ConversationMessage();
         userMsg.setConversationId(request.getConversationId());
         userMsg.setContent(request.getContent());
         userMsg.setRole(1); // 1 代表用户
-//        aiMapper.insertMessage(userMsg); // 使用 AiMapper 插入消息
-
         // 2. 更新对话的 update_time
-        Conversation conversation = new Conversation();
-        conversation.setId(request.getConversationId());
-        conversation.setUpdateTime(new Date());
+        Conversation conversation = Conversation.builder()
+                .id(request.getConversationId())
+                .updateTime(LocalDateTime.now())
+                .build();
         aiMapper.updateConversationUpdateTime(conversation); // 使用 AiMapper 更新对话
     }
 
@@ -95,5 +90,14 @@ public class AIServiceImpl implements AIService {
         // 强制设置为 AI 角色 (Role = 2)
 //        conversationMessage.setRole(2);
         aiMapper.insertMessage(conversationMessageDTO); // 使用 AiMapper 插入消息
+    }
+
+    @Override
+    public void updateConversationName(UpdateConversationNameDTO updateConversationNameDTO) {
+        if (updateConversationNameDTO.getConversationId() == 0 || updateConversationNameDTO.getName() == null) {
+            return;
+        }
+
+        aiMapper.updateConversationName(updateConversationNameDTO); // 使用 AiMapper 更新对话名称
     }
 }

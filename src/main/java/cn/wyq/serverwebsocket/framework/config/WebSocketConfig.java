@@ -62,7 +62,6 @@ public class WebSocketConfig extends ServerEndpointConfig.Configurator {
 
         if (protocolList != null && !protocolList.isEmpty()) {
             token = protocolList.get(0); // 取第一个协议值作为 token
-            System.out.println("token = " + token);
             // 将 token 存入 userProperties，后续 WebSocket session 中可获取
             sec.getUserProperties().put("token", token);
         }

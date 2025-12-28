@@ -54,11 +54,8 @@ public class TestController {
                 }
         );
         Field[] declaredFields = response.getClass().getDeclaredFields();
-        System.out.println("response = " + response);
         for (Field declaredField : declaredFields) {
             declaredField.setAccessible(true);
-            System.out.println(declaredField.getName());
-            System.out.println(declaredField.get(response));
         }
         if (response.getStatusCode().is2xxSuccessful()) {
 

@@ -46,11 +46,9 @@ public class MessageServiceImpl implements MessageService {
             //获取发送者的信息
             String fromPath = userMapper.getStatusAndPathByUserName(info.getFromName());
             full.setFromPath(fromPath);
-//            full.setFromStatus(statusAndPathByUserName.getStatus());
             //获取接收者的信息
             String toPath = userMapper.getStatusAndPathByUserName(info.getToName());
             full.setToName(toPath);
-//            full.setToStatus(statusAndPathByUserName1.getStatus()); // MessageFull 特有字段
             messageFulls.add(full);
         }
 

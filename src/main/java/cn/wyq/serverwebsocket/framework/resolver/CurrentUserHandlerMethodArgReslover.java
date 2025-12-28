@@ -2,45 +2,55 @@ package cn.wyq.serverwebsocket.framework.resolver;
 
 
 import cn.wyq.serverwebsocket.framework.annotation.CurrentUser;
-import cn.wyq.serverwebsocket.pojo.User;
+import cn.wyq.serverwebsocket.pojo.entity.UserEntity;
+import cn.wyq.serverwebsocket.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
-import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
-/**
- * 用户信息解析器
- */
 @Component
 public class CurrentUserHandlerMethodArgReslover implements HandlerMethodArgumentResolver {
 
-    /**
-     * 判断是否支持使用@CurrentUser注解的参数
-     */
+    // 建议注入 UserService 以获取完整信息
+    @Autowired
+    private UserService userService;
+
     @Override
     public boolean supportsParameter(MethodParameter methodParameter) {
-        //如果该参数注解有@CurrentUser且参数类型是User
-        return methodParameter.getParameterType().isAssignableFrom(User.class)
+        return methodParameter.getParameterType().isAssignableFrom(UserEntity.class)
                 && methodParameter.hasParameterAnnotation(CurrentUser.class);
     }
 
-    /**
-     * 注入参数值
-     */
     @Override
     public Object resolveArgument(MethodParameter methodParameter, ModelAndViewContainer modelAndViewContainer,
                                   NativeWebRequest nativeWebRequest, WebDataBinderFactory webDataBinderFactory) throws Exception {
-        //取得HttpServletRequest
+
         HttpServletRequest request = (HttpServletRequest) nativeWebRequest.getNativeRequest();
-        //取出HttpServletRequest中的currentUser
-        User currentUser = (User) request.getAttribute("currentUser");
-        if (currentUser != null) {
-            return currentUser;
+
+        // 1. 注意：这里要对应你在 JWTFilter 中 setAttribute 的名字
+        // 你的 JWTFilter 里写的是 request.setAttribute("userId", userId);
+        Object userId = request.getAttribute("userId");
+        Object username = request.getAttribute("username");
+        // 2. 逻辑判断
+        if (userId != null) {
+            // 方案 A：如果你只想快速获取 ID 和用户名，直接 new 一个对象返回
+
+            UserEntity userEntity = new UserEntity();
+            userEntity.setId(Integer.parseInt(userId.toString()));
+            userEntity.setUserName((String) username);
+            return userEntity;
+            // 方案 B：如果你需要完整的用户信息（比如头像、角色），则调用 Service 查库
+//            return userService.findById(Integer.parseInt(userId.toString()));
         }
-        throw new MissingServletRequestPartException("currentUser");
+
+        // 3. 【重点】不要抛出 MissingServletRequestPartException
+        // 如果允许用户未登录访问（白名单），则返回 null
+        // 如果强制要求登录，可以抛出自定义的异常，例如 UnAuthorizedException
+        return null;
     }
 }

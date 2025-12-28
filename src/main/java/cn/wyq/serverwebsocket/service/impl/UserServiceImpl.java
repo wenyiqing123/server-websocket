@@ -52,11 +52,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public Result login(User user) {
         User loginUser = userMapper.login(user);
-        System.out.println("loginUser = " + loginUser);
         if (!passwordEncoder.matches(user.getPassword(), loginUser.getPassword())) {
             return Result.error("用户名或密码错误");
         } else {
-            //此处采用“普通用户类和用户详细类分开的方式”
             String token = JWTUtil.generateToken(loginUser);
             UserEntity userEntity = new UserEntity();
             BeanUtils.copyProperties(loginUser,userEntity);

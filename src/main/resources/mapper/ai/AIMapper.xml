@@ -34,6 +34,11 @@
         SET update_time = #{updateTime}
         WHERE id = #{id}
     </update>
+    <update id="updateConversationName" parameterType="cn.wyq.serverwebsocket.pojo.dto.UpdateConversationNameDTO">
+        UPDATE conversation
+        SET name = #{name}
+        WHERE id = #{conversationId}
+    </update>
 
     <select id="selectMessagesByConversationId" resultMap="ConversationMessage">
         SELECT id, conversation_id, content, role

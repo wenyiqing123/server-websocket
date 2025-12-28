@@ -71,7 +71,6 @@ public class UserController {
             })
     @PostMapping("/login")
     public Result login(@RequestBody User user) {
-        System.out.println("user = " + user);
         return userService.login(user);
     }
 
@@ -96,7 +95,7 @@ public class UserController {
     @GetMapping("/currentUser")
     @Operation(summary = "获取当前用户",
             description = "获取当前登录用户信息接口")
-    public Result testCurrentUser(@CurrentUser User currentUser) {
+    public Result testCurrentUser(@CurrentUser UserEntity currentUser) {
         return Result.success(currentUser);
     }
 
@@ -129,7 +128,6 @@ public class UserController {
     @Operation(summary = "获取用户路径",
             description = "根据用户名获取用户路径接口")
     public Result getPath(@RequestParam String username) {
-        System.out.println("username = " + username);
         String path = userService.getPath(username);
         return Result.success(path);
     }
@@ -163,7 +161,6 @@ public class UserController {
     @Operation(summary = "查询所有用户",
             description = "查询所有用户接口")
     public PageResult<List<UserEntity>> Userlist(@ParameterObject UserQueryDTO userQueryDTO) {
-        System.out.println("userQueryDTO = " + userQueryDTO);
         return userService.userList(userQueryDTO);
     }
 }

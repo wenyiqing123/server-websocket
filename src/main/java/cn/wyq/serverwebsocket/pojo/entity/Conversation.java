@@ -1,15 +1,17 @@
 package cn.wyq.serverwebsocket.pojo.entity;
 
+import lombok.Builder;
 import lombok.Data;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * 对话表实体类
  * 对应表名：conversation
  */
 @Data
+@Builder
 public class Conversation implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -27,13 +29,13 @@ public class Conversation implements Serializable {
      * 创建时间
      * SQL类型: date
      */
-    private Date createTime;
+    private LocalDateTime createTime;
 
     /**
      * 更新时间
      * SQL类型: date
      */
-    private Date updateTime;
+    private LocalDateTime updateTime;
 
     /**
      * 对话用户名

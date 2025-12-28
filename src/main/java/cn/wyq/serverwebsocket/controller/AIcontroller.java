@@ -1,10 +1,13 @@
 package cn.wyq.serverwebsocket.controller;
 
+import cn.wyq.serverwebsocket.framework.annotation.CurrentUser;
 import cn.wyq.serverwebsocket.framework.common.AjaxResult;
 import cn.wyq.serverwebsocket.pojo.dto.ChatRequestDto;
 import cn.wyq.serverwebsocket.pojo.dto.ConversationMessageDTO;
+import cn.wyq.serverwebsocket.pojo.dto.UpdateConversationNameDTO;
 import cn.wyq.serverwebsocket.pojo.entity.Conversation;
 import cn.wyq.serverwebsocket.pojo.entity.ConversationMessage;
+import cn.wyq.serverwebsocket.pojo.entity.UserEntity;
 import cn.wyq.serverwebsocket.service.AIService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -54,8 +57,8 @@ public class AIcontroller {
     @Operation(summary = "开启新对话",
             description = "开启新对话，返回新对话的ID")
     @PostMapping("/new")
-    public AjaxResult<Integer> newConversation() {
-        return AjaxResult.success(aiService.createConversation("新对话"));
+    public AjaxResult<Integer> newConversation(@CurrentUser UserEntity currentUser) {
+        return AjaxResult.success(aiService.createConversation(currentUser.getUserName()));
     }
 
     // 3. 核心功能：前端发送用户消息
@@ -66,6 +69,14 @@ public class AIcontroller {
         // 后端只负责存储用户消息
         aiService.saveUserMessage(request);
         return AjaxResult.success("用户消息存储成功");
+    }
+
+    @PostMapping("/update/name")
+    @Operation(summary = "更新对话名称",
+            description = "更新对话名称")
+    public AjaxResult<Void> updateConversationName(@RequestBody UpdateConversationNameDTO updateConversationNameDTO) {
+        aiService.updateConversationName(updateConversationNameDTO);
+        return AjaxResult.success();
     }
 
 

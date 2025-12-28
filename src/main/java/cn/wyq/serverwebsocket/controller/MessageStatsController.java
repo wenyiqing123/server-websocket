@@ -55,7 +55,6 @@ public class MessageStatsController {
             description = "查询近7天内发送消息用户及其发送消息数量，返回用户列表")
     public AjaxResult<List<RencetSevenDayUsersAndMessageCount>> getRencetSevenDayUsersAndMessageCount() {
         List<RencetSevenDayUsersAndMessageCount> rencetSevenDayUsersAndMessageCountList = messageStatsService.getRencetSevenDayUsersAndMessageCount();
-        System.out.println("rencetSevenDayUsersAndMessageCountList = " + rencetSevenDayUsersAndMessageCountList);
         return AjaxResult.success(rencetSevenDayUsersAndMessageCountList);
     }
 

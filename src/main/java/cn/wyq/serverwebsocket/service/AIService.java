@@ -2,6 +2,7 @@ package cn.wyq.serverwebsocket.service;
 
 import cn.wyq.serverwebsocket.pojo.dto.ChatRequestDto;
 import cn.wyq.serverwebsocket.pojo.dto.ConversationMessageDTO;
+import cn.wyq.serverwebsocket.pojo.dto.UpdateConversationNameDTO;
 import cn.wyq.serverwebsocket.pojo.entity.Conversation;
 import cn.wyq.serverwebsocket.pojo.entity.ConversationMessage;
 
@@ -34,10 +35,10 @@ public interface AIService {
      * 创建一个新的对话。
      * 对应 Controller: @PostMapping("/new")
      *
-     * @param name 新对话的默认名称（如 "新对话"）
+     * @param username 新对话的默认名称（如 "新对话"）
      * @return 新创建对话的 ID
      */
-    Integer createConversation(String name);
+    Integer createConversation(String username);
 
     // --- 以下是为前后端分离存储设计的接口 ---
 
@@ -55,4 +56,6 @@ public interface AIService {
      * @param conversationMessageDTO
      */
     void saveConversationMessage(ConversationMessageDTO conversationMessageDTO);
+
+    void updateConversationName(UpdateConversationNameDTO updateConversationNameDTO);
 }
