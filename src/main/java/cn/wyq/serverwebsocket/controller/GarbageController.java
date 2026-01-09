@@ -5,7 +5,7 @@ import ai.djl.translate.TranslateException;
 import cn.wyq.serverwebsocket.service.GarbageClassifierService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,15 +23,16 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/classify")
 @Tag(name = "垃圾分类服务", description = "根据图片分类垃圾分类")
+@RequiredArgsConstructor
 public class GarbageController {
 
-    @Autowired
-    private GarbageClassifierService garbageClassifierService;
+//    @Autowired
+    private final GarbageClassifierService garbageClassifierService;
 
     // POST 请求，接收文件上传
     // ⭐️ 核心：使用 @Autowired 注入 Service 实例
-    @Autowired
-    private GarbageClassifierService classifierService; // 实例名称与 Service 类名对应
+//    @Autowired
+    private final GarbageClassifierService classifierService; // 实例名称与 Service 类名对应
 
     // POST 请求，接收文件上传
     @PostMapping(consumes = {"multipart/form-data"})

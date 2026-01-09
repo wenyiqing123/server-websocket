@@ -3,6 +3,7 @@ package cn.wyq.serverwebsocket.service.impl;
 import cn.wyq.serverwebsocket.framework.common.PageResult;
 import cn.wyq.serverwebsocket.framework.exception.ServiceException;
 import cn.wyq.serverwebsocket.mapper.MessageMapper;
+import cn.wyq.serverwebsocket.mapper.MessageStructMapper;
 import cn.wyq.serverwebsocket.mapper.UserMapper;
 import cn.wyq.serverwebsocket.pojo.dto.MessageQueryDTO;
 import cn.wyq.serverwebsocket.pojo.entity.Message;
@@ -11,22 +12,22 @@ import cn.wyq.serverwebsocket.socket.pojo.MessageFull;
 import cn.wyq.serverwebsocket.socket.pojo.MessageInfo;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service("messageService")
 @Slf4j
+@RequiredArgsConstructor
 public class MessageServiceImpl implements MessageService {
-    @Autowired
-    private MessageMapper messageMapper;
 
-    @Autowired
-    private UserMapper userMapper;
+    private final MessageMapper messageMapper;
+
+
+    private final UserMapper userMapper;
+    private final MessageStructMapper messageStructMapper;
 
 
     @Override
@@ -37,27 +38,27 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public List<MessageFull> findAll(MessageInfo messageInfo) {
+    public List<MessageFull>  findAll(MessageInfo messageInfo) {
+        // 1. 获取原始数据列表
         List<MessageInfo> messageInfoList = messageMapper.findAll(messageInfo);
-        List<MessageFull> messageFulls = new ArrayList<MessageFull>();
-        for (MessageInfo info : messageInfoList) {
-            MessageFull full = new MessageFull();
-            BeanUtils.copyProperties(info, full); // id、title、content 自动拷贝
-            //获取发送者的信息
-            String fromPath = userMapper.getStatusAndPathByUserName(info.getFromName());
-            full.setFromPath(fromPath);
-            //获取接收者的信息
-            String toPath = userMapper.getStatusAndPathByUserName(info.getToName());
-            full.setToName(toPath);
-            messageFulls.add(full);
-        }
 
+        // 2. 使用 MapStruct 进行批量基础属性拷贝 (id, title, content 等)
+        List<MessageFull> messageFulls = messageStructMapper.toFullList(messageInfoList);
+
+        // 3. 补充需要查询数据库的字段
+        for (MessageFull full : messageFulls) {
+            // 获取发送者信息
+            full.setFromPath(userMapper.getStatusAndPathByUserName(full.getFromName()));
+            // 获取接收者信息
+            full.setToName(userMapper.getStatusAndPathByUserName(full.getToName()));
+        }
 
         return messageFulls;
     }
 
     @Override
     public void recallMessage(int id) {
+
         //判断时间差是否大于两分钟
         MessageInfo messageInfo = messageMapper.checkTime(id);
         if (messageInfo != null) {
