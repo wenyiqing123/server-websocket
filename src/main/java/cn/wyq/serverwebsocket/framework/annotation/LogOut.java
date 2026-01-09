@@ -1,12 +1,11 @@
 package cn.wyq.serverwebsocket.framework.annotation;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 @Target({ElementType.METHOD})
 // 注解的作用目标为方法参数
 @Retention(RetentionPolicy.RUNTIME)
+@Documented
+// 注解将包含在JavaDoc中
 public @interface LogOut {
 }

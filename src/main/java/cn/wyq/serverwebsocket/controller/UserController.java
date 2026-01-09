@@ -8,8 +8,6 @@ import cn.wyq.serverwebsocket.pojo.User;
 import cn.wyq.serverwebsocket.pojo.dto.UserQueryDTO;
 import cn.wyq.serverwebsocket.pojo.entity.UserEntity;
 import cn.wyq.serverwebsocket.service.UserService;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.extensions.Extension;
 import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
@@ -44,9 +42,7 @@ public class UserController {
     @GetMapping("/hello")
     @Operation(summary = "点击测试security是否放行",
             description = "测试security放行接口")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "hello")
-    })
+
     public String hello() {
         return "hello";
     }
@@ -58,9 +54,7 @@ public class UserController {
      * @return
      */
 //    @LoginNotRequired
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, response = User.class, message = "")
-    })
+
     @Operation(
             summary = "用户登录",
             description = "用户登录接口",
