@@ -21,18 +21,30 @@
     <repositories>
 
 
-        <repository>
-            <id>djl.ai</id>
-            <url>https://oss.sonatype.org/content/groups/public/</url>
-        </repository>
+<!--        <repository>-->
+<!--            <id>djl.ai</id>-->
+<!--            <url>https://oss.sonatype.org/content/groups/public/</url>-->
+<!--        </repository>-->
 
-        <repository>
-            <id>HuggingFace</id>
-            <url>https://hf.co/api/maven/repos/public</url>
-        </repository>
+<!--        <repository>-->
+<!--            <id>HuggingFace</id>-->
+<!--            <url>https://hf.co/api/maven/repos/public</url>-->
+<!--        </repository>-->
 
     </repositories>
+<!--    rabbitmq-->
     <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-amqp</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
 
         <!--        <dependency>-->
         <!--            <groupId>ai.djl.pytorch</groupId>-->
@@ -44,48 +56,49 @@
 
 
 
-        <dependency>
-            <groupId>ai.djl</groupId>
-            <artifactId>api</artifactId>
-            <version>0.27.0</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>ai.djl</groupId>-->
+<!--            <artifactId>api</artifactId>-->
+<!--            <version>0.27.0</version>-->
+<!--        </dependency>-->
 
-        <dependency>
-            <groupId>ai.djl.pytorch</groupId>
-            <artifactId>pytorch-engine</artifactId>
-            <version>0.27.0</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>ai.djl.pytorch</groupId>-->
+<!--            <artifactId>pytorch-engine</artifactId>-->
+<!--            <version>0.27.0</version>-->
+<!--        </dependency>-->
 
-        <dependency>
-            <groupId>ai.djl.pytorch</groupId>
-            <artifactId>pytorch-model-zoo</artifactId>
-            <version>0.27.0</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>ai.djl.pytorch</groupId>-->
+<!--            <artifactId>pytorch-model-zoo</artifactId>-->
+<!--            <version>0.27.0</version>-->
+<!--        </dependency>-->
 
 
         <!-- DL4J 核心 -->
-        <dependency>
-            <groupId>org.deeplearning4j</groupId>
-            <artifactId>deeplearning4j-core</artifactId>
-            <version>1.0.0-M2.1</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.deeplearning4j</groupId>-->
+<!--            <artifactId>deeplearning4j-core</artifactId>-->
+<!--            <version>1.0.0-M2.1</version>-->
+<!--        </dependency>-->
 
         <!-- ND4J: 数值计算（CPU版本） -->
-        <dependency>
-            <groupId>org.datavec</groupId>
-            <artifactId>datavec-api</artifactId>
-            <version>1.0.0-M2.1</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.datavec</groupId>-->
+<!--            <artifactId>datavec-api</artifactId>-->
+<!--            <version>1.0.0-M2.1</version>-->
+<!--        </dependency>-->
 
         <!-- 图像数据工具 -->
-        <dependency>
-            <groupId>com.microsoft.onnxruntime</groupId>
-            <artifactId>onnxruntime</artifactId>
-            <version>1.18.0</version>
-        </dependency>
-
 
         <!-- ONNX Runtime Java -->
+<!--        <dependency>-->
+<!--            <groupId>com.microsoft.onnxruntime</groupId>-->
+<!--            <artifactId>onnxruntime</artifactId>-->
+<!--            <version>1.18.0</version>-->
+<!--        </dependency>-->
+
+
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
@@ -102,12 +115,19 @@
         <!--            <version>1.0.0-M2.1</version>-->
         <!--        </dependency>-->
 
+<!--        <dependency>-->
+<!--            <groupId>org.nd4j</groupId>-->
+<!--            <artifactId>nd4j-cuda-11.6-platform</artifactId>-->
+<!--            &lt;!&ndash;            <artifactId>nd4j-cuda-11.8-platform</artifactId>&ndash;&gt;-->
+<!--            <version>1.0.0-M2.1</version>-->
+<!--        </dependency>-->
+
+<!--        aop-->
         <dependency>
-            <groupId>org.nd4j</groupId>
-            <artifactId>nd4j-cuda-11.6-platform</artifactId>
-            <!--            <artifactId>nd4j-cuda-11.8-platform</artifactId>-->
-            <version>1.0.0-M2.1</version>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -128,7 +148,6 @@
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-crypto</artifactId>
-            <version>6.2.1</version> <!-- 与你项目匹配的版本即可 -->
         </dependency>
 
         <!--        接口文档knife4j-->
@@ -162,6 +181,7 @@
         <!--            <artifactId>jackson-core-asl</artifactId>-->
         <!--            <version>1.9.13</version>-->
         <!--        </dependency>-->
+
         <!-- redis：缓存数据库 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -169,11 +189,11 @@
 <!--            <version>2.5.6</version>-->
         </dependency>
 
+
         <!-- commons-pool2：实现对象池化的框架，没有的话启动时redis报错 -->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-pool2</artifactId>
-            <version>2.11.1</version>
         </dependency>
 
         <!--        pagehelper-->
@@ -189,6 +209,9 @@
             <!--                </exclusion>-->
             <!--            </exclusions>-->
         </dependency>
+
+
+
 
         <!--        日志-->
         <!--        log4j2-->

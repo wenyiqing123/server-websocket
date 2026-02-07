@@ -19,7 +19,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/message")
-@CrossOrigin
+
 @Validated
 @Tag(name = "消息相关", description = "消息相关接口")
 public class MessageController {

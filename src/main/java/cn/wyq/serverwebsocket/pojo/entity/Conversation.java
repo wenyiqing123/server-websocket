@@ -1,7 +1,9 @@
 package cn.wyq.serverwebsocket.pojo.entity;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -12,6 +14,8 @@ import java.time.LocalDateTime;
  */
 @Data
 @Builder
+@NoArgsConstructor // 1. 生成无参构造函数（Jackson 反序列化必须）
+@AllArgsConstructor // 2. 生成全参构造函数（@Builder 需要它，否则 Builder 会报错）
 public class Conversation implements Serializable {
     private static final long serialVersionUID = 1L;
 

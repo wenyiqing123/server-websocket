@@ -8,6 +8,7 @@ import cn.wyq.serverwebsocket.pojo.dto.UserQueryDTO;
 import cn.wyq.serverwebsocket.pojo.entity.UserEntity;
 
 import java.util.List;
+import java.util.Map;
 
 public interface UserService {
     // 查询所有用户
@@ -29,7 +30,9 @@ public interface UserService {
 
     List<User> findAllUsers();
 
-    User validateToken(String token);
+
 
     String getPath(String username);
+
+    Map<String, String> refreshToken(String refreshToken);
 }

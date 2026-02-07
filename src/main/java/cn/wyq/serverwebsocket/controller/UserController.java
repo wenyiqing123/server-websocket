@@ -1,6 +1,7 @@
 package cn.wyq.serverwebsocket.controller;
 
 import cn.wyq.serverwebsocket.framework.annotation.CurrentUser;
+import cn.wyq.serverwebsocket.framework.annotation.LoginNotRequired;
 import cn.wyq.serverwebsocket.framework.common.AjaxResult;
 import cn.wyq.serverwebsocket.framework.common.PageResult;
 import cn.wyq.serverwebsocket.framework.common.Result;
@@ -19,27 +20,25 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 
 @RestController
 @RequestMapping("/user")
-@CrossOrigin
 @Validated
 @Tag(name = "用户服务", description = "登录", extensions = {
         @Extension(properties = {
                 @ExtensionProperty(name = "x-order", value = "1")
         })
 })
-
 @RequiredArgsConstructor
 public class UserController {
-    //    @Autowired
     private final UserService userService;
-    //    @Autowired
     private final PasswordEncoder passwordEncoder;
 
     //    @LoginNotRequired
     @GetMapping("/hello")
+    @LoginNotRequired
     @Operation(summary = "点击测试security是否放行",
             description = "测试security放行接口")
 
@@ -157,5 +156,15 @@ public class UserController {
             description = "查询所有用户接口")
     public PageResult<List<UserEntity>> Userlist(@ParameterObject UserQueryDTO userQueryDTO) {
         return userService.userList(userQueryDTO);
+    }
+    // 刷新 Token 接口
+    @PostMapping("/refresh")
+    @LoginNotRequired
+    public Result refresh(@RequestBody Map<String, String> body) {
+        System.out.println("body = " + body);
+        String refreshToken = body.get("refreshToken");
+        Map<String, String> map = userService.refreshToken(refreshToken);
+        System.out.println("map = " + map);
+        return Result.success(map);
     }
 }

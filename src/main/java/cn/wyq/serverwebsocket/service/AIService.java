@@ -1,6 +1,5 @@
 package cn.wyq.serverwebsocket.service;
 
-import cn.wyq.serverwebsocket.pojo.dto.ChatRequestDto;
 import cn.wyq.serverwebsocket.pojo.dto.ConversationMessageDTO;
 import cn.wyq.serverwebsocket.pojo.dto.UpdateConversationNameDTO;
 import cn.wyq.serverwebsocket.pojo.entity.Conversation;
@@ -20,7 +19,7 @@ public interface AIService {
      *
      * @return 对话列表，按更新时间倒序
      */
-    List<Conversation> list();
+    List<Conversation> list(String userName);
 
     /**
      * 获取指定对话ID下的所有消息详情。
@@ -42,13 +41,7 @@ public interface AIService {
 
     // --- 以下是为前后端分离存储设计的接口 ---
 
-    /**
-     * 保存【用户】发送的消息到数据库，并更新对话的更新时间。
-     * 对应 Controller: @PostMapping("/send/user")
-     *
-     * @param request 包含 conversationId 和 content 的请求DTO
-     */
-    void saveUserMessage(ChatRequestDto request);
+
 
     /**
      * 保存消息

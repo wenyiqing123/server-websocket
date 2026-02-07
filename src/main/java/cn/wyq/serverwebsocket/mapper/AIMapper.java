@@ -7,6 +7,7 @@ import cn.wyq.serverwebsocket.pojo.entity.ConversationMessage;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -25,7 +26,7 @@ public interface AIMapper {
      *
      * @return 对话列表
      */
-    List<Conversation> findAllConversations();
+    List<Conversation> findAllConversations(String userName);
 
     /**
      * 插入新对话。
@@ -42,7 +43,7 @@ public interface AIMapper {
      *
      * @param conversation 包含 ID 和 updateTime 的对话实体
      */
-    void updateConversationUpdateTime(Conversation conversation);
+
 
 
     // --- 消息 (ConversationMessage) 操作 ---
@@ -65,5 +66,5 @@ public interface AIMapper {
      */
     int insertMessage(ConversationMessageDTO conversationMessage);
 
-    void updateConversationName(UpdateConversationNameDTO updateConversationNameDTO);
+    void updateConversationName(@Param("updateConversationNameDTO") UpdateConversationNameDTO updateConversationNameDTO, LocalDateTime now);
 }

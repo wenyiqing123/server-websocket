@@ -17,9 +17,10 @@
         <result column="role" property="role" jdbcType="INTEGER"/>
     </resultMap>
 
-    <select id="findAllConversations" resultMap="Conversation">
+    <select id="findAllConversations" parameterType="string" resultMap="Conversation">
         SELECT id, name, create_time, update_time, user_name
         FROM conversation
+        where user_name=#{userName}
         ORDER BY update_time DESC
     </select>
 
@@ -29,15 +30,12 @@
         VALUES (#{name}, #{createTime}, #{updateTime}, #{userName})
     </insert>
 
-    <update id="updateConversationUpdateTime" parameterType="cn.wyq.serverwebsocket.pojo.entity.Conversation">
-        UPDATE conversation
-        SET update_time = #{updateTime}
-        WHERE id = #{id}
-    </update>
+
     <update id="updateConversationName" parameterType="cn.wyq.serverwebsocket.pojo.dto.UpdateConversationNameDTO">
         UPDATE conversation
-        SET name = #{name}
-        WHERE id = #{conversationId}
+        SET name = #{updateConversationNameDTO.name},
+            update_time=#{now}
+        WHERE id = #{updateConversationNameDTO.conversationId}
     </update>
 
     <select id="selectMessagesByConversationId" resultMap="ConversationMessage">

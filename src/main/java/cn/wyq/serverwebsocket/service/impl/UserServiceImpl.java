@@ -18,7 +18,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -27,6 +29,8 @@ public class UserServiceImpl implements UserService {
     private UserMapper userMapper;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private RedisUtil redisUtil;
 //    @Autowired
 //    private AuthenticationManager authenticationManager;
 
@@ -49,24 +53,27 @@ public class UserServiceImpl implements UserService {
     public int updateUser(UserEntity user) {
         return userMapper.updateUser(user);
     }
+
     @Override
     public Result login(User user) {
         User loginUser = userMapper.login(user);
+        if(loginUser==null)  throw new ServiceException("用户名或密码错误",401);
         if (!passwordEncoder.matches(user.getPassword(), loginUser.getPassword())) {
             return Result.error("用户名或密码错误");
         } else {
-            String token = JWTUtil.generateToken(loginUser);
+            String accessToken = JWTUtil.generateToken(loginUser);
+            String refreshToken = JWTUtil.generateRefreshToken(loginUser);
             UserEntity userEntity = new UserEntity();
-            BeanUtils.copyProperties(loginUser,userEntity);
-            UserVo userVo = new UserVo(token, userEntity);
-            RedisUtil redisUtil = new RedisUtil();
+            BeanUtils.copyProperties(loginUser, userEntity);
+            UserVo userVo = new UserVo(accessToken, refreshToken, userEntity);
             /**
              * K:userId
              * V:token
              * TimeOut: 1
              * TimeUnit: hour
              */
-            redisUtil.set(String.valueOf(loginUser.getId()), token, 1, TimeUnit.HOURS);
+            redisUtil.set("accessToken:userId:" + loginUser.getId(), accessToken, 30, TimeUnit.MINUTES);
+            redisUtil.set("refreshToken:userId:" + loginUser.getId(), refreshToken, 7, TimeUnit.DAYS);
             return Result.success(userVo);
         }
     }
@@ -76,40 +83,35 @@ public class UserServiceImpl implements UserService {
         return userMapper.findAllUsers();
     }
 
-    @Override
-    public User validateToken(String token) {
-        if (token == null || token.isEmpty()) {
-            throw new ServiceException("请先登录", 401);
-        }
-        int userId;
-        try {
-//            userId = JWTUtil.decodeToken(token);
-            userId = 1;
-        } catch (Exception e) {
-            throw new ServiceException("请勿伪造token(解析token失败)", 401);
-        }
-        RedisUtil redisUtil = new RedisUtil();
-        String redisToken = redisUtil.get(String.valueOf(userId));
-        if (redisToken == null) {
-            throw new ServiceException("登录已过期)", 401);
-        }
-        if (!redisToken.equals(token)) {
-            throw new ServiceException("请勿伪造token(携带的token和登陆拿到的token不一致))", 401);
-        }
-        User user = userMapper.findById(userId);
-        if (user == null) {
-            throw new ServiceException("请勿伪造token(解析成功，但userid是伪造的))", 401);
-        }
-        if (!JWTUtil.verifyToken(token)) {
-            throw new ServiceException("登录已过期)", 401);
-        }
-        return user;
-    }
 
     @Override
     public String getPath(String username) {
         String path = userMapper.getPath(username);
         return path;
+    }
+
+    @Override
+    public Map<String, String> refreshToken(String refreshToken) {
+        if (!JWTUtil.verifyToken(refreshToken)) {
+            throw new ServiceException("登录已失效，请重新登录", 401);
+        }
+        // 2. 获取用户信息
+        int userId = JWTUtil.getUserId(refreshToken);
+        String username = JWTUtil.getUsername(refreshToken);
+        User user = new User().builder().id(userId).userName(username).build();
+        // 3. 生成新的 Access Token
+        String accessToken = JWTUtil.generateToken(user);
+        // 4. (可选) 处于安全考虑，有时也会同时轮换 Refresh Token
+        String newRefreshToken = JWTUtil.generateRefreshToken(user);
+        // 5. 更新 Redis 中的 Refresh Token
+        redisUtil.set("refreshToken:userId:" + userId, newRefreshToken, 7, TimeUnit.DAYS);
+        // 5. 更新 Redis 中的 Access Token
+        redisUtil.set("accessToken:userId:" + userId, accessToken, 30, TimeUnit.MINUTES);
+        // 6. 返回新的 Access Token 和 Refresh Token
+        Map<String, String> map = new HashMap<>();
+        map.put("accessToken", accessToken);
+        map.put("refreshToken", newRefreshToken);
+        return map;
     }
 
     @Override

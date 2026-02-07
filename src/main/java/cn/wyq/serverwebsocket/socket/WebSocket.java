@@ -77,7 +77,7 @@ public class WebSocket {
         List<String> protocols = session.getRequestParameterMap().get("Sec-WebSocket-Protocol");
         if (protocols != null && !protocols.isEmpty()) {
             String token = protocols.get(0);
-            System.out.println("websocketToken = " + token);
+
             // 校验 token，决定是否允许连接
         }
         //1，将session进行保存
@@ -86,7 +86,7 @@ public class WebSocket {
         //2，广播消息。需要将登陆的所有的用户推送给所有的用户
         String message = MessageUtils.getMessage(true, null, getFriends());
 
-        System.out.println("message = " + message);
+
         broadcastAllUsers(message);
         onlineClientNumber.incrementAndGet();//在线数+1
         onlineClientMap.put(session.getId(), session);//添加当前连接的session
@@ -178,7 +178,7 @@ public class WebSocket {
             users.add(new User().builder().userName(key).path(path).build());
 
         }
-        System.out.println("users = " + users);
+
         return users;
     }
 

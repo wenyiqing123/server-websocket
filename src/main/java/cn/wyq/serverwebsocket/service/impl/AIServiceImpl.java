@@ -1,13 +1,14 @@
 package cn.wyq.serverwebsocket.service.impl;
 
 import cn.wyq.serverwebsocket.mapper.AIMapper;
-import cn.wyq.serverwebsocket.pojo.dto.ChatRequestDto;
 import cn.wyq.serverwebsocket.pojo.dto.ConversationMessageDTO;
 import cn.wyq.serverwebsocket.pojo.dto.UpdateConversationNameDTO;
 import cn.wyq.serverwebsocket.pojo.entity.Conversation;
 import cn.wyq.serverwebsocket.pojo.entity.ConversationMessage;
 import cn.wyq.serverwebsocket.service.AIService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,14 +29,16 @@ public class AIServiceImpl implements AIService {
      * 获取历史对话列表
      */
     @Override
-    public List<Conversation> list() {
-        return aiMapper.findAllConversations();
+    @Cacheable(value = "history_conversations", key = "'userName:'+#userName", unless = "#result == null")
+    public List<Conversation> list(String userName) {
+        return aiMapper.findAllConversations(userName);
     }
 
     /**
      * 获取某个对话下的所有消息详情
      */
     @Override
+    @Cacheable(value = "conversation_messages", key = "'conversationId:'+#conversationId", unless = "#result==null")
     public List<ConversationMessage> getMessages(Integer conversationId) {
         return aiMapper.selectMessagesByConversationId(conversationId);
     }
@@ -45,10 +48,11 @@ public class AIServiceImpl implements AIService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Integer createConversation(String username) {
+    @CacheEvict(value = "history_conversations" ,key ="'userName:'+#userName" )
+    public Integer createConversation(String userName) {
         Conversation conversation = Conversation.builder()
                 .name("新对话")
-                .userName(username)
+                .userName(userName)
                 .createTime(LocalDateTime.now())
                 .updateTime(LocalDateTime.now())
                 .build();
@@ -57,47 +61,27 @@ public class AIServiceImpl implements AIService {
         return conversation.getId();
     }
 
-    /**
-     * 保存【用户】发送的消息到数据库，并更新对话的更新时间
-     */
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public void saveUserMessage(ChatRequestDto request) {
-        if (request.getConversationId() == null || request.getContent() == null) {
-            return;
-        }
-        // 1. 存储用户消息 (Role = 1)
-        ConversationMessage userMsg = new ConversationMessage();
-        userMsg.setConversationId(request.getConversationId());
-        userMsg.setContent(request.getContent());
-        userMsg.setRole(1); // 1 代表用户
-        // 2. 更新对话的 update_time
-        Conversation conversation = Conversation.builder()
-                .id(request.getConversationId())
-                .updateTime(LocalDateTime.now())
-                .build();
-        aiMapper.updateConversationUpdateTime(conversation); // 使用 AiMapper 更新对话
-    }
+
 
     /**
-     * 保存【AI】返回的回复消息到数据库
+     * 发送消息到指定对话
      */
     @Override
+    @CacheEvict(value = "conversation_messages",key = "'conversationId:'+#conversationMessageDTO.getConversationId()")
     public void saveConversationMessage(ConversationMessageDTO conversationMessageDTO) {
         if (conversationMessageDTO.getConversationId() == 0 || conversationMessageDTO.getContent() == null) {
             return;
         }
-        // 强制设置为 AI 角色 (Role = 2)
-//        conversationMessage.setRole(2);
         aiMapper.insertMessage(conversationMessageDTO); // 使用 AiMapper 插入消息
     }
 
     @Override
+    @CacheEvict(value = "history_conversations",key = "'userName:'+#updateConversationNameDTO.getUserName()")
     public void updateConversationName(UpdateConversationNameDTO updateConversationNameDTO) {
         if (updateConversationNameDTO.getConversationId() == 0 || updateConversationNameDTO.getName() == null) {
             return;
         }
-
-        aiMapper.updateConversationName(updateConversationNameDTO); // 使用 AiMapper 更新对话名称
+        LocalDateTime now = LocalDateTime.now();
+        aiMapper.updateConversationName(updateConversationNameDTO, now); // 使用 AiMapper 更新对话名称
     }
 }

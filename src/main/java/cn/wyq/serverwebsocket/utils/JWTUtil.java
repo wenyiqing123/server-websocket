@@ -22,10 +22,10 @@ public class JWTUtil {
     private static final String SECRET = "secret_for_jwt2";
 
     /**
-     * Token 过期时间（1小时 = 3600_000 ms）
-     * 实际项目里可以配置成 15分钟 + RefreshToken 机制
+     * Token 过期时间（30min）
      */
-    private static final long EXPIRE_TIME = 1000 * 60 * 60;
+    private static final long EXPIRE_TIME = 1000 * 60 * 30;
+    private static final long REFRESH_EXPIRE_TIME = 1000 * 60 * 60*24*7;
 
     /**
      * 生成 JWT Token
@@ -43,6 +43,20 @@ public class JWTUtil {
 
                 // 过期时间
                 .withExpiresAt(new Date(System.currentTimeMillis() + EXPIRE_TIME))
+
+                // 使用 HMAC256 算法签名（对称加密：同一个密钥签发和校验）
+                .sign(Algorithm.HMAC256(SECRET));
+    }
+    public static String generateRefreshToken(User user) {
+        return JWT.create()
+                // JWT 的 subject 一般用来存放用户唯一标识，这里用 userId
+                .withSubject(String.valueOf(user.getId()))
+
+                // 自定义 claim，可以存放用户名、角色等信息（不要放敏感数据，比如密码）
+                .withClaim("username", user.getUserName())
+
+                // 过期时间
+                .withExpiresAt(new Date(System.currentTimeMillis() + REFRESH_EXPIRE_TIME))
 
                 // 使用 HMAC256 算法签名（对称加密：同一个密钥签发和校验）
                 .sign(Algorithm.HMAC256(SECRET));

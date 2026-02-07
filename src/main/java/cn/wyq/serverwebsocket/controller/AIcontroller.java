@@ -2,7 +2,6 @@ package cn.wyq.serverwebsocket.controller;
 
 import cn.wyq.serverwebsocket.framework.annotation.CurrentUser;
 import cn.wyq.serverwebsocket.framework.common.AjaxResult;
-import cn.wyq.serverwebsocket.pojo.dto.ChatRequestDto;
 import cn.wyq.serverwebsocket.pojo.dto.ConversationMessageDTO;
 import cn.wyq.serverwebsocket.pojo.dto.UpdateConversationNameDTO;
 import cn.wyq.serverwebsocket.pojo.entity.Conversation;
@@ -17,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@CrossOrigin
+
 @RequestMapping("/ai")
 @Tag(name = "AI相关", description = "AI相关接口")
 public class AIcontroller {
@@ -28,9 +27,9 @@ public class AIcontroller {
     @Operation(summary = "获取历史对话列表",
             description = "获取历史对话列表，按更新时间倒序排列")
     @GetMapping("/history")
-    public AjaxResult<List<Conversation>> getHistory() {
+    public AjaxResult<List<Conversation>> getHistory(@RequestParam String userName) {
         // 逻辑：查询 conversation 表，按 update_time 倒序排列
-        return AjaxResult.success(aiService.list());
+        return AjaxResult.success(aiService.list(userName));
     }
 
     // 2. 点击某个对话：获取该对话的所有消息详情
@@ -43,7 +42,6 @@ public class AIcontroller {
     }
 
     // 3. 核心功能：发送消息
-
     @PostMapping("/send")
     @Operation(summary = "发送消息",
             description = "发送消息到AI模型，返回模型回复")
@@ -59,16 +57,6 @@ public class AIcontroller {
     @PostMapping("/new")
     public AjaxResult<Integer> newConversation(@CurrentUser UserEntity currentUser) {
         return AjaxResult.success(aiService.createConversation(currentUser.getUserName()));
-    }
-
-    // 3. 核心功能：前端发送用户消息
-    @Operation(summary = "发送用户消息",
-            description = "发送用户消息到AI模型，返回模型回复")
-    @PostMapping("/send/user")
-    public AjaxResult<String> sendUserMessage(@RequestBody ChatRequestDto request) {
-        // 后端只负责存储用户消息
-        aiService.saveUserMessage(request);
-        return AjaxResult.success("用户消息存储成功");
     }
 
     @PostMapping("/update/name")

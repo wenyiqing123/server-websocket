@@ -8,7 +8,10 @@ import cn.wyq.serverwebsocket.service.MessageStatsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -16,7 +19,7 @@ import java.util.List;
 @RestController
 
 @RequestMapping("/message-stats")
-@CrossOrigin
+
 @Tag(name = "消息统计控制器", description = "提供消息统计相关的接口")
 /**
  * 消息统计控制器
