@@ -2,6 +2,7 @@ package cn.wyq.serverwebsocket.service;
 
 import cn.wyq.serverwebsocket.framework.common.PageResult;
 import cn.wyq.serverwebsocket.pojo.dto.MessageQueryDTO;
+import cn.wyq.serverwebsocket.pojo.entity.Message;
 import cn.wyq.serverwebsocket.socket.pojo.MessageFull;
 import cn.wyq.serverwebsocket.socket.pojo.MessageInfo;
 
@@ -14,7 +15,7 @@ public interface MessageService {
 
     void recallMessage(int id);
 
-    PageResult pageQuery(MessageQueryDTO messageQueryDTO);
+    PageResult<List<Message>> pageQuery(MessageQueryDTO messageQueryDTO);
 
     void deleteMessage(Integer id);
 }

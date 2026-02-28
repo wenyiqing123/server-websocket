@@ -1,34 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="WARN">
     <properties>
-        <property name="LOG_HOME">D:/logs</property>
+        <property name="LOG_HOME">${sys:user.dir}/logs</property>
         <property name="FILE_NAME">mylog</property>
         <property name="log.sql.level">info</property>
     </properties>
+
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
-            <!-- 使用 %clr 标记定义颜色 -->
             <PatternLayout
                     pattern="%clr{%d{HH:mm:ss.SSS}}{yellow} [%clr{%t}{red}] %-5level %clr{%l}{blue} - %clr{%msg%n}{green}"/>
         </Console>
-        <!--        将日志信息写入文件-->
-        <!--        <RollingRandomAccessFile name="RollingRandomAccessFile" fileName="${LOG_HOME}/${FILE_NAME}.log" filePattern="${LOG_HOME}/$${date:yyyy-MM}/${FILE_NAME}-%d{yyyy-MM-dd HH-mm}-%i.log">-->
-        <!--            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %l - %msg%n"/>-->
-        <!--            <Policies>-->
-        <!--                <TimeBasedTriggeringPolicy interval="1"/>-->
-        <!--                <SizeBasedTriggeringPolicy size="10 MB"/>-->
-        <!--            </Policies>-->
-        <!--            <DefaultRolloverStrategy max="20"/>-->
-        <!--        </RollingRandomAccessFile>-->
+
+        <RollingRandomAccessFile name="RollingRandomAccessFile"
+                                 fileName="${LOG_HOME}/${FILE_NAME}.log"
+                                 filePattern="${LOG_HOME}/$${date:yyyy-MM}/${FILE_NAME}-%d{yyyy-MM-dd}.log">
+
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %l - %msg%n"/>
+
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"/>
+            </Policies>
+        </RollingRandomAccessFile>
     </Appenders>
+
     <Loggers>
         <Root level="info">
             <AppenderRef ref="Console"/>
-            <!--            <AppenderRef ref="RollingRandomAccessFile" />-->
+            <AppenderRef ref="RollingRandomAccessFile" />
         </Root>
-        <!--        name需要指向实际的dao包或者mapper包-->
+
         <Logger name="cn.wyq.serverwebsocket.mapper" level="debug" additivity="false">
             <AppenderRef ref="Console"/>
+            <AppenderRef ref="RollingRandomAccessFile"/>
         </Logger>
     </Loggers>
 </Configuration>

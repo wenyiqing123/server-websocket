@@ -32,8 +32,8 @@ public class CurrentUserHandlerMethodArgReslover implements HandlerMethodArgumen
 
         HttpServletRequest request = (HttpServletRequest) nativeWebRequest.getNativeRequest();
 
-        // 1. 注意：这里要对应你在 JWTFilter 中 setAttribute 的名字
-        // 你的 JWTFilter 里写的是 request.setAttribute("userId", userId);
+        // 1. 注意：这里要对应你在 JWTInterceptor 中 setAttribute 的名字
+        // 你的 JWTInterceptor 里写的是 request.setAttribute("userId", userId);
         Object userId = request.getAttribute("userId");
         Object username = request.getAttribute("username");
         // 2. 逻辑判断

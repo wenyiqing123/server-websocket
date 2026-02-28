@@ -161,10 +161,8 @@ public class UserController {
     @PostMapping("/refresh")
     @LoginNotRequired
     public Result refresh(@RequestBody Map<String, String> body) {
-        System.out.println("body = " + body);
         String refreshToken = body.get("refreshToken");
         Map<String, String> map = userService.refreshToken(refreshToken);
-        System.out.println("map = " + map);
         return Result.success(map);
     }
 }

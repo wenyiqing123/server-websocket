@@ -4,6 +4,7 @@ import cn.wyq.serverwebsocket.pojo.dto.ConversationMessageDTO;
 import cn.wyq.serverwebsocket.pojo.dto.UpdateConversationNameDTO;
 import cn.wyq.serverwebsocket.pojo.entity.Conversation;
 import cn.wyq.serverwebsocket.pojo.entity.ConversationMessage;
+import cn.wyq.serverwebsocket.pojo.entity.UserEntity;
 
 import java.util.List;
 
@@ -50,5 +51,4 @@ public interface AIService {
      */
     void saveConversationMessage(ConversationMessageDTO conversationMessageDTO);
 
-    void updateConversationName(UpdateConversationNameDTO updateConversationNameDTO);
-}
+    void updateConversationName(UserEntity user, UpdateConversationNameDTO updateConversationNameDTO);}

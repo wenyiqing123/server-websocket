@@ -87,6 +87,8 @@ spring:
           max-wait: -1
 # mybatis配置
 mybatis:
+  configuration:
+    map-underscore-to-camel-case: true
   # mapper.xml路径
   mapper-locations: classpath:mapper/**/*Mapper.xml
 # 日志

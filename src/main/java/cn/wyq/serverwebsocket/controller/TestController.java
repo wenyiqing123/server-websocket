@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -41,6 +42,7 @@ public class TestController {
     private final RestTemplate restTemplate;
     private final RabbitTemplate rabbitTemplate;
     private final TestService testService;
+    private final RedisTemplate redisTemplate;
 
     /**
      * 远程调用"/user/users"
@@ -157,5 +159,12 @@ public class TestController {
     public AjaxResult<Void> testAutoFill(@RequestBody TestDTO testDTO) {
         testService.testAutoFill(testDTO);
         return AjaxResult.success();
+    }
+    @GetMapping("/test-redis")
+    @LoginNotRequired
+    public Result testRedis(){
+        redisTemplate.opsForValue().set("name","wyq");
+        String name = (String) redisTemplate.opsForValue().get("name");
+        return Result.success(name);
     }
 }

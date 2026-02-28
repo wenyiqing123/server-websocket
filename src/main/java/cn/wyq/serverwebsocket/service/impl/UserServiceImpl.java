@@ -2,6 +2,7 @@ package cn.wyq.serverwebsocket.service.impl;
 
 import cn.wyq.serverwebsocket.framework.common.PageResult;
 import cn.wyq.serverwebsocket.framework.common.Result;
+import cn.wyq.serverwebsocket.framework.constant.RedisKeyConstants;
 import cn.wyq.serverwebsocket.framework.exception.ServiceException;
 import cn.wyq.serverwebsocket.mapper.UserMapper;
 import cn.wyq.serverwebsocket.pojo.User;
@@ -13,8 +14,11 @@ import cn.wyq.serverwebsocket.utils.JWTUtil;
 import cn.wyq.serverwebsocket.utils.RedisUtil;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +28,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Service
+@Slf4j
 public class UserServiceImpl implements UserService {
     @Autowired
     private UserMapper userMapper;
@@ -36,7 +41,18 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
+    @Cacheable(
+            value = RedisKeyConstants.MANAGE_USERS_CACHE,
+            key = "'page=1,pageSize=9:list'",
+            condition = "#userQueryDTO.id==null||#userQueryDTO.id==''&&" +
+                    "#userQueryDTO.page==1&&" +
+                    "#userQueryDTO.pageSize==9&&" +
+                    "#userQueryDTO.userName==''||#userQueryDTO.userName==''&&" +
+                    "#userQueryDTO.role==null||#userQueryDTO.role==''",
+            unless = "#result==null"
+    )
     public PageResult<List<UserEntity>> userList(UserQueryDTO userQueryDTO) {
+        log.info("userQueryDTO:{}", userQueryDTO);
         PageHelper.startPage(userQueryDTO.getPage(), userQueryDTO.getPageSize());
         Page<UserEntity> page = userMapper.selectAllUsers(userQueryDTO);
         long total = page.getTotal();
@@ -45,11 +61,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @CacheEvict(value = RedisKeyConstants.MANAGE_USERS_CACHE, key = "'page=1,pageSize=9:list'")
     public int deleteUserById(Integer id) {
         return userMapper.deleteById(id);
     }
 
     @Override
+    @CacheEvict(value = RedisKeyConstants.MANAGE_USERS_CACHE, key = "'page=1,pageSize=9:list'")
     public int updateUser(UserEntity user) {
         return userMapper.updateUser(user);
     }
@@ -57,7 +75,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public Result login(User user) {
         User loginUser = userMapper.login(user);
-        if(loginUser==null)  throw new ServiceException("用户名或密码错误",401);
+        if (loginUser == null) throw new ServiceException("用户名或密码错误", 401);
         if (!passwordEncoder.matches(user.getPassword(), loginUser.getPassword())) {
             return Result.error("用户名或密码错误");
         } else {

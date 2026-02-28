@@ -1,6 +1,7 @@
 package cn.wyq.serverwebsocket.service.impl;
 
 import cn.wyq.serverwebsocket.framework.common.PageResult;
+import cn.wyq.serverwebsocket.framework.constant.RedisKeyConstants;
 import cn.wyq.serverwebsocket.framework.exception.ServiceException;
 import cn.wyq.serverwebsocket.mapper.MessageMapper;
 import cn.wyq.serverwebsocket.mapper.MessageStructMapper;
@@ -14,6 +15,8 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -38,7 +41,7 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public List<MessageFull>  findAll(MessageInfo messageInfo) {
+    public List<MessageFull> findAll(MessageInfo messageInfo) {
         // 1. 获取原始数据列表
         List<MessageInfo> messageInfoList = messageMapper.findAll(messageInfo);
 
@@ -72,7 +75,23 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
+    @Cacheable(
+            value = RedisKeyConstants.MANAGE_MESSAGES_CACHE,
+            // 🌟 完美解法：加上 :list 作为真正的文件名，绝不以冒号结尾！
+            key = "'page=1:pageSize=9:list'",
+            condition = "#messageQueryDTO.page == 1 " +
+                    "&& #messageQueryDTO.pageSize == 9 " +
+                    "&& #messageQueryDTO.id == null " +
+                    "&& (#messageQueryDTO.message == null || #messageQueryDTO.message == '') " +
+                    "&& (#messageQueryDTO.fromName == null || #messageQueryDTO.fromName == '') " +
+                    "&& (#messageQueryDTO.toName == null || #messageQueryDTO.toName == '') " +
+                    "&& #messageQueryDTO.sendAtStart == null " +
+                    "&& #messageQueryDTO.sendAtEnd == null",
+            // 🚨 顺手把你刚才写错的 unless 修正过来
+            unless = "#result == null"
+    )
     public PageResult<List<Message>> pageQuery(MessageQueryDTO messageQueryDTO) {
+        log.info("messageQueryDTO,{}", messageQueryDTO);
         //调用pagehelper的startPage方法传入page（当前页）和pageSize（每页显示数量）开启分页
         PageHelper.startPage(messageQueryDTO.getPage(), messageQueryDTO.getPageSize());
         //执行查询逻辑，获取分页结果集，使用pagehelper内置的page对象接收结果集
@@ -85,6 +104,9 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
+    @CacheEvict(value = RedisKeyConstants.MANAGE_MESSAGES_CACHE,
+            // 🌟 完美解法：加上 :list 作为真正的文件名，绝不以冒号结尾！
+            key = "'page=1:pageSize=9:list'")
     public void deleteMessage(Integer id) {
         try {
             messageMapper.deleteMessage(id);

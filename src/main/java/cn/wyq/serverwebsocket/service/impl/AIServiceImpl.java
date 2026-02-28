@@ -1,10 +1,13 @@
 package cn.wyq.serverwebsocket.service.impl;
 
+import cn.wyq.serverwebsocket.framework.annotation.CurrentUser;
+import cn.wyq.serverwebsocket.framework.constant.RedisKeyConstants;
 import cn.wyq.serverwebsocket.mapper.AIMapper;
 import cn.wyq.serverwebsocket.pojo.dto.ConversationMessageDTO;
 import cn.wyq.serverwebsocket.pojo.dto.UpdateConversationNameDTO;
 import cn.wyq.serverwebsocket.pojo.entity.Conversation;
 import cn.wyq.serverwebsocket.pojo.entity.ConversationMessage;
+import cn.wyq.serverwebsocket.pojo.entity.UserEntity;
 import cn.wyq.serverwebsocket.service.AIService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -29,7 +32,7 @@ public class AIServiceImpl implements AIService {
      * 获取历史对话列表
      */
     @Override
-    @Cacheable(value = "history_conversations", key = "'userName:'+#userName", unless = "#result == null")
+    @Cacheable(value = RedisKeyConstants.HISTORY_CONVERSATIONS_CACHE, key = "'userName:'+#userName", unless = "#result == null")
     public List<Conversation> list(String userName) {
         return aiMapper.findAllConversations(userName);
     }
@@ -38,7 +41,7 @@ public class AIServiceImpl implements AIService {
      * 获取某个对话下的所有消息详情
      */
     @Override
-    @Cacheable(value = "conversation_messages", key = "'conversationId:'+#conversationId", unless = "#result==null")
+    @Cacheable(value = RedisKeyConstants.CONVERSATION_MESSAGES_CACHE, key = "'conversationId:'+#conversationId", unless = "#result==null")
     public List<ConversationMessage> getMessages(Integer conversationId) {
         return aiMapper.selectMessagesByConversationId(conversationId);
     }
@@ -48,7 +51,7 @@ public class AIServiceImpl implements AIService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    @CacheEvict(value = "history_conversations" ,key ="'userName:'+#userName" )
+    @CacheEvict(value = RedisKeyConstants.HISTORY_CONVERSATIONS_CACHE, key = "'userName:'+#userName")
     public Integer createConversation(String userName) {
         Conversation conversation = Conversation.builder()
                 .name("新对话")
@@ -62,12 +65,11 @@ public class AIServiceImpl implements AIService {
     }
 
 
-
     /**
      * 发送消息到指定对话
      */
     @Override
-    @CacheEvict(value = "conversation_messages",key = "'conversationId:'+#conversationMessageDTO.getConversationId()")
+    @CacheEvict(value = RedisKeyConstants.CONVERSATION_MESSAGES_CACHE, key = "'conversationId:'+#conversationMessageDTO.getConversationId()")
     public void saveConversationMessage(ConversationMessageDTO conversationMessageDTO) {
         if (conversationMessageDTO.getConversationId() == 0 || conversationMessageDTO.getContent() == null) {
             return;
@@ -76,8 +78,8 @@ public class AIServiceImpl implements AIService {
     }
 
     @Override
-    @CacheEvict(value = "history_conversations",key = "'userName:'+#updateConversationNameDTO.getUserName()")
-    public void updateConversationName(UpdateConversationNameDTO updateConversationNameDTO) {
+    @CacheEvict(value = RedisKeyConstants.HISTORY_CONVERSATIONS_CACHE, key = "'userName:'+#user.userName")
+    public void updateConversationName(@CurrentUser UserEntity user ,UpdateConversationNameDTO updateConversationNameDTO) {
         if (updateConversationNameDTO.getConversationId() == 0 || updateConversationNameDTO.getName() == null) {
             return;
         }

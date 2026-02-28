@@ -1,7 +1,7 @@
 package cn.wyq.serverwebsocket.framework.config;
 
 import cn.wyq.serverwebsocket.framework.bean.ImagePropertis;
-import cn.wyq.serverwebsocket.framework.interceptor.JWTFilter;
+import cn.wyq.serverwebsocket.framework.interceptor.JWTInterceptor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -24,7 +24,7 @@ public class WebConfig implements WebMvcConfigurer {
     private ImagePropertis imageProperties;
 
     @Autowired
-    private JWTFilter jwtFilter;
+    private JWTInterceptor jwtInterceptor;
 
     private static final List<String> EXCLUDE_PATHS = Arrays.asList(
             "/user/path",
@@ -42,17 +42,18 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // ❌ 删除或注释掉下面这两行（因为 AutoConfig 会自动处理，写了反而报错）
-        // registry.addResourceHandler("doc.html").addResourceLocations("classpath:/META-INF/resources/");
-        // registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
-
         // ✅ 保留你自定义的图片映射
         registry.addResourceHandler(imageProperties.getMapping() + "**")
                 .addResourceLocations("file:" + imageProperties.getLocation() + "/");
 
         // ✅ 保留普通静态资源映射
         registry.addResourceHandler("/static/**").addResourceLocations("classpath:/static/");
-        //静态资源映射，不然访问不到接口文档doc.html，防止springMVC认为请求的是一个接口，而不是静态资源
+
+        // 🌟 核心修复：专门为浏览器的强迫症开辟一条找图标的绿色通道！
+        registry.addResourceHandler("/favicon.ico")
+                .addResourceLocations("classpath:/static/");
+
+        //静态资源映射，不然访问不到接口文档doc.html
         registry.addResourceHandler("/doc.html").addResourceLocations("classpath:/META-INF/resources/");
         registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
     }
@@ -72,7 +73,7 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(jwtFilter)
+        registry.addInterceptor(jwtInterceptor)
                 .addPathPatterns("/**")
                 .excludePathPatterns(EXCLUDE_PATHS);
     }

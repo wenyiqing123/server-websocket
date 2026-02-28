@@ -62,8 +62,8 @@ public class AIcontroller {
     @PostMapping("/update/name")
     @Operation(summary = "更新对话名称",
             description = "更新对话名称")
-    public AjaxResult<Void> updateConversationName(@RequestBody UpdateConversationNameDTO updateConversationNameDTO) {
-        aiService.updateConversationName(updateConversationNameDTO);
+    public AjaxResult<Void> updateConversationName(@CurrentUser UserEntity user,@RequestBody UpdateConversationNameDTO updateConversationNameDTO) {
+        aiService.updateConversationName(user,updateConversationNameDTO);
         return AjaxResult.success();
     }
 
