@@ -16,6 +16,14 @@
         <result column="content" property="content" jdbcType="VARCHAR"/>
         <result column="role" property="role" jdbcType="INTEGER"/>
     </resultMap>
+    <delete id="deleteConversationById" parameterType="int">
+        delete
+        from conversation
+        where id = #{id};
+    </delete>
+    <delete id="deleteMessagesByConversationId" parameterType="int">
+        delete from conversation_message where conversation_id=#{id};
+    </delete>
 
     <select id="findAllConversations" parameterType="string" resultMap="Conversation">
         SELECT id, name, create_time, update_time, user_name

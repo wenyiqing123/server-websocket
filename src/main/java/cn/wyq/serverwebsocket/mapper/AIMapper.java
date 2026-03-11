@@ -67,4 +67,8 @@ public interface AIMapper {
     int insertMessage(ConversationMessageDTO conversationMessage);
 
     void updateConversationName(@Param("updateConversationNameDTO") UpdateConversationNameDTO updateConversationNameDTO, LocalDateTime now);
+
+    void deleteConversationById(int id);
+
+    void deleteMessagesByConversationId(int id);
 }

@@ -51,4 +51,7 @@ public interface AIService {
      */
     void saveConversationMessage(ConversationMessageDTO conversationMessageDTO);
 
-    void updateConversationName(UserEntity user, UpdateConversationNameDTO updateConversationNameDTO);}
+    void updateConversationName(UserEntity user, UpdateConversationNameDTO updateConversationNameDTO);
+
+    void deleteConversation(UserEntity user,int id);
+}

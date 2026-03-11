@@ -8,6 +8,7 @@ import cn.wyq.serverwebsocket.pojo.entity.Conversation;
 import cn.wyq.serverwebsocket.pojo.entity.ConversationMessage;
 import cn.wyq.serverwebsocket.pojo.entity.UserEntity;
 import cn.wyq.serverwebsocket.service.AIService;
+import cn.wyq.serverwebsocket.service.RealTimeRecommendService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,23 @@ import java.util.List;
 public class AIcontroller {
     @Autowired
     private AIService aiService;
+    @Autowired
+    private RealTimeRecommendService recommendService;
+
+    // 当用户发完消息后，主聊天接口除了调用大模型，最后要顺手调一下异步方法：
+    // recommendService.updateRealTimeMatrix(userId, prompt, "提取的Tag");
+
+    /**
+     * 前端轮询获取推荐问题
+     */
+    @GetMapping("/recommend")
+    @Operation(summary = "获取推荐消息",
+            description = "获取推荐消息")
+    public AjaxResult<List<String>> getRecommends(@RequestParam String currentTag) {
+        // 在实际业务中，你可以写一个简单的工具类，把 currentTag 提取出来，这里省略提取步骤
+        List<String> recommends = recommendService.getRecommendations(currentTag);
+        return AjaxResult.success(recommends);
+    }
 
     // 1. 获取左侧侧边栏：历史对话列表
     @Operation(summary = "获取历史对话列表",
@@ -62,10 +80,17 @@ public class AIcontroller {
     @PostMapping("/update/name")
     @Operation(summary = "更新对话名称",
             description = "更新对话名称")
-    public AjaxResult<Void> updateConversationName(@CurrentUser UserEntity user,@RequestBody UpdateConversationNameDTO updateConversationNameDTO) {
-        aiService.updateConversationName(user,updateConversationNameDTO);
+    public AjaxResult<Void> updateConversationName(@CurrentUser UserEntity user, @RequestBody UpdateConversationNameDTO updateConversationNameDTO) {
+        aiService.updateConversationName(user, updateConversationNameDTO);
         return AjaxResult.success();
     }
 
+    @DeleteMapping("/conversation/delete/{id}")
+    @Operation(summary = "删除对话",
+            description = "删除对话")
+    public AjaxResult<Void> deleteConversation(@CurrentUser UserEntity user,@PathVariable int id) {
+        aiService.deleteConversation(user,id);
+        return AjaxResult.success();
+    }
 
 }
