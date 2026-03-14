@@ -1,4 +1,16 @@
 spring:
+  mail:
+    host: smtp.qq.com       # QQ邮箱的SMTP服务器地址 (163是 smtp.163.com)
+    port: 465               # 开启 SSL 后的标准端口
+    username: 2402317148@qq.com # 你的发件邮箱账号
+    password: gfhmjyhutnhrdieh # 🚨 绝对警告：这里填的不是你的QQ密码！是 SMTP 授权码！
+    default-encoding: UTF-8
+    properties:
+      mail:
+        smtp:
+          auth: true
+          ssl:
+            enable: true    # 必须开启 SSL，否则连不上腾讯服务器
   rabbitmq:
     host: localhost
     port: 5672

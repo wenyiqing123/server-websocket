@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 @Builder
 public class UserQueryDTO {
     private int page = 1;
-
     private int pageSize = 10;
     private Integer id;
     private String userName;

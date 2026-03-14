@@ -4,6 +4,7 @@ package cn.wyq.serverwebsocket.service;
 import cn.wyq.serverwebsocket.framework.common.PageResult;
 import cn.wyq.serverwebsocket.framework.common.Result;
 import cn.wyq.serverwebsocket.pojo.User;
+import cn.wyq.serverwebsocket.pojo.dto.UserEmailDto;
 import cn.wyq.serverwebsocket.pojo.dto.UserQueryDTO;
 import cn.wyq.serverwebsocket.pojo.entity.UserEntity;
 
@@ -25,7 +26,7 @@ public interface UserService {
 
     User findById(int id);
 
-    int register(User user);
+    int register(UserEmailDto userEmailDto);
 
 
     List<User> findAllUsers();

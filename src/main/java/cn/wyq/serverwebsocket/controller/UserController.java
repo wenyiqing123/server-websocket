@@ -6,14 +6,17 @@ import cn.wyq.serverwebsocket.framework.common.AjaxResult;
 import cn.wyq.serverwebsocket.framework.common.PageResult;
 import cn.wyq.serverwebsocket.framework.common.Result;
 import cn.wyq.serverwebsocket.pojo.User;
+import cn.wyq.serverwebsocket.pojo.dto.UserEmailDto;
 import cn.wyq.serverwebsocket.pojo.dto.UserQueryDTO;
 import cn.wyq.serverwebsocket.pojo.entity.UserEntity;
 import cn.wyq.serverwebsocket.service.UserService;
+import cn.wyq.serverwebsocket.utils.MailUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.extensions.Extension;
 import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
@@ -31,10 +34,12 @@ import java.util.Map;
                 @ExtensionProperty(name = "x-order", value = "1")
         })
 })
+@Slf4j
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
+    private final MailUtil mailUtil;
 
     //    @LoginNotRequired
     @GetMapping("/hello")
@@ -65,24 +70,25 @@ public class UserController {
             })
     @PostMapping("/login")
     public Result login(@RequestBody User user) {
+        log.info("登录用户信息，{}",user);
         return userService.login(user);
     }
 
     /**
      * 注册
      *
-     * @param user
+     * @param userEmailDto
      * @return
      */
     @PostMapping("/register")
     @Operation(summary = "用户注册",
             description = "用户注册接口")
-    public Result register(@RequestBody User user) {
+    public Result register(@RequestBody UserEmailDto userEmailDto) {
         //密码加密
         //设置密码
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        userEmailDto.setPassword(passwordEncoder.encode(userEmailDto.getPassword()));
         //调service
-        int register = userService.register(user);
+        int register = userService.register(userEmailDto);
         return Result.toAjax(register, 401, "该用户已存在");
     }
 
@@ -165,4 +171,12 @@ public class UserController {
         Map<String, String> map = userService.refreshToken(refreshToken);
         return Result.success(map);
     }
+
+    @PostMapping("/email")
+    @LoginNotRequired
+    public Result getEmail(@RequestBody UserEmailDto userEmailDto){
+        mailUtil.sendVerificationCode(userEmailDto.getEmail());
+        return Result.success();
+    }
+
 }

@@ -189,6 +189,12 @@
 <!--            <version>2.5.6</version>-->
         </dependency>
 
+<!--        springboot email-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
+        </dependency>
+
 
         <!-- commons-pool2：实现对象池化的框架，没有的话启动时redis报错 -->
         <dependency>

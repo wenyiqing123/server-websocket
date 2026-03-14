@@ -6,11 +6,13 @@ import cn.wyq.serverwebsocket.framework.constant.RedisKeyConstants;
 import cn.wyq.serverwebsocket.framework.exception.ServiceException;
 import cn.wyq.serverwebsocket.mapper.UserMapper;
 import cn.wyq.serverwebsocket.pojo.User;
+import cn.wyq.serverwebsocket.pojo.dto.UserEmailDto;
 import cn.wyq.serverwebsocket.pojo.dto.UserQueryDTO;
 import cn.wyq.serverwebsocket.pojo.entity.UserEntity;
 import cn.wyq.serverwebsocket.pojo.vo.UserVo;
 import cn.wyq.serverwebsocket.service.UserService;
 import cn.wyq.serverwebsocket.utils.JWTUtil;
+import cn.wyq.serverwebsocket.utils.MailUtil;
 import cn.wyq.serverwebsocket.utils.RedisUtil;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -36,6 +38,8 @@ public class UserServiceImpl implements UserService {
     private PasswordEncoder passwordEncoder;
     @Autowired
     private RedisUtil redisUtil;
+    @Autowired
+    private MailUtil mailUtil;
 //    @Autowired
 //    private AuthenticationManager authenticationManager;
 
@@ -44,12 +48,13 @@ public class UserServiceImpl implements UserService {
     @Cacheable(
             value = RedisKeyConstants.MANAGE_USERS_CACHE,
             key = "'page=1,pageSize=9:list'",
-            condition = "#userQueryDTO.id==null||#userQueryDTO.id==''&&" +
-                    "#userQueryDTO.page==1&&" +
-                    "#userQueryDTO.pageSize==9&&" +
-                    "#userQueryDTO.userName==''||#userQueryDTO.userName==''&&" +
-                    "#userQueryDTO.role==null||#userQueryDTO.role==''",
-            unless = "#result==null"
+            // 🌟 修复点：每一个字段的 "为空判断" 必须用小括号包起来！
+            condition = "(#userQueryDTO.id == null || #userQueryDTO.id == '') && " +
+                    "(#userQueryDTO.page == 1) && " +
+                    "(#userQueryDTO.pageSize == 9) && " +
+                    "(#userQueryDTO.userName == null || #userQueryDTO.userName == '') && " +
+                    "(#userQueryDTO.role == null || #userQueryDTO.role == '')",
+            unless = "#result == null"
     )
     public PageResult<List<UserEntity>> userList(UserQueryDTO userQueryDTO) {
         log.info("userQueryDTO:{}", userQueryDTO);
@@ -147,18 +152,28 @@ public class UserServiceImpl implements UserService {
      * 首先检查传入用户的用户名是否已存在于数据库中，若存在则返回 0 表示注册失败；
      * 若不存在则调用 UserMapper 的 register 方法执行注册操作，并返回注册结果。
      *
-     * @param user 包含用户注册信息的 User 对象
+     * @param userEmailDto 包含用户注册信息的 User 对象
      * @return 若用户名已存在，返回 0；若注册成功，返回 UserMapper.register 方法的执行结果（通常为受影响的数据库记录行数）
      */
     @Override
-    public int register(User user) {
+    @CacheEvict(
+            value = RedisKeyConstants.MANAGE_USERS_CACHE,
+            key = "'page=1,pageSize=9:list'"
+    )
+    public int register(UserEmailDto userEmailDto) {
+        String code = userEmailDto.getCode();
+        String email = userEmailDto.getEmail();
+        boolean flag = mailUtil.verifyCode(email, code);
+        if (!flag) throw new ServiceException("验证码错误",400);
         // 根据传入用户对象的用户名，从数据库中查找对应的用户记录
-        User byUsername = userMapper.findByUsername(user.getUserName());
+        User byUsername = userMapper.findByUsername(userEmailDto.getUserName());
         // 若查找到的用户记录不为 null，说明该用户名已存在
         if (byUsername != null) {
             // 用户名已存在，返回 0 表示注册失败
             return 0;
         }
+        User user = new User();
+        BeanUtils.copyProperties(userEmailDto,user);
         // 用户名不存在，调用 UserMapper 的 register 方法执行注册操作，并返回注册结果
         return userMapper.register(user);
     }

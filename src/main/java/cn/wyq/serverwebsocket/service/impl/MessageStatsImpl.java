@@ -30,16 +30,16 @@ public class MessageStatsImpl implements MessageStatsService {
 
     @Override
     public List<RencetSevenDayUsersAndMessageCount> getRencetSevenDayUsersAndMessageCount() {
-        LocalDate now = LocalDate.now();
-        LocalDate minus = now.minus(60, ChronoUnit.DAYS);
+        LocalDate now = LocalDate.now().plusDays(1);
+        LocalDate minus = now.minus(90, ChronoUnit.DAYS);
         List<RencetSevenDayUsersAndMessageCount> rencetSevenDayUsersAndMessageCountList = messageStatsMapper.getRencetSevenDayUsersAndMessageCount(minus, now);
         return rencetSevenDayUsersAndMessageCountList;
     }
 
     @Override
     public List<UsersAndMessages> getActiveUsersAndMessages() {
-        LocalDate now = LocalDate.now();
-        LocalDate minus = now.minus(60, ChronoUnit.DAYS);
+        LocalDate now = LocalDate.now().plusDays(1);
+        LocalDate minus = now.minus(90, ChronoUnit.DAYS);
         List<UsersAndMessages> usersAndMessagesList = messageStatsMapper.getActiveUsersAndMessages(minus, now);
         return usersAndMessagesList;
     }
