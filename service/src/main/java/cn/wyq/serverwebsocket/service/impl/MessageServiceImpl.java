@@ -7,6 +7,7 @@ import cn.wyq.serverwebsocket.exception.ServiceException;
 import cn.wyq.serverwebsocket.mapper.MessageMapper;
 import cn.wyq.serverwebsocket.mapper.MessageStructMapper;
 import cn.wyq.serverwebsocket.mapper.UserMapper;
+import cn.wyq.serverwebsocket.pojo.dto.MessageExportDTO;
 import cn.wyq.serverwebsocket.pojo.dto.MessageQueryDTO;
 import cn.wyq.serverwebsocket.pojo.entity.Message;
 import cn.wyq.serverwebsocket.pojo.socket.MessageFull;
@@ -116,5 +117,10 @@ public class MessageServiceImpl implements MessageService {
             log.error(e.getMessage());
             throw new ServiceException("删除失败", 500);
         }
+    }
+
+    @Override
+    public List<Message> export(MessageExportDTO messageExportDTO) {
+        return messageMapper.export(messageExportDTO);
     }
 }

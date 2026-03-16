@@ -15,36 +15,5 @@ public class RedisKeyConstants {
     public static final String CONVERSATION_MESSAGES_CACHE = "conversation_messages";
     public static final String MANAGE_MESSAGES_CACHE = "manage_messages";
     public static final String MANAGE_USERS_CACHE = "manage_users";
-//    public static final String CONVERSATION_MESSAGES_CACHE = "conversation_messages";
 
-    /**
-     * AI 对话历史记录的 Key 前缀
-     */
-    public static final String HISTORY_CONVERSATIONS_PREFIX = "userName:";
-
-    /**
-     * 用户登录 Token 令牌前缀
-     * 示例: login:token:{userId}
-     */
-    public static final String LOGIN_USER_TOKEN = "login:token:";
-
-    /**
-     * 图片验证码 Key 前缀
-     * 示例: captcha:code:{uuid}
-     */
-    public static final String CAPTCHA_CODE_KEY = "captcha:code:";
-
-    /**
-     * 在线用户列表 (如果需要存 Redis)
-     */
-    public static final String ONLINE_USER_LIST = "online:users";
-
-    /**
-     * 每日活跃用户统计 Key
-     * 示例: stats:daily:active:{date}
-     */
-    public static final String STATS_DAILY_ACTIVE = "stats:daily:active:";
-
-    // 防止被实例化
-    private RedisKeyConstants() {}
 }

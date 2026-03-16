@@ -60,4 +60,25 @@
             </if>
         </where>
     </select>
+    <select id="export" resultType="cn.wyq.serverwebsocket.pojo.entity.Message">
+        select id, message, from_name, to_name, send_at
+        from message
+        <where>
+            <if test="id!=null and id!=0">
+                and id=#{id}
+            </if>
+            <if test="message!=null and message!=''">
+                and message like concat('%',#{message},'%')
+            </if>
+            <if test="fromName!=null and fromName!=''">
+                and from_name like concat('%',#{fromName},'%')
+            </if>
+            <if test="toName!=null and toName!=''">
+                and to_name like concat('%',#{toName},'%')
+            </if>
+            <if test="sendAtStart != null  and sendAtEnd != null ">
+                and send_at BETWEEN #{sendAtStart} AND #{sendAtEnd}
+            </if>
+        </where>
+    </select>
 </mapper>

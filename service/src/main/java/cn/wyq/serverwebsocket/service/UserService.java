@@ -5,9 +5,12 @@ import cn.wyq.serverwebsocket.common.PageResult;
 import cn.wyq.serverwebsocket.common.Result;
 import cn.wyq.serverwebsocket.pojo.User;
 import cn.wyq.serverwebsocket.pojo.dto.UserEmailDto;
+import cn.wyq.serverwebsocket.pojo.dto.UserExportDTO;
 import cn.wyq.serverwebsocket.pojo.dto.UserQueryDTO;
+import cn.wyq.serverwebsocket.pojo.dto.UserQueryExportDTO;
 import cn.wyq.serverwebsocket.pojo.entity.UserEntity;
 
+import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Map;
 
@@ -36,4 +39,6 @@ public interface UserService {
     String getPath(String username);
 
     Map<String, String> refreshToken(String refreshToken);
+
+    List<UserExportDTO> export(UserQueryExportDTO userQueryExportDTO) throws MalformedURLException;
 }

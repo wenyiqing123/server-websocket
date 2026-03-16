@@ -8,7 +8,9 @@ import cn.wyq.serverwebsocket.exception.ServiceException;
 import cn.wyq.serverwebsocket.mapper.UserMapper;
 import cn.wyq.serverwebsocket.pojo.User;
 import cn.wyq.serverwebsocket.pojo.dto.UserEmailDto;
+import cn.wyq.serverwebsocket.pojo.dto.UserExportDTO;
 import cn.wyq.serverwebsocket.pojo.dto.UserQueryDTO;
+import cn.wyq.serverwebsocket.pojo.dto.UserQueryExportDTO;
 import cn.wyq.serverwebsocket.pojo.entity.UserEntity;
 import cn.wyq.serverwebsocket.pojo.vo.UserVo;
 import cn.wyq.serverwebsocket.service.UserService;
@@ -25,6 +27,8 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.net.MalformedURLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -136,6 +140,44 @@ public class UserServiceImpl implements UserService {
         map.put("accessToken", accessToken);
         map.put("refreshToken", newRefreshToken);
         return map;
+    }
+
+    @Override
+    public List<UserExportDTO> export(UserQueryExportDTO userQueryExportDTO) {
+        // 1. 从数据库查询原始数据 (此时接收的是数据库实体，path 是 String 类型)
+        // 注意：请确保 userMapper.export 返回的是 List<User> 或者包含 String 类型 path 的对象
+        List<UserEntity> userList = userMapper.export(userQueryExportDTO);
+
+        List<UserExportDTO> exportDTOList = new ArrayList<>();
+
+        // 2. 遍历并进行安全的数据转换
+        for (UserEntity user : userList) {
+            UserExportDTO dto = new UserExportDTO();
+            dto.setId(user.getId());
+            dto.setUserName(user.getUserName());
+            dto.setRole(user.getRole());
+
+            // 3. 🛡️ 安全处理图片 URL，防止某一个坏数据导致整体崩溃
+            String rawPath = user.getPath();
+            if (rawPath != null && !rawPath.trim().isEmpty()) {
+                try {
+                    // 如果数据库存的不是完整的 http 开头，可以在这里补全，比如：
+                    // dto.setPath(new URL("http://localhost:8000" + rawPath));
+                    dto.setPath(new java.net.URL(rawPath));
+                } catch (MalformedURLException e) {
+                    // 仅仅记录日志，不要抛出异常，这样有问题的单元格留空，不影响其他人导出
+                    log.error("用户 [{}] 的头像路径格式非法: {}", user.getUserName(), rawPath);
+                    dto.setPath(null);
+                }
+            } else {
+                dto.setPath(null); // 没有头像就置空
+            }
+
+            exportDTOList.add(dto);
+        }
+
+        // 4. 返回处理好的、专供 Excel 导出的 DTO 列表
+        return exportDTOList;
     }
 
     @Override

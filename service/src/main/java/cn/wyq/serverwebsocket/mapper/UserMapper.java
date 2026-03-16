@@ -3,6 +3,7 @@ package cn.wyq.serverwebsocket.mapper;
 
 import cn.wyq.serverwebsocket.pojo.User;
 import cn.wyq.serverwebsocket.pojo.dto.UserQueryDTO;
+import cn.wyq.serverwebsocket.pojo.dto.UserQueryExportDTO;
 import cn.wyq.serverwebsocket.pojo.entity.UserEntity;
 import com.github.pagehelper.Page;
 import org.apache.ibatis.annotations.Mapper;
@@ -41,4 +42,6 @@ public interface UserMapper {
     List<User> findAllUsers();
 
     String getPath(String username);
+
+    List<UserEntity> export(UserQueryExportDTO userQueryExportDTO);
 }

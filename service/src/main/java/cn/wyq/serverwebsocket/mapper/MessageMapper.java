@@ -1,6 +1,7 @@
 package cn.wyq.serverwebsocket.mapper;
 
 
+import cn.wyq.serverwebsocket.pojo.dto.MessageExportDTO;
 import cn.wyq.serverwebsocket.pojo.dto.MessageQueryDTO;
 import cn.wyq.serverwebsocket.pojo.entity.Message;
 import cn.wyq.serverwebsocket.pojo.socket.MessageInfo;
@@ -30,4 +31,6 @@ public interface MessageMapper {
 
     @Delete("delete  from message where id=#{id}")
     void deleteMessage(Integer id);
+
+    List<Message> export(MessageExportDTO messageExportDTO);
 }

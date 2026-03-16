@@ -1,6 +1,7 @@
 package cn.wyq.serverwebsocket.config;
 
 
+import cn.wyq.serverwebsocket.constant.RedisKeyConstants;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
@@ -13,6 +14,7 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
+import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
@@ -20,6 +22,8 @@ import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import java.time.Duration;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author wyq
@@ -96,5 +100,31 @@ public class RedisConfig extends CachingConfigurerSupport {
                 // 关键：这里也要用支持 JavaTimeModule 的序列化器
                 .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(jsonSerializer))
                 .disableCachingNullValues();
+    }
+
+// ... 在类内部补充以下方法 ...
+
+    /**
+     * 💡 显式配置 CacheManager
+     * 解决 "Cannot find cache named 'manage_messages'" 的核心步骤
+     */
+    @Bean
+    public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory) {
+        // 1. 获取你已经写好的配置
+        RedisCacheConfiguration config = cacheConfiguration();
+
+        // 2. 预先定义好所有用到的缓存名称
+        Set<String> cacheNames = new HashSet<>();
+        cacheNames.add(RedisKeyConstants.MANAGE_MESSAGES_CACHE);
+        cacheNames.add(RedisKeyConstants.MANAGE_USERS_CACHE);
+        cacheNames.add(RedisKeyConstants.HISTORY_CONVERSATIONS_CACHE);
+        cacheNames.add(RedisKeyConstants.CONVERSATION_MESSAGES_CACHE);
+
+        // 3. 构建 RedisCacheManager
+        return RedisCacheManager.builder(connectionFactory)
+                .cacheDefaults(config)          // 设置默认配置（过期时间、序列化等）
+                .initialCacheNames(cacheNames)  // 🚨 必须：初始时就注册这些名字
+                .transactionAware()             // 开启事务支持
+                .build();
     }
 }

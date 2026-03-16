@@ -93,5 +93,21 @@
         from user
         where user_name = #{username}
     </select>
+    <select id="export" resultType="cn.wyq.serverwebsocket.pojo.entity.UserEntity">
+        SELECT id, user_name, password, path, role
+        FROM user
+        <where>
+            <if test="id!=null and id!=''">
+                id = #{id}
+            </if>
+            <if test="userName!=null and userName!=''">
+                user_name like concat('%',#{userName},'%')
+            </if>
+            <if test="role!=null and role!=''">
+                role = #{role}
+            </if>
+        </where>
+        ORDER BY id DESC
+    </select>
 
 </mapper>

@@ -8,9 +8,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserEntity {
+    private String path;
     private int id;
     private String password;
     private String userName;
-    private String path;
     private int role;
 }
