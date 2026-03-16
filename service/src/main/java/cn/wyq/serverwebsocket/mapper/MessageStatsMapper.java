@@ -13,7 +13,7 @@ import java.util.List;
 public interface MessageStatsMapper {
     List<ActiveUsersAndMessageCount> getTodayActiveUsersAndMessageCount(LocalDate sendAtStart, LocalDate sendAtEnd);
 
-    List<RencetSevenDayUsersAndMessageCount> getRencetSevenDayUsersAndMessageCount(LocalDate minus, LocalDate now);
+    List<RencetSevenDayUsersAndMessageCount> getRencetSevenDayUsersAndMessageCount(LocalDate sendAtStart, LocalDate sendAtEnd);
 
-    List<UsersAndMessages> getActiveUsersAndMessages(LocalDate minus, LocalDate now);
+    List<UsersAndMessages> getActiveUsersAndMessages(LocalDate sendAtStart, LocalDate sendAtEnd);
 }

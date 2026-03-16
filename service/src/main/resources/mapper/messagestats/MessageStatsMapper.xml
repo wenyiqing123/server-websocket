@@ -37,8 +37,7 @@
         SELECT
             DATE (m.send_at) AS sendAt, m.from_name AS userName, COUNT(m.id) AS messageCount
         FROM message m
-        WHERE m.send_at BETWEEN #{minus}
-          AND #{now}
+        WHERE m.send_at BETWEEN #{sendAtStart} AND #{sendAtEnd}
         GROUP BY DATE (m.send_at), m.from_name
         ORDER BY sendAt ASC, messageCount DESC;
     </select>
@@ -46,8 +45,7 @@
         SELECT
             DATE (send_at) AS sendAt, COUNT(*) AS messageCount, COUNT(DISTINCT from_name) AS userCount
         FROM message
-        WHERE send_at BETWEEN #{minus}
-          AND #{now}
+        WHERE send_at BETWEEN #{sendAtStart} AND #{sendAtEnd}
         GROUP BY DATE (send_at)
         ORDER BY DATE (send_at);
     </select>

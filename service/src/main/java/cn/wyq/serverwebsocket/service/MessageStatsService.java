@@ -11,7 +11,7 @@ import java.util.List;
 public interface MessageStatsService {
     List<ActiveUsersAndMessageCount> getTodayActiveUsersAndMessageCount(LocalDate sendAtStart, LocalDate sendAtEnd);
 
-    List<RencetSevenDayUsersAndMessageCount> getRencetSevenDayUsersAndMessageCount();
+    List<RencetSevenDayUsersAndMessageCount> getRencetSevenDayUsersAndMessageCount(LocalDate sendAtStart,LocalDate sendAtEnd);
 
-    List<UsersAndMessages> getActiveUsersAndMessages();
+    List<UsersAndMessages> getActiveUsersAndMessages(LocalDate sendAtStart,LocalDate sendAtEnd);
 }

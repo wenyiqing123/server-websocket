@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
@@ -24,24 +23,35 @@ public class MessageStatsImpl implements MessageStatsService {
     public List<ActiveUsersAndMessageCount> getTodayActiveUsersAndMessageCount(LocalDate sendAtStart, LocalDate sendAtEnd) {
         if (sendAtStart.equals(sendAtEnd)) {
             sendAtEnd = sendAtEnd.plusDays(1);
+        }else {
+            sendAtStart = sendAtStart.plusDays(1);
+            sendAtEnd = sendAtEnd.plusDays(1);
         }
         List<ActiveUsersAndMessageCount> activeUsersAndMessageCountList = messageStatsMapper.getTodayActiveUsersAndMessageCount(sendAtStart, sendAtEnd);
         return activeUsersAndMessageCountList;
     }
 
     @Override
-    public List<RencetSevenDayUsersAndMessageCount> getRencetSevenDayUsersAndMessageCount() {
-        LocalDate now = LocalDate.now().plusDays(1);
-        LocalDate minus = now.minus(90, ChronoUnit.DAYS);
-        List<RencetSevenDayUsersAndMessageCount> rencetSevenDayUsersAndMessageCountList = messageStatsMapper.getRencetSevenDayUsersAndMessageCount(minus, now);
+    public List<RencetSevenDayUsersAndMessageCount> getRencetSevenDayUsersAndMessageCount(LocalDate sendAtStart,LocalDate sendAtEnd) {
+        if (sendAtStart.equals(sendAtEnd)) {
+            sendAtEnd = sendAtEnd.plusDays(1);
+        }else {
+            sendAtStart = sendAtStart.plusDays(1);
+            sendAtEnd = sendAtEnd.plusDays(1);
+        }
+        List<RencetSevenDayUsersAndMessageCount> rencetSevenDayUsersAndMessageCountList = messageStatsMapper.getRencetSevenDayUsersAndMessageCount(sendAtStart, sendAtEnd);
         return rencetSevenDayUsersAndMessageCountList;
     }
 
     @Override
-    public List<UsersAndMessages> getActiveUsersAndMessages() {
-        LocalDate now = LocalDate.now().plusDays(1);
-        LocalDate minus = now.minus(90, ChronoUnit.DAYS);
-        List<UsersAndMessages> usersAndMessagesList = messageStatsMapper.getActiveUsersAndMessages(minus, now);
+    public List<UsersAndMessages> getActiveUsersAndMessages(LocalDate sendAtStart,LocalDate sendAtEnd) {
+        if (sendAtStart.equals(sendAtEnd)) {
+            sendAtEnd = sendAtEnd.plusDays(1);
+        }else {
+            sendAtStart = sendAtStart.plusDays(1);
+            sendAtEnd = sendAtEnd.plusDays(1);
+        }
+        List<UsersAndMessages> usersAndMessagesList = messageStatsMapper.getActiveUsersAndMessages(sendAtStart, sendAtEnd);
         return usersAndMessagesList;
     }
 }
