@@ -173,11 +173,11 @@ public class RealTimeRecommendService {
             // 1. 判断 Redis 里是否已经有数据了，如果有，说明无需预热
             Boolean hasKey = redisTemplate.hasKey(KEY_TAG_TOTAL);
             if (Boolean.TRUE.equals(hasKey)) {
-                log.info("🌟 Redis 中已存在推荐协同矩阵，跳过冷启动预热。");
+                log.info("Redis中已存在推荐协同矩阵，跳过冷启动预热。");
                 return;
             }
 
-            log.info("🔥 检测到 Redis 推荐矩阵为空，开始从 MySQL 执行冷启动数据预热...");
+            log.info("检测到Redis推荐矩阵为空，开始从 MySQL 执行冷启动数据预热");
 
             // 2. 从数据库按时间线捞出所有历史记录
             List<MessageIntention> historyIntentions = messageIntentionMapper.selectAllOrderByTimeAsc();

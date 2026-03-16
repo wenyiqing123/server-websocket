@@ -15,7 +15,7 @@ public class UserEmailDto {
     @NotBlank(message = "密码不能为空")
     private String password;
     private String path;
-    private int role = 0;
+    private int role = 2;
     private String email;
     private String code;
 }

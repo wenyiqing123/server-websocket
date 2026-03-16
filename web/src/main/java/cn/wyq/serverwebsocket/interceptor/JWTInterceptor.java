@@ -32,6 +32,8 @@ public class JWTInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        String ip = request.getRemoteAddr();
+        log.info("请求的IP:{}",ip);
         // 1. 如果不是映射到方法直接通过 (例如静态资源等，虽然一般会在 Config 中排除)
         if (!(handler instanceof HandlerMethod)) {
             return true;
@@ -51,6 +53,7 @@ public class JWTInterceptor implements HandlerInterceptor {
 
         // 3.1 获取请求路径 (用于日志)
         String uri = request.getRequestURI();
+
 
         // 3.2 检查 OPTIONS 请求 (虽然一般会有 CORS Filter 处理，但这里兜底)
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {

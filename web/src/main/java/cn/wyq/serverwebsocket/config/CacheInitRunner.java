@@ -34,7 +34,7 @@ public class CacheInitRunner {
     // 🌟 监听项目启动完成事件
     @EventListener(ApplicationReadyEvent.class)
     public void initCache() {
-        log.info("====== 项目启动成功，开始执行全局缓存预热 ======");
+        log.info("项目启动成功，开始执行全局缓存预热");
 
         // ==========================================
         // 模块 1：基础业务数据（消息、用户列表）预热
@@ -62,7 +62,7 @@ public class CacheInitRunner {
             log.error("缓存成功", e);
         }
 
-        log.info("====== 所有缓存预热流程执行结束，系统准备就绪 ======");
+        log.info("所有缓存预热流程执行结束，系统准备就绪");
 
 
         /**
