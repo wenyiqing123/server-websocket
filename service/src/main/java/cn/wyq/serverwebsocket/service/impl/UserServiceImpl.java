@@ -50,6 +50,7 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
+    //删除unless = "#result == null"，防止缓存穿透
     @Cacheable(
             value = RedisKeyConstants.MANAGE_USERS_CACHE,
             key = "'page=1,pageSize=9:list'",
@@ -58,8 +59,7 @@ public class UserServiceImpl implements UserService {
                     "(#userQueryDTO.page == 1) && " +
                     "(#userQueryDTO.pageSize == 9) && " +
                     "(#userQueryDTO.userName == null || #userQueryDTO.userName == '') && " +
-                    "(#userQueryDTO.role == null || #userQueryDTO.role == '')",
-            unless = "#result == null"
+                    "(#userQueryDTO.role == null || #userQueryDTO.role == '')"
     )
     public PageResult<List<UserEntity>> userList(UserQueryDTO userQueryDTO) {
         log.info("userQueryDTO:{}", userQueryDTO);
@@ -89,19 +89,20 @@ public class UserServiceImpl implements UserService {
         if (!passwordEncoder.matches(user.getPassword(), loginUser.getPassword())) {
             return Result.error("用户名或密码错误");
         } else {
-            String accessToken = JWTUtil.generateToken(loginUser.getId(),loginUser.getUserName());
-            String refreshToken = JWTUtil.generateRefreshToken(loginUser.getId(),loginUser.getUserName());
+            // 生成双 Token
+            String accessToken = JWTUtil.generateToken(loginUser.getId(), loginUser.getUserName());
+            String refreshToken = JWTUtil.generateRefreshToken(loginUser.getId(), loginUser.getUserName());
+
             UserEntity userEntity = new UserEntity();
             BeanUtils.copyProperties(loginUser, userEntity);
             UserVo userVo = new UserVo(accessToken, refreshToken, userEntity);
-            /**
-             * K:userId
-             * V:token
-             * TimeOut: 1
-             * TimeUnit: hour
-             */
-            redisUtil.set("accessToken:userId:" + loginUser.getId(), accessToken, 30, TimeUnit.MINUTES);
+
+            // ❌ 删除这行：不再把 accessToken 存入 Redis！
+            // redisUtil.set("accessToken:userId:" + loginUser.getId(), accessToken, 30, TimeUnit.MINUTES);
+
+            // ✅ 只保留这行：将 refreshToken 存入 Redis，保留踢人或单点登录的控制权
             redisUtil.set("refreshToken:userId:" + loginUser.getId(), refreshToken, 7, TimeUnit.DAYS);
+
             return Result.success(userVo);
         }
     }
@@ -123,19 +124,29 @@ public class UserServiceImpl implements UserService {
         if (!JWTUtil.verifyToken(refreshToken)) {
             throw new ServiceException("登录已失效，请重新登录", 401);
         }
-        // 2. 获取用户信息
+
+        // --- 补充安全校验：必须检查传入的 refreshToken 是否和 Redis 里存的一致！ ---
         int userId = JWTUtil.getUserId(refreshToken);
+        String redisRt = redisUtil.get("refreshToken:userId:" + userId);
+        if (redisRt == null || !redisRt.equals(refreshToken)) {
+            // 如果 Redis 里没有，或者和 Redis 里的不一致（比如在别处登录被顶掉了）
+            throw new ServiceException("账号已在其他设备登录或被强制下线", 401);
+        }
+        // -------------------------------------------------------------
+
         String username = JWTUtil.getUsername(refreshToken);
         User user = new User().builder().id(userId).userName(username).build();
-        // 3. 生成新的 Access Token
-        String accessToken = JWTUtil.generateToken(user.getId(),user.getUserName());
-        // 4. (可选) 处于安全考虑，有时也会同时轮换 Refresh Token
-        String newRefreshToken = JWTUtil.generateRefreshToken(user.getId(),user.getUserName());
-        // 5. 更新 Redis 中的 Refresh Token
+
+        // 生成新的双 Token
+        String accessToken = JWTUtil.generateToken(user.getId(), user.getUserName());
+        String newRefreshToken = JWTUtil.generateRefreshToken(user.getId(), user.getUserName());
+
+        // ✅ 更新 Redis 中的 Refresh Token (续期防盗)
         redisUtil.set("refreshToken:userId:" + userId, newRefreshToken, 7, TimeUnit.DAYS);
-        // 5. 更新 Redis 中的 Access Token
-        redisUtil.set("accessToken:userId:" + userId, accessToken, 30, TimeUnit.MINUTES);
-        // 6. 返回新的 Access Token 和 Refresh Token
+
+        // ❌ 删除这行：不再更新 accessToken 到 Redis
+        // redisUtil.set("accessToken:userId:" + userId, accessToken, 30, TimeUnit.MINUTES);
+
         Map<String, String> map = new HashMap<>();
         map.put("accessToken", accessToken);
         map.put("refreshToken", newRefreshToken);

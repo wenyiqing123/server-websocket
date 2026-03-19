@@ -78,6 +78,7 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
+    //删除unless = "#result == null"，防止缓存穿透
     @Cacheable(
             value = RedisKeyConstants.MANAGE_MESSAGES_CACHE,
             // 🌟 完美解法：加上 :list 作为真正的文件名，绝不以冒号结尾！
@@ -89,9 +90,7 @@ public class MessageServiceImpl implements MessageService {
                     "&& (#messageQueryDTO.fromName == null || #messageQueryDTO.fromName == '') " +
                     "&& (#messageQueryDTO.toName == null || #messageQueryDTO.toName == '') " +
                     "&& #messageQueryDTO.sendAtStart == null " +
-                    "&& #messageQueryDTO.sendAtEnd == null",
-            // 🚨 顺手把你刚才写错的 unless 修正过来
-            unless = "#result == null"
+                    "&& #messageQueryDTO.sendAtEnd == null"
     )
     public PageResult<List<Message>> pageQuery(MessageQueryDTO messageQueryDTO) {
         log.info("messageQueryDTO,{}", messageQueryDTO);

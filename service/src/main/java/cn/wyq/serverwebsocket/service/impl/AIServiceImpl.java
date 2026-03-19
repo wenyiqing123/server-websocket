@@ -44,7 +44,8 @@ public class AIServiceImpl implements AIService {
      * 获取历史对话列表
      */
     @Override
-    @Cacheable(value = RedisKeyConstants.HISTORY_CONVERSATIONS_CACHE, key = "'userName:'+#userName", unless = "#result == null")
+    //删除unless = "#result == null"，防止缓存穿透
+    @Cacheable(value = RedisKeyConstants.HISTORY_CONVERSATIONS_CACHE, key = "'userName:'+#userName")
     public List<Conversation> list(String userName) {
         return aiMapper.findAllConversations(userName);
     }
@@ -53,7 +54,8 @@ public class AIServiceImpl implements AIService {
      * 获取某个对话下的所有消息详情
      */
     @Override
-    @Cacheable(value = RedisKeyConstants.CONVERSATION_MESSAGES_CACHE, key = "'conversationId:'+#conversationId", unless = "#result==null")
+    //删除unless = "#result == null"，防止缓存穿透
+    @Cacheable(value = RedisKeyConstants.CONVERSATION_MESSAGES_CACHE, key = "'conversationId:'+#conversationId")
     public List<ConversationMessage> getMessages(Integer conversationId) {
         return aiMapper.selectMessagesByConversationId(conversationId);
     }
