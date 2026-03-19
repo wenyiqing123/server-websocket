@@ -11,8 +11,10 @@ import cn.wyq.serverwebsocket.pojo.dto.UserExportDTO;
 import cn.wyq.serverwebsocket.pojo.dto.UserQueryDTO;
 import cn.wyq.serverwebsocket.pojo.dto.UserQueryExportDTO;
 import cn.wyq.serverwebsocket.pojo.entity.UserEntity;
+import cn.wyq.serverwebsocket.sentinel.GlobalBlockHandler;
 import cn.wyq.serverwebsocket.service.UserService;
 import cn.wyq.serverwebsocket.utils.MailUtil;
+import com.alibaba.csp.sentinel.annotation.SentinelResource;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.write.style.column.LongestMatchColumnWidthStyleStrategy;
 import io.swagger.v3.oas.annotations.Operation;
@@ -135,6 +137,8 @@ public class UserController {
         return AjaxResult.toAjax(result);
     }
 
+
+
     /**
      * 修改用户信息
      */
@@ -180,7 +184,7 @@ public class UserController {
     @PostMapping("/email")
     @LoginNotRequired
     @Operation(summary = "向指定邮箱发送验证码", description = "向指定邮箱发送注册/找回验证码")
-    public Result getEmail(@RequestBody UserEmailDto userEmailDto){
+    public Result getEmail(@RequestBody UserEmailDto userEmailDto) {
         log.info("请求向邮箱发送验证码，目标邮箱: {}", userEmailDto.getEmail());
         mailUtil.sendVerificationCode(userEmailDto.getEmail());
         return Result.success();
@@ -189,7 +193,7 @@ public class UserController {
     @GetMapping("/export")
     @Operation(summary = "按条件导出excel", description = "按条件导出excel")
     public void exportUser(@ParameterObject UserQueryExportDTO userQueryExportDTO, HttpServletResponse response) throws IOException {
-        log.info("导出用户列表到excel：{}",userQueryExportDTO);
+        log.info("导出用户列表到excel：{}", userQueryExportDTO);
         // 1. 设置响应头
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setCharacterEncoding("utf-8");
@@ -203,4 +207,14 @@ public class UserController {
                 .sheet("用户信息")
                 .doWrite(userExportDTOList);
     }
+
+    @SentinelResource(value = "getUser",
+            blockHandler = "handleGetUserBlock",
+            blockHandlerClass = GlobalBlockHandler.class)
+    @GetMapping("/{id}")
+    @Operation(summary = "根据id查询用户", description = "根据id查询用户")
+    public Result getUser(@PathVariable int id) {
+        return Result.success(userService.findById(id));
+    }
+
 }

@@ -44,4 +44,5 @@ public interface UserMapper {
     String getPath(String username);
 
     List<UserEntity> export(UserQueryExportDTO userQueryExportDTO);
+    List<Integer> findAllUserIds();
 }

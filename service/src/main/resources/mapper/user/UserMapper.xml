@@ -73,7 +73,7 @@
         where id = #{id}
     </select>
 
-    <insert id="register">
+    <insert id="register" useGeneratedKeys="true" keyProperty="id">
         insert into user (user_name, password, path, role)
         values (#{userName}, #{password}, #{path}, #{role})
     </insert>
@@ -109,5 +109,9 @@
         </where>
         ORDER BY id DESC
     </select>
+    <select id="findAllUserIds" resultType="java.lang.Integer">
+        select id from user;
+    </select>
+
 
 </mapper>

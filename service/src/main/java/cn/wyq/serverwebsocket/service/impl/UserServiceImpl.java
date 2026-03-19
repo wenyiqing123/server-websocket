@@ -2,6 +2,7 @@ package cn.wyq.serverwebsocket.service.impl;
 
 import cn.wyq.serverwebsocket.common.PageResult;
 import cn.wyq.serverwebsocket.common.Result;
+import cn.wyq.serverwebsocket.constant.BloomConstant;
 import cn.wyq.serverwebsocket.constant.RedisKeyConstants;
 import cn.wyq.serverwebsocket.exception.ServiceException;
 import cn.wyq.serverwebsocket.mapper.UserMapper;
@@ -19,6 +20,9 @@ import cn.wyq.serverwebsocket.utils.RedisUtil;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RBloomFilter;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -48,6 +52,8 @@ public class UserServiceImpl implements UserService {
     // 💡 核心新增：注入 RedisTemplate 用于手动精细化控制缓存
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
+    @Autowired
+    private RedissonClient redissonClient;
 
     @Override
     @SuppressWarnings("unchecked")
@@ -59,7 +65,7 @@ public class UserServiceImpl implements UserService {
                 userQueryDTO.getPage() == 1 &&
                 userQueryDTO.getPageSize() == 9 &&
                 (userQueryDTO.getUserName() == null || userQueryDTO.getUserName().isEmpty()) &&
-                (userQueryDTO.getRole() == null || userQueryDTO.getRole()== 0);
+                (userQueryDTO.getRole() == null || userQueryDTO.getRole() == 0);
 
         // 保持原本 Spring Cache 生成的 Key 格式完全一致
         String cacheKey = RedisKeyConstants.MANAGE_USERS_CACHE + ":page=1,pageSize=9:list";
@@ -208,24 +214,98 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+
     public User findById(int id) {
-        return userMapper.findById(id);
+        // 1. 🛡️ 第一道防线：布隆过滤器 (防止缓存穿透)
+        RBloomFilter<Integer> bloomFilter = redissonClient.getBloomFilter(BloomConstant.USER_BLOOM_FILTER);
+        if (!bloomFilter.contains(id)) {
+            log.warn("🛡️ [布隆过滤器] 拦截非法用户查询，ID: {}", id);
+            return null;
+        }
+        // 2. 🚀 第二道防线：查询 Redis 缓存 (追求性能)
+        String cacheKey = "user:id:" + id;
+        Object cachedData = redisTemplate.opsForValue().get(cacheKey);
+        // 检查是否命中缓存（包括空值标记）
+        if (cachedData != null) {
+            if ("".equals(cachedData)) {
+                log.debug("[Redis空值缓存] 拦截非法查询，ID: {}", id);
+                return null;
+            }
+            return (User) cachedData;
+        }
+        // 3. 🔐 第三道防线：分布式锁 (防止缓存击穿)
+        // 只有缓存没命中，且布隆过滤器认为数据【可能存在】时，才抢锁
+        String lockKey = "lock:user:" + id;
+        RLock lock = redissonClient.getLock(lockKey);
+        try {
+            // 尝试加锁：最多等待 5 秒，加锁后 10 秒自动释放（防止死锁）
+            // Redisson 的看门狗机制会自动续期，所以 10s 是安全的兜底时间
+            if (lock.tryLock(5, 10, TimeUnit.SECONDS)) {
+                // 🌟 核心：二次检查 (Double-Check)
+                // 当 100 个线程排队时，第 1 个抢到锁的人写完缓存走了，
+                // 剩下的 99 个人进来后，必须先看一眼缓存，防止重复冲击数据库。
+                cachedData = redisTemplate.opsForValue().get(cacheKey);
+                if (cachedData != null) {
+                    return "".equals(cachedData) ? null : (User) cachedData;
+                }
+                // 4. 🗄️ 真正查数据库
+                User user = userMapper.findById(id);
+                if (user == null) {
+                    // 再次确认：如果是布隆过滤器误判，则存入空值标记 (防止穿透)
+                    redisTemplate.opsForValue().set(cacheKey, "", 1, TimeUnit.MINUTES);
+                    log.info("[数据库空结果] ID: {} 为误判，已存入空值缓存", id);
+                } else {
+                    // 正常回写缓存 (设置 2 小时有效期)
+                    redisTemplate.opsForValue().set(cacheKey, user, 2, TimeUnit.HOURS);
+                    log.info("[数据库查询成功] 已更新缓存，ID: {}", id);
+                }
+                return user;
+            } else {
+                // 如果抢锁失败（等了5秒还没抢到），可以根据业务选择报错或重试
+                log.error("❌ [分布式锁] 获取锁超时，ID: {}", id);
+                throw new ServiceException("服务器忙，请稍后再试", 503);
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new ServiceException("系统异常", 500);
+        } finally {
+            // 5. 🔓 释放锁 (务必放在 finally 中，且只释放自己持有的锁)
+            if (lock.isHeldByCurrentThread()) {
+                lock.unlock();
+            }
+        }
     }
 
+    /**
+     * 🌟 重构：注册成功后，必须将新 ID 同步加入布隆过滤器
+     */
     @Override
     public int register(UserEmailDto userEmailDto) {
         String code = userEmailDto.getCode();
         String email = userEmailDto.getEmail();
         boolean flag = mailUtil.verifyCode(email, code);
-        if (!flag) throw new ServiceException("验证码错误",400);
+        if (!flag) throw new ServiceException("验证码错误", 400);
 
         User byUsername = userMapper.findByUsername(userEmailDto.getUserName());
         if (byUsername != null) {
             return 0;
         }
+
         User user = new User();
-        BeanUtils.copyProperties(userEmailDto,user);
+        BeanUtils.copyProperties(userEmailDto, user);
+
+        // 执行数据库插入
         int result = userMapper.register(user);
+
+        // 🌟 核心新增：获取刚生成的用户 ID (前提：MyBatis 的 insert 语句配置了主键返回)
+        Integer newUserId = user.getId();
+
+        // 将新 ID 加入布隆过滤器
+        if (newUserId != null) {
+            RBloomFilter<Integer> bloomFilter = redissonClient.getBloomFilter("user:bloom:filter");
+            bloomFilter.add(newUserId);
+            log.info("新注册用户 ID {} 已同步加入布隆过滤器", newUserId);
+        }
 
         // 🧹 手动清除缓存 (注册了新用户，第一页的列表数据可能发生了变化)
         String cacheKey = RedisKeyConstants.MANAGE_USERS_CACHE + ":page=1,pageSize=9:list";

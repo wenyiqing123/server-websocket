@@ -1,20 +1,25 @@
 package cn.wyq.serverwebsocket.utils;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 @Component
+@Slf4j
 public class RedisUtil {
 
     // ✅ 修改点 1：直接注入 RedisTemplate，去掉 static，去掉 @PostConstruct
     @Autowired
     private RedisTemplate<String, String> redisTemplate;
+    private Random random=new Random();
 
     // ============================= Common（通用操作） =============================
 
@@ -119,7 +124,22 @@ public class RedisUtil {
     public boolean set(String key, String value, long time) {
         try {
             if (time > 0) {
-                redisTemplate.opsForValue().set(key, value, time, TimeUnit.SECONDS);
+                // 1. 计算随机扰动的最大值（传入时间的 1/10）
+                long maxJitter = time / 10;
+
+                // 2. 生成随机偏移量
+                // 注意：ThreadLocalRandom.nextLong(bound) 的 bound 必须大于 0
+                long randomOffset = 0;
+                if (maxJitter > 0) {
+                    randomOffset = ThreadLocalRandom.current().nextLong(maxJitter + 1);
+                }
+
+                // 3. 最终过期时间 = 基础时间 + 随机偏移量
+                long finalTime = time + randomOffset;
+
+                redisTemplate.opsForValue().set(key, value, finalTime, TimeUnit.SECONDS);
+                log.debug("设置缓存成功，Key: {}, 原始时间: {}s, 随机增加: {}s, 最终时间: {}s",
+                        key, time, randomOffset, finalTime);
             } else {
                 set(key, value);
             }
