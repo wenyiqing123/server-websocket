@@ -12,27 +12,28 @@
                     pattern="%clr{%d{HH:mm:ss.SSS}}{yellow} [%clr{%t}{red}] %-5level %clr{%l}{blue} - %clr{%msg%n}{green}"/>
         </Console>
 
-        <RollingRandomAccessFile name="RollingRandomAccessFile"
-                                 fileName="${LOG_HOME}/${FILE_NAME}.log"
-                                 filePattern="${LOG_HOME}/$${date:yyyy-MM}/${FILE_NAME}-%d{yyyy-MM-dd}.log">
+        <RollingFile name="RollingFileAppender"
+                     fileName="${LOG_HOME}/${FILE_NAME}.log"
+                     filePattern="${LOG_HOME}/$${date:yyyy-MM}/${FILE_NAME}-%d{yyyy-MM-dd}.log"
+                     immediateFlush="true">
 
             <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %l - %msg%n"/>
 
             <Policies>
                 <TimeBasedTriggeringPolicy interval="1"/>
             </Policies>
-        </RollingRandomAccessFile>
+        </RollingFile>
     </Appenders>
 
     <Loggers>
         <Root level="info">
             <AppenderRef ref="Console"/>
-            <AppenderRef ref="RollingRandomAccessFile" />
+            <AppenderRef ref="RollingFileAppender" />
         </Root>
 
         <Logger name="cn.wyq.serverwebsocket.mapper" level="debug" additivity="false">
             <AppenderRef ref="Console"/>
-            <AppenderRef ref="RollingRandomAccessFile"/>
+            <AppenderRef ref="RollingFileAppender"/>
         </Logger>
     </Loggers>
 </Configuration>

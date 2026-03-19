@@ -88,8 +88,6 @@ public class MessageServiceImpl implements MessageService {
     @Override
     @SuppressWarnings("unchecked")
     public PageResult<List<Message>> pageQuery(MessageQueryDTO messageQueryDTO) {
-        log.info("messageQueryDTO,{}", messageQueryDTO);
-
         // 1. 将原注解中的复杂 condition 转换为清晰的 Java 逻辑判断
         // 只有在查询第一页，且没有任何筛选条件时，才走缓存逻辑
         boolean isCacheable = messageQueryDTO.getPage() == 1

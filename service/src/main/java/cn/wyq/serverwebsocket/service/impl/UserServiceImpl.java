@@ -52,7 +52,6 @@ public class UserServiceImpl implements UserService {
     @Override
     @SuppressWarnings("unchecked")
     public PageResult<List<UserEntity>> userList(UserQueryDTO userQueryDTO) {
-        log.info("userQueryDTO:{}", userQueryDTO);
 
         // 1. 提取缓存条件判断 (替代原 condition 注解)
         // 确保只有在查第一页且无任何筛选条件时，才走缓存
