@@ -7,13 +7,11 @@ import cn.wyq.serverwebsocket.constant.RedisKeyConstants;
 import cn.wyq.serverwebsocket.exception.ServiceException;
 import cn.wyq.serverwebsocket.mapper.UserMapper;
 import cn.wyq.serverwebsocket.pojo.User;
-import cn.wyq.serverwebsocket.pojo.dto.UserEmailDto;
-import cn.wyq.serverwebsocket.pojo.dto.UserExportDTO;
-import cn.wyq.serverwebsocket.pojo.dto.UserQueryDTO;
-import cn.wyq.serverwebsocket.pojo.dto.UserQueryExportDTO;
+import cn.wyq.serverwebsocket.pojo.dto.*;
 import cn.wyq.serverwebsocket.pojo.entity.UserEntity;
 import cn.wyq.serverwebsocket.pojo.vo.UserVo;
 import cn.wyq.serverwebsocket.service.UserService;
+import cn.wyq.serverwebsocket.utils.BaseContext;
 import cn.wyq.serverwebsocket.utils.JWTUtil;
 import cn.wyq.serverwebsocket.utils.MailUtil;
 import cn.wyq.serverwebsocket.utils.RedisUtil;
@@ -206,6 +204,44 @@ public class UserServiceImpl implements UserService {
             exportDTOList.add(dto);
         }
         return exportDTOList;
+    }
+
+    @Override
+    public void updatePassword(UserUpdatePasswordDTO userUpdatePasswordDTO) {
+        // 1. 从 ThreadLocal 获取当前登录用户的 ID
+        Long currentId = BaseContext.getCurrentId();
+
+        // 2. 根据 ID 去数据库查出当前用户的真实信息（核心是为了拿到数据库里的密文旧密码）
+        // 这里假设你的 mapper 里有根据 id 查询的方法，叫 selectById 或 getById
+        User currentUser = userMapper.findById(Math.toIntExact(currentId));
+        if (currentUser == null) {
+            throw new ServiceException("用户不存在",400); // 替换为你项目中的自定义异常类
+        }
+
+        // 3. 核心防线：校验旧密码是否正确
+        // 前端传的是明文：userUpdatePasswordDTO.getOldPassword()
+        // 数据库里是密文：currentUser.getPassword()
+        if (!passwordEncoder.matches(userUpdatePasswordDTO.getOldPassword(), currentUser.getPassword())) {
+            throw new ServiceException("原密码输入错误",400);
+        }
+
+        // 4. 体验优化：新密码不能和旧密码一样（可选）
+        if (passwordEncoder.matches(userUpdatePasswordDTO.getNewPassword(), currentUser.getPassword())) {
+            throw new ServiceException("新密码不能与原密码相同",400);
+        }
+
+        // 5. 对新密码进行加密
+        String encodedNewPassword = passwordEncoder.encode(userUpdatePasswordDTO.getNewPassword());
+
+        // 6. 构造更新实体 🚨（注意这里的“局部更新”思想）
+        UserEntity updateUser = new UserEntity();
+        updateUser.setId(Math.toIntExact(currentId));
+        updateUser.setPassword(encodedNewPassword);
+        // 如果你的表里有 updateTime 或者 updateUser 字段，且没有配置 MyBatis-Plus 自动填充，记得在这里手动 set 一下
+        // updateUser.setUpdateTime(LocalDateTime.now());
+        redisTemplate.delete("refreshToken:userId:"+currentId);
+        // 7. 调用 mapper 执行更新
+        userMapper.updateUser(updateUser);
     }
 
     @Override

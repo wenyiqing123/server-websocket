@@ -6,13 +6,11 @@ import cn.wyq.serverwebsocket.common.AjaxResult;
 import cn.wyq.serverwebsocket.common.PageResult;
 import cn.wyq.serverwebsocket.common.Result;
 import cn.wyq.serverwebsocket.pojo.User;
-import cn.wyq.serverwebsocket.pojo.dto.UserEmailDto;
-import cn.wyq.serverwebsocket.pojo.dto.UserExportDTO;
-import cn.wyq.serverwebsocket.pojo.dto.UserQueryDTO;
-import cn.wyq.serverwebsocket.pojo.dto.UserQueryExportDTO;
+import cn.wyq.serverwebsocket.pojo.dto.*;
 import cn.wyq.serverwebsocket.pojo.entity.UserEntity;
 import cn.wyq.serverwebsocket.sentinel.GlobalBlockHandler;
 import cn.wyq.serverwebsocket.service.UserService;
+import cn.wyq.serverwebsocket.utils.BaseContext;
 import cn.wyq.serverwebsocket.utils.MailUtil;
 import com.alibaba.csp.sentinel.annotation.SentinelResource;
 import com.alibaba.excel.EasyExcel;
@@ -138,7 +136,6 @@ public class UserController {
     }
 
 
-
     /**
      * 修改用户信息
      */
@@ -215,6 +212,19 @@ public class UserController {
     @Operation(summary = "根据id查询用户", description = "根据id查询用户")
     public Result getUser(@PathVariable int id) {
         return Result.success(userService.findById(id));
+    }
+
+    @GetMapping()
+    @Operation(summary = "获取当前用户信息", description = "获取当前用户信息")
+    public Result getUser() {
+        int currentId = Math.toIntExact(BaseContext.getCurrentId());
+        return Result.success(userService.findById(currentId));
+    }
+
+    @PatchMapping("/updatePassword")
+    public Result updatePassword(@RequestBody UserUpdatePasswordDTO userUpdatePasswordDTO) {
+        userService.updatePassword(userUpdatePasswordDTO);
+        return Result.success();
     }
 
 }

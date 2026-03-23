@@ -43,6 +43,7 @@ public class CurrentUserHandlerMethodArgReslover implements HandlerMethodArgumen
             UserEntity userEntity = new UserEntity();
             userEntity.setId(Integer.parseInt(userId.toString()));
             userEntity.setUserName((String) username);
+            userEntity.setPassword((String) username);
             return userEntity;
             // 方案 B：如果你需要完整的用户信息（比如头像、角色），则调用 Service 查库
 //            return userService.findById(Integer.parseInt(userId.toString()));
