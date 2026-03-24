@@ -117,7 +117,8 @@ public class UserServiceImpl implements UserService {
         // 🧹 手动清除缓存 (替代 @CacheEvict)
         String cacheKey = RedisKeyConstants.MANAGE_USERS_CACHE + ":page=1,pageSize=9:list";
         redisTemplate.delete(cacheKey);
-
+        String cacheKey1 = "user:id:" + user.getId();
+        redisTemplate.delete(cacheKey1);
         return result;
     }
 

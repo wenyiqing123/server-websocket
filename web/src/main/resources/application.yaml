@@ -62,6 +62,25 @@ spring:
           max-idle: 8
           min-idle: 0
           max-wait: -1
+  ai:
+    zhipuai:
+      # 🚨 将这里替换成你刚才在智谱官网复制的真实 API Key
+      api-key: 086ec700528b4294960b676ca39817c4.20Yz03TDsZSyGns0
+      chat:
+        options:
+          # 指定使用免费的 flash 模型
+          model: glm-4-flash
+          # 设定为 0.7 让她的回答更有创造力和感情
+          temperature: 0.7
+#    ollama:
+#      base-url: http://localhost:11434
+#      chat:
+#        options:
+#          # 🚨 核心：这里填入你在 Ollama 中拉取好的模型名称
+#          # 比如：llama3, qwen2.5:7b, deepseek-r1:1.5b
+#          model: qwen2.5:3b
+#          # 可选配置：控制模型回答的创造性，0 比较严谨，1 比较天马行空
+#          temperature: 0.7
 
 # ===========================
 # SpringDoc-OpenAPI 配置 (与 spring 顶格平级)

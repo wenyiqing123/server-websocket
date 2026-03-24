@@ -11,8 +11,8 @@ import cn.wyq.serverwebsocket.service.AIService;
 import cn.wyq.serverwebsocket.service.RealTimeRecommendService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,13 +21,10 @@ import java.util.List;
 @RequestMapping("/ai")
 @Tag(name = "AI相关", description = "AI相关接口")
 @Slf4j
+@RequiredArgsConstructor
 public class AIcontroller {
-
-    @Autowired
-    private AIService aiService;
-
-    @Autowired
-    private RealTimeRecommendService recommendService;
+    private final AIService aiService;
+    private final RealTimeRecommendService recommendService;
 
     /**
      * 前端轮询获取推荐问题
