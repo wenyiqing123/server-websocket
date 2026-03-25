@@ -18,7 +18,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     public Result MaxUploadSizeExceededException(ServiceException e) {
-        return Result.error(e.getCode(), "上传文件大小超出限制，最大可上传10MB");
+        return Result.error(e.getCode(), "上传文件大小超出限制，最大可上传1MB");
     }
 
     @ExceptionHandler(SSLHandshakeException.class)
