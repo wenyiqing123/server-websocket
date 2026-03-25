@@ -19,13 +19,13 @@ public class ChatController {
 
     private final ChatService chatService;
 
-    @GetMapping("/chat")
+    @GetMapping(value = "/chat",produces = "text/event-stream")
     @LoginNotRequired
     @Operation(summary = "AI聊天接口", description = "流式聊天")
     public Flux<String> chat(
             @RequestParam String message,
             @RequestParam String sessionId,
-            @RequestParam(defaultValue = "宝宝") String userName
+            @RequestParam(defaultValue = "泽水") String userName
     ) {
         return chatService.chatStream(message, sessionId, userName);
     }

@@ -27,6 +27,7 @@ public class ChatServiceImpl implements ChatService {
     @Override
     public Flux<String> chatStream(String message, String sessionId, String userName) {
         try {
+            // 💡 重点修改：在系统设定中加入【表情包指令】
             return chatClient.prompt()
                     .user(message)
                     .advisors(a -> a.param(ChatMemory.CONVERSATION_ID, sessionId))

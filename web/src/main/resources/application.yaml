@@ -81,23 +81,6 @@ spring:
 #          model: qwen2.5:3b
 #          # 可选配置：控制模型回答的创造性，0 比较严谨，1 比较天马行空
 #          temperature: 0.7
-
-# ===========================
-# SpringDoc-OpenAPI 配置 (与 spring 顶格平级)
-# ===========================
-#springdoc:
-#  swagger-ui:
-#    path: /doc.html
-#    tags-sorter: alpha
-#    operations-sorter: alpha
-#  api-docs:
-#    path: /v3/api-docs
-#    enabled: true
-#  group-configs:
-#    - group: 'default'
-#      paths-to-match: '/**'
-#      packages-to-scan: cn.wyq.serverwebsocket
-
 mybatis:
   configuration:
     map-underscore-to-camel-case: true
