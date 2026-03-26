@@ -23,6 +23,8 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 public class AIcontroller {
+
+
     private final AIService aiService;
     private final RealTimeRecommendService recommendService;
 

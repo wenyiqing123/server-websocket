@@ -25,32 +25,34 @@ public class ChatController {
     public Flux<String> chat(
             @RequestParam String message,
             @RequestParam String sessionId,
-            @RequestParam(defaultValue = "泽水") String userName
+            @RequestParam(defaultValue = "泽水") String userName,
+            @RequestParam String agentType
+
     ) {
-        return chatService.chatStream(message, sessionId, userName);
+        return chatService.chatStream(message, sessionId, userName,agentType);
     }
 
     @GetMapping("/history/{sessionId}")
     @LoginNotRequired
     @Operation(summary = "加载历史记录", description = "返回官方 Message 列表")
-    public Result getHistory(@PathVariable String sessionId) {
-        return Result.success(chatService.getHistory(sessionId));
+    public Result getHistory(@PathVariable String sessionId,@RequestParam String agentType) {
+        return Result.success(chatService.getHistory(sessionId,agentType));
     }
 
     @GetMapping("/session/list")
     @LoginNotRequired
     @Operation(summary = "获取会话列表", description = "查询当前用户拥有的所有聊天窗口")
-    public Result getSessionList() {
+    public Result getSessionList(@RequestParam String agentType) {
         // TODO: 接入鉴权后替换为真实 userId
-        return Result.success(chatService.getSessionList("admin"));
+        return Result.success(chatService.getSessionList("admin",agentType));
     }
 
     @PostMapping("/session/create")
     @LoginNotRequired
     @Operation(summary = "创建新会话", description = "创建一个新的聊天窗口")
-    public Result createSession(@RequestParam String title) {
+    public Result createSession(@RequestParam String title,@RequestParam String agentType) {
         // TODO: 接入鉴权后替换为真实 userId
-        return Result.success(chatService.createSession("admin", title));
+        return Result.success(chatService.createSession("admin", title,agentType));
     }
 
     @DeleteMapping("/session/{sessionId}")

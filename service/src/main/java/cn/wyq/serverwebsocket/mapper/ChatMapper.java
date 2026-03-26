@@ -17,4 +17,5 @@ public interface ChatMapper {
 
     // 根据 ID 删除会话
     void deleteById(String id);
+
 }

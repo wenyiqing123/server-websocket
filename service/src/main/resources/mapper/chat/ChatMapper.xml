@@ -17,4 +17,6 @@
         DELETE FROM ai_chat_session
         WHERE id = #{id}
     </delete>
+
+
 </mapper>
