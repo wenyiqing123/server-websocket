@@ -50,7 +50,6 @@ public class MessageAnalysisTool {
                 .eq(StringUtils.hasText(toName), "to_name", toName)
                 // 💡 架构升级：统计时，绝不把撤回的消息（内容为空）算进去
                 .isNotNull("message").ne("message", "");
-
         if (days != null && days > 0) {
             wrapper.apply("send_at >= DATE_SUB(NOW(), INTERVAL {0} DAY)", days);
         }

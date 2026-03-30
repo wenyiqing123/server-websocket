@@ -27,7 +27,7 @@
 
     <properties>
         <mybatis-plus.version>3.5.9</mybatis-plus.version>
-        <spring-ai.version>1.0.4</spring-ai.version>
+        <spring-ai.version>0.8.1</spring-ai.version>
         <java.version>17</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
