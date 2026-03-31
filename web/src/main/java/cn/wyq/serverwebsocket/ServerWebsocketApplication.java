@@ -12,7 +12,10 @@ import org.springframework.web.client.RestTemplate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-@SpringBootApplication
+@SpringBootApplication(exclude = {
+        org.springframework.ai.model.openai.autoconfigure.OpenAiChatAutoConfiguration.class,
+        org.springframework.ai.model.zhipuai.autoconfigure.ZhiPuAiEmbeddingAutoConfiguration.class
+})
 //如果启动类和mapper文件夹位于同一层级中，则不需要添加该注解
 //@ComponentScan("cn.wyq.serverwebsocket.*")
 @Slf4j

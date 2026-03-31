@@ -11,8 +11,6 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
-import org.springframework.ai.chat.memory.MessageWindowChatMemory;
-import org.springframework.ai.chat.memory.repository.jdbc.JdbcChatMemoryRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -26,14 +24,14 @@ public class CommonConfiguration {
     private final SystemStatsTool systemStatsTool;
 
     // 💡 记忆引擎保持不变，作为底层基础设施供所有智能体使用
-    @Bean
-    public ChatMemory chatMemory(JdbcChatMemoryRepository repository) {
-        log.info("【系统加载】启动 Spring AI 官方正式版 JDBC 记忆引擎！");
-        return MessageWindowChatMemory.builder()
-                .chatMemoryRepository(repository)
-                .maxMessages(20)
-                .build();
-    }
+//    @Bean
+//    public ChatMemory chatMemory(JdbcChatMemoryRepository repository) {
+//        log.info("【系统加载】启动 Spring AI 官方正式版 JDBC 记忆引擎！");
+//        return MessageWindowChatMemory.builder()
+//                .chatMemoryRepository(repository)
+//                .maxMessages(20)
+//                .build();
+//    }
 
     /**
      * 🤖 1号智能体：仿真女友（沉浸式角色扮演）
@@ -68,6 +66,7 @@ public class CommonConfiguration {
                         MessageChatMemoryAdvisor.builder(chatMemory).build(),
                         new SimpleLoggerAdvisor()
                 )
+                .defaultAdvisors()
                 .build();
     }
 }

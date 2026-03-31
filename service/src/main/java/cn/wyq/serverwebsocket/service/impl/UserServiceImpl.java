@@ -264,6 +264,7 @@ public class UserServiceImpl implements UserService {
         Object cachedData = redisTemplate.opsForValue().get(cacheKey);
         // 检查是否命中缓存（包括空值标记）
         if (cachedData != null) {
+            //“”为空标记，表示布隆过滤器误判，用户不存在
             if ("".equals(cachedData)) {
                 log.debug("[Redis空值缓存] 拦截非法查询，ID: {}", id);
                 return null;

@@ -1,22 +1,33 @@
 package cn.wyq.serverwebsocket.service.impl;
 
+import cn.wyq.serverwebsocket.constant.ModelConstant;
 import cn.wyq.serverwebsocket.exception.ServiceException;
 import cn.wyq.serverwebsocket.mapper.ChatMapper;
 import cn.wyq.serverwebsocket.pojo.entity.Chat;
+import cn.wyq.serverwebsocket.pojo.entity.SysConfig;
 import cn.wyq.serverwebsocket.service.ChatService;
+import cn.wyq.serverwebsocket.service.SysConfigService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvisor;
+import org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.messages.Message;
+import org.springframework.ai.vectorstore.SearchRequest;
+import org.springframework.ai.vectorstore.VectorStore;
+import org.springframework.ai.zhipuai.ZhiPuAiChatOptions;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Flux;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -26,16 +37,21 @@ public class ChatServiceImpl implements ChatService {
     private final ChatClient serviceClient; // 💡 改名为 serviceClient
     private final ChatMemory chatMemory;
     private final ChatMapper chatMapper;
+    private final VectorStore vectorStore;
+
+    private SysConfigService sysConfigService;
 
     public ChatServiceImpl(
             @Qualifier("girlfriendChatClient") ChatClient girlfriendClient,
             @Qualifier("serviceChatClient") ChatClient serviceClient, // 💡 注入 serviceChatClient
             ChatMemory chatMemory,
-            ChatMapper chatMapper) {
+            ChatMapper chatMapper, VectorStore vectorStore, SysConfigService sysConfigService) {
         this.girlfriendClient = girlfriendClient;
         this.serviceClient = serviceClient;
         this.chatMemory = chatMemory;
         this.chatMapper = chatMapper;
+        this.vectorStore = vectorStore;
+        this.sysConfigService = sysConfigService;
     }
 
     /**
@@ -50,26 +66,74 @@ public class ChatServiceImpl implements ChatService {
     @Override
     public Flux<String> chatStream(String message, String sessionId, String userName, String agentType) {
         try {
-            // 💡 动态路由判定：如果是 service，就用客服大脑；否则兜底用女友大脑
+            // 1. 动态选择 Client
             ChatClient activeClient = "service".equalsIgnoreCase(agentType) ? serviceClient : girlfriendClient;
 
+            // 2. 获取隔离的对话记忆 ID
             String memoryId = getIsolatedMemoryId(agentType, sessionId);
 
-            return activeClient.prompt()
+            // 3. 构建初始请求 (挂载基础参数和记忆顾问)
+            var clientRequestSpec = activeClient.prompt()
                     .user(message)
-                    .advisors(a -> a.param(ChatMemory.CONVERSATION_ID, memoryId))
-                    .stream()
-                    .content();
+                    .advisors(a -> a.param(AbstractChatMemoryAdvisor.CHAT_MEMORY_CONVERSATION_ID_KEY, memoryId));
+
+            // 4. 🚀 分支处理：按角色动态挂载专属配置
+            if ("service".equalsIgnoreCase(agentType)) {
+                // 🤖 【智能客服逻辑】: 使用纯常量配置，挂载 RAG
+                clientRequestSpec = clientRequestSpec
+                        .system(ModelConstant.SERVICE_SYSTEM_PROMPT) // 注入常量提示词 (你需要确保类里有这个常量)
+                        .advisors(
+                                // 挂载知识库
+                                QuestionAnswerAdvisor.builder(vectorStore)
+                                        .searchRequest(
+                                                SearchRequest.builder()
+                                                        .topK(3)
+                                                        .similarityThreshold(0.7)
+                                                        .build()
+                                        )
+                                        .build()
+                        );
+
+            } else if ("girlfriend".equalsIgnoreCase(agentType)) {
+                // 👩‍🦰 【女友助手逻辑】: 从数据库拉取动态配置 (只在用到她时才查库，优化性能！)
+                Map<String, String> configMap = sysConfigService.list().stream()
+                        .collect(Collectors.toMap(SysConfig::getConfigKey, SysConfig::getConfigValue));
+
+                // 解析配置并赋予安全默认值
+                String dynamicPrompt = configMap.getOrDefault("ai_system_prompt", ModelConstant.GirlFriend_SYSTEM_PROMPT);
+                double dynamicTemp = Double.parseDouble(configMap.getOrDefault("ai_temperature", "0.7"));
+
+                // 将动态提示词和温度挂载到请求中
+                clientRequestSpec = clientRequestSpec
+                        .system(dynamicPrompt)
+                        // 🚀 完善你的 options 逻辑：这里需要注入你所使用大模型的 Options 类
+                        // (注意：这里以 ZhiPuAiChatOptions 为例，如果你用的是 DeepSeek 或 OpenAI，请换成对应的类)
+                        .options(ZhiPuAiChatOptions.builder()
+                                .temperature(dynamicTemp)
+                                .build());
+            }
+
+            // 5. 执行并返回
+            return clientRequestSpec.stream().content()
+                    .onErrorResume(WebClientResponseException.TooManyRequests.class, e -> {
+                        log.warn("触发大模型 429 流控限制，用户：{}", userName);
+                        return Flux.just("\n\n[系统提示]：机甲大脑正在高速运转中，当前排队请求过多（触发API限流），请停顿 5 到 10 秒后再试哦！😅");
+                    })
+                    .onErrorResume(Exception.class, e -> {
+                        log.error("大模型流处理发生未知异常", e);
+                        return Flux.just("\n\n[系统提示]：大模型神经元连接暂时中断，请稍后再试。");
+                    });
+
         } catch (Exception e) {
-            log.error("调用大模型发生异常", e);
-            throw new ServiceException("对不起，大模型脑子暂时短路了", 400);
+            log.error("构建大模型请求时发生异常，用户：{}，消息：{}", userName, message, e);
+            throw new ServiceException("机甲大脑装配失败", 400);
         }
     }
 
     @Override
     public List<Message> getHistory(String sessionId, String agentType) {
         String memoryId = getIsolatedMemoryId(agentType, sessionId);
-        return chatMemory.get(memoryId);
+        return chatMemory.get(memoryId,100);
     }
 
     @Override

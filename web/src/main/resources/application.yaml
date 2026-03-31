@@ -43,7 +43,7 @@ spring:
 
   # 🌟 修复缩进：datasource 必须在 spring 下面，往左退 2 格
   datasource:
-    url: jdbc:mysql://localhost:3306/chat?useSSL=false&serverTimezone=UTC
+    url: jdbc:mysql://localhost:3306/chat?useSSL=false&serverTimezone=UTC&sessionVariables=sql_mode='ANSI_QUOTES'
     username: root
     password: yq040809
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -63,36 +63,38 @@ spring:
           min-idle: 0
           max-wait: -1
   ai:
-    # ==========================================
-    # 🧠 右脑 (负责聊天思考)：智谱 AI
-    # ==========================================
+    # --------------------------------
+    # 1. 智谱配置 (只做聊天，不碰向量)
+    # --------------------------------
     zhipuai:
       api-key: 086ec700528b4294960b676ca39817c4.20Yz03TDsZSyGns0
       chat:
-        enabled: true
         options:
           model: glm-4-flash
           temperature: 0.7
-      # 🚨 必须显式关闭智谱的向量功能，防止与硅基流动抢活干
+        enabled: true
+      # 🚨 核心修复：必须关闭智谱的 Embedding！
       embedding:
         enabled: false
 
-    # ==========================================
-    # 👁️ 左脑 (负责向量检索)：硅基流动 (借用 OpenAI 通道)
-    # ==========================================
+    # --------------------------------
+    # 2. 硅基流动配置 (借用 OpenAI 通道，只做向量)
+    # --------------------------------
     openai:
-      # 🚨 注意：这里要填入你在“硅基流动”官网申请的免费 API Key (sk-开头)
       api-key: sk-vozmtjhusbtxuvswshhkgrlgppwqhivisdxyrrvsmsrzepjt
-      # 偷梁换柱：把原版 OpenAI 的请求地址，劫持到硅基流动的服务器
-      base-url: https://api.siliconflow.cn/v1
+      base-url: https://api.siliconflow.cn
       chat:
-        # 🚨 核心防御：必须关闭！绝对不能让 OpenAI 通道去接管聊天
         enabled: false
       embedding:
         enabled: true
         options:
-          # 指定白嫖的顶级开源向量模型
           model: BAAI/bge-m3
+    chat:
+      memory:
+        repository:
+          jdbc:
+            initialize-schema: false
+
 
 #    ollama:
 #      base-url: http://localhost:11434

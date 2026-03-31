@@ -39,6 +39,24 @@ public class MessageAnalysisTool {
         return list.isEmpty() ? null : list.get(0);
     }
 
+    @Tool(description = "获取绝对意义上最早的一条消息详情。当被问到‘最早一条消息是谁发的’、‘某某最早发消息是什么’时精确调用。")
+    public Map<String, Object> getEarliestSingleMessage(
+            @ToolParam(description = "指定的发送人。如果问全服最新消息，此项留空", required = false) String fromName,
+            @ToolParam(description = "指定的接收人。此项通常为空", required = false) String toName) {
+
+        QueryWrapper<Message> wrapper = new QueryWrapper<>();
+        wrapper.select("message", "from_name as fromName", "to_name as toName", "send_at as sendAt")
+                .eq(StringUtils.hasText(fromName), "from_name", fromName)
+                .eq(StringUtils.hasText(toName), "to_name", toName)
+                // 💡 架构升级：内容不为 null 且不为空字符串，才算有效消息（过滤掉撤回消息）
+                .isNotNull("message").ne("message", "")
+                .orderByAsc("send_at")
+                .last("LIMIT 1");
+        List<Map<String, Object>> list = messageServiceTool.listMaps(wrapper);
+        log.info("list is: {}", list);
+        return list.isEmpty() ? null : list.get(0);
+    }
+
     @Tool(description = "统计消息的具体数量。当被问到‘发了多少条消息’、‘一共聊了多少句’时调用。")
     public long countMessages(
             @ToolParam(description = "发送人姓名，可为空", required = false) String fromName,
