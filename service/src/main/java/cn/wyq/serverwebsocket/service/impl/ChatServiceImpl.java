@@ -95,19 +95,27 @@ public class ChatServiceImpl implements ChatService {
                         );
 
             } else if ("girlfriend".equalsIgnoreCase(agentType)) {
-                // 👩‍🦰 【女友助手逻辑】: 从数据库拉取动态配置 (只在用到她时才查库，优化性能！)
+                // 👩‍🦰 【女友助手逻辑】: 从数据库拉取动态配置
                 Map<String, String> configMap = sysConfigService.list().stream()
                         .collect(Collectors.toMap(SysConfig::getConfigKey, SysConfig::getConfigValue));
 
-                // 解析配置并赋予安全默认值
+                // 1. 解析配置并赋予安全默认值
                 String dynamicPrompt = configMap.getOrDefault("ai_system_prompt", ModelConstant.GirlFriend_SYSTEM_PROMPT);
                 double dynamicTemp = Double.parseDouble(configMap.getOrDefault("ai_temperature", "0.7"));
 
-                // 将动态提示词和温度挂载到请求中
+                // 🚀 2. 新增：解析动态的 RAG 检索量 (兜底默认值为 3)
+                int dynamicTopK = Integer.parseInt(configMap.getOrDefault("ai_top_k", "3"));
+
+                // 3. 将动态提示词、温度和 RAG 检索器挂载到请求中
                 clientRequestSpec = clientRequestSpec
                         .system(dynamicPrompt)
-                        // 🚀 完善你的 options 逻辑：这里需要注入你所使用大模型的 Options 类
-                        // (注意：这里以 ZhiPuAiChatOptions 为例，如果你用的是 DeepSeek 或 OpenAI，请换成对应的类)
+                        // 🚀 4. 新增：在这里注入动态的 topK 检索请求
+                        // 注意：这里需要确保你的 Service 类里已经通过 @Autowired 注入了 VectorStore
+                        .advisors(new QuestionAnswerAdvisor(vectorStore,
+                                SearchRequest.builder()
+                                        .topK(dynamicTopK)           // 使用从数据库读出的动态检索量
+                                        .similarityThreshold(0.7)    // 相似度阈值可以写死，也可以提成配置
+                                        .build()))
                         .options(ZhiPuAiChatOptions.builder()
                                 .temperature(dynamicTemp)
                                 .build());
@@ -133,7 +141,7 @@ public class ChatServiceImpl implements ChatService {
     @Override
     public List<Message> getHistory(String sessionId, String agentType) {
         String memoryId = getIsolatedMemoryId(agentType, sessionId);
-        return chatMemory.get(memoryId,100);
+        return chatMemory.get(memoryId, 100);
     }
 
     @Override
