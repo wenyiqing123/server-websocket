@@ -10,13 +10,13 @@ import cn.wyq.serverwebsocket.service.SysConfigService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvisor;
+import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.ai.zhipuai.ZhiPuAiChatOptions;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -33,99 +33,91 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ChatServiceImpl implements ChatService {
 
-    private final ChatClient girlfriendClient;
-    private final ChatClient serviceClient; // 💡 改名为 serviceClient
+    private final ChatClient chatClient;
     private final ChatMemory chatMemory;
     private final ChatMapper chatMapper;
     private final VectorStore vectorStore;
-
-    private SysConfigService sysConfigService;
+    private final SysConfigService sysConfigService;
 
     public ChatServiceImpl(
-            @Qualifier("girlfriendChatClient") ChatClient girlfriendClient,
-            @Qualifier("serviceChatClient") ChatClient serviceClient, // 💡 注入 serviceChatClient
+            ChatClient.Builder chatClientBuilder, // 推荐注入 Builder 来构建统一 Client
             ChatMemory chatMemory,
-            ChatMapper chatMapper, VectorStore vectorStore, SysConfigService sysConfigService) {
-        this.girlfriendClient = girlfriendClient;
-        this.serviceClient = serviceClient;
+            ChatMapper chatMapper,
+            VectorStore vectorStore,
+            SysConfigService sysConfigService) {
+        this.chatClient = chatClientBuilder.build(); // 构建单一模型实例
         this.chatMemory = chatMemory;
         this.chatMapper = chatMapper;
         this.vectorStore = vectorStore;
         this.sysConfigService = sysConfigService;
     }
 
-    /**
-     * 生成隔离的专属记忆 ID
-     */
     private String getIsolatedMemoryId(String agentType, String sessionId) {
         String safeAgentType = StringUtils.hasText(agentType) ? agentType : "girlfriend";
-        // 现在的格式会是 "service:session_xxx" 或 "girlfriend:session_xxx"
         return safeAgentType + ":" + sessionId;
     }
 
     @Override
-    public Flux<String> chatStream(String message, String sessionId, String userName, String agentType) {
+    public Flux<String> chatStream(String message, String sessionId, String userName, String agentType, String docId) {
         try {
-            // 1. 动态选择 Client
-            ChatClient activeClient = "service".equalsIgnoreCase(agentType) ? serviceClient : girlfriendClient;
-
-            // 2. 获取隔离的对话记忆 ID
             String memoryId = getIsolatedMemoryId(agentType, sessionId);
 
-            // 3. 构建初始请求 (挂载基础参数和记忆顾问)
-            var clientRequestSpec = activeClient.prompt()
+            // 1. 基础构建：使用同一个大模型，并挂载历史记忆
+            // 1. 基础构建：使用同一个大模型，并挂载历史记忆
+            var clientRequestSpec = chatClient.prompt()
                     .user(message)
+                    // 🌟 拆分第一步：先挂载记忆拦截器实例
+                    .advisors(new MessageChatMemoryAdvisor(chatMemory))
+                    // 🌟 拆分第二步：再挂载拦截器需要的动态参数（传入 memoryId）
                     .advisors(a -> a.param(AbstractChatMemoryAdvisor.CHAT_MEMORY_CONVERSATION_ID_KEY, memoryId));
-
-            // 4. 🚀 分支处理：按角色动态挂载专属配置
+            // 2. 分支处理：给同一个模型穿上不同的“角色衣服”
             if ("service".equalsIgnoreCase(agentType)) {
-                // 🤖 【智能客服逻辑】: 使用纯常量配置，挂载 RAG
+                // 🤖 【智能客服逻辑】: 支持全局检索或单文档精读
+                SearchRequest searchRequest = SearchRequest.builder()
+                        .topK(3)
+                        .similarityThreshold(0.7)
+                        .build();
+
+                // 🌟 修复：放宽专属文档的检索条件，确保大模型能拿到文件内容
+                if (StringUtils.hasText(docId)) {
+                    searchRequest = SearchRequest.builder()
+                            .topK(5) // 放宽到 5 条，给足大模型上下文
+                            // 取消 similarityThreshold 限制，防止因匹配度稍微不够导致回答"不知道"
+                            .filterExpression("docId == '" + docId + "'") // 严格限定只搜该文档
+                            .build();
+                }
+
                 clientRequestSpec = clientRequestSpec
-                        .system(ModelConstant.SERVICE_SYSTEM_PROMPT) // 注入常量提示词 (你需要确保类里有这个常量)
-                        .advisors(
-                                // 挂载知识库
-                                QuestionAnswerAdvisor.builder(vectorStore)
-                                        .searchRequest(
-                                                SearchRequest.builder()
-                                                        .topK(3)
-                                                        .similarityThreshold(0.7)
-                                                        .build()
-                                        )
-                                        .build()
-                        );
+                        .system(ModelConstant.SERVICE_SYSTEM_PROMPT)
+                        .advisors(new QuestionAnswerAdvisor(vectorStore, searchRequest));
 
             } else if ("girlfriend".equalsIgnoreCase(agentType)) {
-                // 👩‍🦰 【女友助手逻辑】: 从数据库拉取动态配置
+                // 👩‍🦰 【女友助手逻辑】: 从数据库拉取动态配置，使用她自己的全局专属记忆
                 Map<String, String> configMap = sysConfigService.list().stream()
                         .collect(Collectors.toMap(SysConfig::getConfigKey, SysConfig::getConfigValue));
 
-                // 1. 解析配置并赋予安全默认值
                 String dynamicPrompt = configMap.getOrDefault("ai_system_prompt", ModelConstant.GirlFriend_SYSTEM_PROMPT);
                 double dynamicTemp = Double.parseDouble(configMap.getOrDefault("ai_temperature", "0.7"));
-
-                // 🚀 2. 新增：解析动态的 RAG 检索量 (兜底默认值为 3)
                 int dynamicTopK = Integer.parseInt(configMap.getOrDefault("ai_top_k", "3"));
 
-                // 3. 将动态提示词、温度和 RAG 检索器挂载到请求中
                 clientRequestSpec = clientRequestSpec
                         .system(dynamicPrompt)
-                        // 🚀 4. 新增：在这里注入动态的 topK 检索请求
-                        // 注意：这里需要确保你的 Service 类里已经通过 @Autowired 注入了 VectorStore
+                        // 女友固定查全局记忆，不掺和 docId 的事
                         .advisors(new QuestionAnswerAdvisor(vectorStore,
                                 SearchRequest.builder()
-                                        .topK(dynamicTopK)           // 使用从数据库读出的动态检索量
-                                        .similarityThreshold(0.7)    // 相似度阈值可以写死，也可以提成配置
+                                        .topK(dynamicTopK)
+                                        .similarityThreshold(0.7)
                                         .build()))
                         .options(ZhiPuAiChatOptions.builder()
                                 .temperature(dynamicTemp)
                                 .build());
             }
 
-            // 5. 执行并返回
+            // 3. 执行流式返回
             return clientRequestSpec.stream().content()
                     .onErrorResume(WebClientResponseException.TooManyRequests.class, e -> {
                         log.warn("触发大模型 429 流控限制，用户：{}", userName);
-                        return Flux.just("\n\n[系统提示]：机甲大脑正在高速运转中，当前排队请求过多（触发API限流），请停顿 5 到 10 秒后再试哦！😅");
+                        return Flux.just("\n\n[系统提示]：机甲大脑正在高速运转中，当前排队请求过多，请停顿 5 到 10 秒后再试哦！😅");
                     })
                     .onErrorResume(Exception.class, e -> {
                         log.error("大模型流处理发生未知异常", e);
