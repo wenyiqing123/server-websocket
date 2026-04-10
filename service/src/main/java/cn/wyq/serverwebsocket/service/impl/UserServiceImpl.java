@@ -10,6 +10,7 @@ import cn.wyq.serverwebsocket.pojo.User;
 import cn.wyq.serverwebsocket.pojo.dto.*;
 import cn.wyq.serverwebsocket.pojo.entity.UserEntity;
 import cn.wyq.serverwebsocket.pojo.vo.UserVo;
+import cn.wyq.serverwebsocket.service.MessageService;
 import cn.wyq.serverwebsocket.service.UserService;
 import cn.wyq.serverwebsocket.utils.BaseContext;
 import cn.wyq.serverwebsocket.utils.JWTUtil;
@@ -46,6 +47,9 @@ public class UserServiceImpl implements UserService {
     private RedisUtil redisUtil;
     @Autowired
     private MailUtil mailUtil;
+
+    @Autowired
+    private MessageService messageService;
 
     // 💡 核心新增：注入 RedisTemplate 用于手动精细化控制缓存
     @Autowired
@@ -101,6 +105,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public int deleteUserById(Integer id) {
+        messageService.deleteMessageByUser(id);
         int result = userMapper.deleteById(id);
 
         // 🧹 手动清除缓存 (替代 @CacheEvict)
@@ -320,10 +325,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public int register(UserEmailDto userEmailDto) {
         String code = userEmailDto.getCode();
-        String email = userEmailDto.getEmail();
-        boolean flag = mailUtil.verifyCode(email, code);
-        if (!flag) throw new ServiceException("验证码错误", 400);
-
+        if (userEmailDto.getEmail()!=null) {
+            String email = userEmailDto.getEmail();
+            boolean flag = mailUtil.verifyCode(email, code);
+            if (!flag) throw new ServiceException("验证码错误", 400);
+        }
         User byUsername = userMapper.findByUsername(userEmailDto.getUserName());
         if (byUsername != null) {
             return 0;

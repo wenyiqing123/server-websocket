@@ -12,18 +12,14 @@ import org.springframework.web.client.RestTemplate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-@SpringBootApplication(exclude = {
-        org.springframework.ai.model.openai.autoconfigure.OpenAiChatAutoConfiguration.class,
-        org.springframework.ai.model.zhipuai.autoconfigure.ZhiPuAiEmbeddingAutoConfiguration.class
-})
-//如果启动类和mapper文件夹位于同一层级中，则不需要添加该注解
-//@ComponentScan("cn.wyq.serverwebsocket.*")
+// 🌟 核心修复：删除了原来的 exclude，因为对应的包已经被咱们删光了
+@SpringBootApplication
 @Slf4j
 @EnableCaching //开启redis缓存
 @EnableTransactionManagement //开启注解方式的事务管理
 @EnableScheduling  //spring task注解：定时任务
+public class ServerWebsocketApplication {
 
-class ServerWebsocketApplication {
     public static void main(String[] args) {
         SpringApplication.run(ServerWebsocketApplication.class, args);
         log.info("当前时间：" + DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(LocalDateTime.now()));
@@ -36,7 +32,7 @@ class ServerWebsocketApplication {
      * @return
      */
     @Bean
-    public static RestTemplate restTemplate() {
+    public RestTemplate restTemplate() { // 💡 顺手去掉这里的 static，通常 @Bean 方法不需要 static
         return new RestTemplate();
     }
 }

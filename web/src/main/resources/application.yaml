@@ -62,38 +62,48 @@ spring:
           max-idle: 8
           min-idle: 0
           max-wait: -1
+#  main:
+#    # 🌟 新增这一行：允许我们自定义的 chatMemory 覆盖掉官方默认的
+#    allow-bean-definition-overriding: true
   ai:
-    # --------------------------------
-    # 1. 智谱配置 (只做聊天，不碰向量)
-    # --------------------------------
-    zhipuai:
-      api-key: 086ec700528b4294960b676ca39817c4.20Yz03TDsZSyGns0
+    openai:
+      # 🌟 填入你从百炼控制台获取的 API Key
+      api-key: ${DASHSCOPE_API_KEY:sk-5fe3023e1e5643469ba7f17b32efc864}
+
+      # 🌟 关键：这里去掉末尾的 /v1，Spring AI 会自动补全
+      base-url: https://dashscope.aliyuncs.com/compatible-mode
+
+      # 🧠 聊天模型配置 (建议使用 qwen-max 或 qwen-plus)
       chat:
         options:
-          model: glm-4-flash
+          model: qwen-plus
           temperature: 0.7
-        enabled: true
-      # 🚨 核心修复：必须关闭智谱的 Embedding！
+
+      # 📏 向量化模型配置 (百炼兼容版)
       embedding:
-        enabled: false
+        enabled: true
+        options:
+          model: text-embedding-v3 # 阿里云最强的向量模型
 
     # --------------------------------
-    # 2. 硅基流动配置 (借用 OpenAI 通道，只做向量)
+    # 🌟 2. Ollama 向量化配置 (专职做文档切块嵌入)
     # --------------------------------
-    openai:
-      api-key: sk-vozmtjhusbtxuvswshhkgrlgppwqhivisdxyrrvsmsrzepjt
-      base-url: https://api.siliconflow.cn
-      chat:
-        enabled: false
-      embedding:
-        enabled: true
-        options:
-          model: BAAI/bge-m3
+#    ollama:
+#      base-url: http://localhost:11434
+#      chat:
+#        enabled: false # 关闭它的聊天功能，让 GPT-4o 专心干活
+#      embedding:
+#        enabled: true
+#        options:
+#          model: nomic-embed-text # 用于 RAG 的嵌入模型
+
+    # --------------------------------
+    # 🌟 3. 开启基于 JDBC 的聊天记忆库表自动创建
+    # --------------------------------
     chat:
       memory:
-        repository:
-          jdbc:
-            initialize-schema: false
+        jdbc:
+          initialize-schema: false # 第一次启动会在 MySQL 自动建记忆表
 
 
 #    ollama:

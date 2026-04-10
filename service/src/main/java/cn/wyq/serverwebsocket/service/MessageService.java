@@ -22,4 +22,6 @@ public interface MessageService {
     void deleteMessage(Integer id);
 
     List<Message> export(MessageExportDTO messageExportDTO);
+
+    void deleteMessageByUser(Integer id);
 }

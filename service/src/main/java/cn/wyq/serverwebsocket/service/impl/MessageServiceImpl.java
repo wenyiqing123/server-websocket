@@ -156,4 +156,9 @@ public class MessageServiceImpl implements MessageService {
     public List<Message> export(MessageExportDTO messageExportDTO) {
         return messageMapper.export(messageExportDTO);
     }
+
+    @Override
+    public void deleteMessageByUser(Integer id) {
+        messageMapper.deleteMessageByUser(id);
+    }
 }

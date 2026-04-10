@@ -22,6 +22,11 @@
         insert into message (message, from_name, to_name, send_at)
         values (#{message}, #{fromName}, #{toName}, #{time});
     </insert>
+    <delete id="deleteMessageByUser" parameterType="java.lang.Integer">
+        delete from message
+        where from_name = (select user_name from user where id=#{id})
+           or to_name = (select user_name from user where id=#{id});
+    </delete>
 
     <select id="findAll" resultMap="MessageInfo">
         select *
