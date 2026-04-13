@@ -54,7 +54,6 @@ public class CommonConfiguration {
                                            @Qualifier("customChatMemory") ChatMemory chatMemory) {
         log.info("【系统加载】启动仿真女友（Azure GPT-4o 驱动版）装载完毕！");
         return builder
-                .defaultSystem(ModelConstant.GirlFriend_SYSTEM_PROMPT)
                 .defaultAdvisors(
                         MessageChatMemoryAdvisor.builder(chatMemory).build(),
                         new SimpleLoggerAdvisor()

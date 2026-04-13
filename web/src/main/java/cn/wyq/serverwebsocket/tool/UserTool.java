@@ -15,6 +15,7 @@ import java.util.List;
 public class UserTool {
     private final IUserServiceTool userServiceTool;
 
+
     // 💡 进化 1：极其详尽的描述。这是给大模型看的“说明书”，越详细，大模型调用越准！
     @Tool(description = "精确检索用户档案。当被问到‘系统中叫xx的人存在吗’、‘有哪些管理员’时调用。注意：为保护隐私，此接口最多只返回前20名匹配的用户。")
     public List<User> queryUser(@ToolParam(description = "用户查询条件对象，可包含userName、role等", required = false) User user) {

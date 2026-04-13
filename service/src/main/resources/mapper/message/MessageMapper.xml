@@ -7,7 +7,7 @@
         <result property="fromName" column="from_name"/>
         <result property="toName" column="to_name"/>
         <result property="time" column="send_time"/>
-        <result property="recalled" column="recalled"/>
+<!--        <result property="recalled" column="recalled"/>-->
     </resultMap>
     <resultMap id="MessageFull" type="cn.wyq.serverwebsocket.pojo.entity.Message">
         <id property="id" column="id"/>
@@ -32,14 +32,13 @@
         select *
         from message
         <where>
-            <if test="fromName!=null and fromName!='' and toName!=null and toName!=''">
-                (from_name = #{fromName}
-                and to_name = #{toName})
-                or (to_name = #{fromName}
-                and from_name = #{toName})
+            <if test="fromName != null and fromName != '' and toName != null and toName != ''">
+                ((from_name = #{fromName} and to_name = #{toName})
+                or (to_name = #{fromName} and from_name = #{toName}))
             </if>
-            <if test="toName==null or toName==''">
-                to_name=""
+
+            <if test="toName == null or toName == ''">
+                (to_name = '' or to_name IS NULL)
             </if>
         </where>
     </select>

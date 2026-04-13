@@ -93,12 +93,11 @@ public class ChatServiceImpl implements ChatService {
                         .collect(Collectors.toMap(SysConfig::getConfigKey, SysConfig::getConfigValue));
                 String dynamicPrompt = configMap.getOrDefault("ai_system_prompt", ModelConstant.GirlFriend_SYSTEM_PROMPT);
                 double dynamicTemp = Double.parseDouble(configMap.getOrDefault("ai_temperature", "0.7"));
-
-                promptSpec.system(dynamicPrompt)
+                String finalSystemPrompt = dynamicPrompt + "\n\n" + ModelConstant.MODEL_SYSTEM_PROMPT;
+                promptSpec.system(finalSystemPrompt)
                         .options(OpenAiChatOptions.builder()
                                 .model(model) // 也可以从配置读取
                                 .temperature(dynamicTemp)
-
                                 .build());
             }
 
