@@ -16,6 +16,7 @@ import cn.wyq.serverwebsocket.utils.BaseContext;
 import cn.wyq.serverwebsocket.utils.JWTUtil;
 import cn.wyq.serverwebsocket.utils.MailUtil;
 import cn.wyq.serverwebsocket.utils.RedisUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import lombok.extern.slf4j.Slf4j;
@@ -102,7 +103,29 @@ public class UserServiceImpl implements UserService {
 
         return pageResult;
     }
+    @Override
+    public Result searchUser(String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return Result.error("搜索关键词不能为空");
+        }
 
+        // 使用 MyBatis-Plus 的模糊查询: user_name LIKE '%keyword%'
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.like("user_name", keyword);
+
+        // 🌟 重点安全防护：只查公开信息，坚决不查 password 字段！
+        queryWrapper.select("id", "user_name", "path");
+
+        // 限制最多返回 20 条，防止恶意拉取全库数据
+        queryWrapper.last("LIMIT 20");
+
+        List<User> userList = userMapper.selectList(queryWrapper);
+
+        if (userList.isEmpty()) {
+            return Result.success("未搜索到相关用户"); // 提示：如果前端期待返回空数组 []，这里可以改为 return Result.success(userList);
+        }
+        return Result.success(userList);
+    }
     @Override
     public int deleteUserById(Integer id) {
         messageService.deleteMessageByUser(id);

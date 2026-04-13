@@ -21,7 +21,14 @@ public interface UserService {
     // 修改用户信息
     int updateUser(UserEntity user);
     Result login(User user);
+// 在你的 UserService.java 中添加：
 
+    /**
+     * 根据关键词搜索用户
+     * @param keyword 搜索关键词
+     * @return 搜索结果
+     */
+    Result searchUser(String keyword);
     User findByToken(String token);
 
     User findById(int id);

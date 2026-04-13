@@ -5,6 +5,7 @@ import cn.wyq.serverwebsocket.pojo.User;
 import cn.wyq.serverwebsocket.pojo.dto.UserQueryDTO;
 import cn.wyq.serverwebsocket.pojo.dto.UserQueryExportDTO;
 import cn.wyq.serverwebsocket.pojo.entity.UserEntity;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.github.pagehelper.Page;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
@@ -12,7 +13,7 @@ import org.apache.ibatis.annotations.Select;
 import java.util.List;
 
 @Mapper
-public interface UserMapper {
+public interface UserMapper extends BaseMapper<User> {
     // 查询所有
     Page<UserEntity> selectAllUsers(UserQueryDTO userQueryDTO);
 

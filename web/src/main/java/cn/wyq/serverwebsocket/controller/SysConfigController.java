@@ -4,6 +4,7 @@ import cn.wyq.serverwebsocket.common.Result;
 import cn.wyq.serverwebsocket.pojo.entity.SysConfig;
 import cn.wyq.serverwebsocket.service.SysConfigService;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,6 +14,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/sys-config")
+@Tag(name = "系统设置接口")
 public class SysConfigController {
 
     @Autowired

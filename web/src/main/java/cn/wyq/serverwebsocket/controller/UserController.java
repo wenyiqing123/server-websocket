@@ -48,6 +48,7 @@ public class UserController {
     private final PasswordEncoder passwordEncoder;
     private final MailUtil mailUtil;
 
+    private cn.wyq.serverwebsocket.mapper.UserMapper userMapper;
     @GetMapping("/hello")
     @LoginNotRequired
     @Operation(summary = "点击测试security是否放行", description = "测试security放行接口")
