@@ -6,7 +6,7 @@
         <result property="message" column="message"/>
         <result property="fromName" column="from_name"/>
         <result property="toName" column="to_name"/>
-        <result property="time" column="send_time"/>
+        <result property="time" column="send_at"/>
 <!--        <result property="recalled" column="recalled"/>-->
     </resultMap>
     <resultMap id="MessageFull" type="cn.wyq.serverwebsocket.pojo.entity.Message">

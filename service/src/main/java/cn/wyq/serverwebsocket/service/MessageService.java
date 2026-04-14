@@ -7,10 +7,11 @@ import cn.wyq.serverwebsocket.pojo.dto.MessageQueryDTO;
 import cn.wyq.serverwebsocket.pojo.entity.Message;
 import cn.wyq.serverwebsocket.pojo.socket.MessageFull;
 import cn.wyq.serverwebsocket.pojo.socket.MessageInfo;
+import com.baomidou.mybatisplus.extension.service.IService;
 
 import java.util.List;
 
-public interface MessageService {
+public interface MessageService  extends IService<Message> {
     Integer addMessage(MessageInfo messageInfo);
 
     List<MessageFull> findAll(MessageInfo messageInfo);

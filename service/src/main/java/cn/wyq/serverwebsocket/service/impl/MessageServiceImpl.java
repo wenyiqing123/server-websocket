@@ -12,20 +12,24 @@ import cn.wyq.serverwebsocket.pojo.entity.Message;
 import cn.wyq.serverwebsocket.pojo.socket.MessageFull;
 import cn.wyq.serverwebsocket.pojo.socket.MessageInfo;
 import cn.wyq.serverwebsocket.service.MessageService;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Service("messageService")
 @Slf4j
 @RequiredArgsConstructor
-public class MessageServiceImpl implements MessageService {
+public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> implements MessageService {
 
     private final MessageMapper messageMapper;
     private final UserMapper userMapper;
@@ -36,6 +40,31 @@ public class MessageServiceImpl implements MessageService {
     private final RedisTemplate<String, Object> redisTemplate;
 
 
+    // 你的方法名可能是 getMessageList 或类似的名字，找到处理历史消息查询的方法
+//    @Override
+//    public Result getMessageList(String fromName, String toName) {
+//        QueryWrapper<MessageInfo> query = new QueryWrapper<>();
+//
+//        // 🌟 核心修复：如果是群聊，只认 "发给这个群" 的消息
+//        if (toName.startsWith("GROUP_")) {
+//            query.eq("to_name", toName);
+//        }
+//        // 🌟 私聊逻辑：A发给B，或者 B发给A
+//        else {
+//            query.and(wrapper -> wrapper
+//                    .eq("from_name", fromName).eq("to_name", toName)
+//                    .or()
+//                    .eq("from_name", toName).eq("to_name", fromName)
+//            );
+//        }
+//
+//        // 按照时间排序
+//        query.orderByAsc("time");
+//
+//        // 假设你的 mapper 是 messageInfoMapper
+//        List<MessageInfo> list = messageMapper.selectList(query);
+//        return Result.success(list);
+//    }
     @Override
     public Integer addMessage(MessageInfo messageInfo) {
         messageMapper.addMessage(messageInfo);
@@ -49,22 +78,77 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     public List<MessageFull> findAll(MessageInfo messageInfo) {
-        // 1. 获取原始数据列表
-        List<MessageInfo> messageInfoList = messageMapper.findAll(messageInfo);
+        // 1. 声明一个统一的列表来接收最终的 MessageFull 数据
+        List<MessageFull> finalMessageList = new ArrayList<>();
 
-        // 2. 使用 MapStruct 进行批量基础属性拷贝 (id, title, content 等)
-        List<MessageFull> messageFulls = messageStructMapper.toFullList(messageInfoList);
+        // 2. 判断是群聊还是私聊，分别查出数据并转化为 MessageFull
+        if (messageInfo.getToName() != null && messageInfo.getToName().startsWith("GROUP_")) {
+            // 🌟 群聊逻辑：只认 "发给这个群" 的消息
+            QueryWrapper<Message> query = new QueryWrapper<>();
+            query.eq("to_name", messageInfo.getToName());
+            query.orderByAsc("send_at"); // 按照时间排序
 
-        // 3. 补充需要查询数据库的字段
-        for (MessageFull full : messageFulls) {
-            // 获取发送者信息
-            full.setFromPath(userMapper.getStatusAndPathByUserName(full.getFromName()));
-            // 获取接收者信息
-            full.setToName(userMapper.getStatusAndPathByUserName(full.getToName()));
+            List<Message> dbMessages = messageMapper.selectList(query);
+
+            // 将底层实体类 Message 转化为 MessageFull
+            for (Message dbMsg : dbMessages) {
+                MessageFull info = new MessageFull();
+                info.setTime(dbMsg.getSendAt());
+                BeanUtils.copyProperties(dbMsg, info);
+                finalMessageList.add(info);
+            }
+        } else {
+            // 🌟 私聊逻辑：保持你原有的自定义 SQL 查询不变
+            List<MessageInfo> messageInfoList = messageMapper.findAll(messageInfo);
+
+            // 统一使用 MapStruct 进行批量基础属性拷贝
+            List<MessageFull> mappedList = messageStructMapper.toFullList(messageInfoList);
+            if (mappedList != null) {
+                finalMessageList.addAll(mappedList);
+            }
         }
 
-        return messageFulls;
+        // 3. 🌟 核心修复：把查头像的逻辑移到 if-else 外面，保证群聊和私聊都能执行到！
+        if (!finalMessageList.isEmpty()) {
+            for (MessageFull full : finalMessageList) {
+
+                // 【群聊和私聊都需要】：获取发送者头像（群里也要显示是谁发的）
+                if (full.getFromName() != null) {
+                    String fromPath = userMapper.getPath(full.getFromName());
+                    full.setFromPath(fromPath);
+                }
+
+                // 【仅私聊需要】：获取接收者头像
+                // (群聊时 toName 是 GROUP_xxx，去 user 表查会报错，所以必须拦截)
+                if (full.getToName() != null && !full.getToName().startsWith("GROUP_")) {
+                    String toPath = userMapper.getPath(full.getToName());
+                    full.setToPath(toPath);
+                }
+            }
+        }
+
+        // 4. 返回最终拼装好头像的数据给前端
+        return finalMessageList;
     }
+
+//    @Override
+//    public List<MessageFull> findAll(MessageInfo messageInfo) {
+//        // 1. 获取原始数据列表
+//        List<MessageInfo> messageInfoList = messageMapper.findAll(messageInfo);
+//        System.out.println("messageInfoList = " + messageInfoList);
+//        // 2. 使用 MapStruct 进行批量基础属性拷贝 (id, title, content 等)
+//        List<MessageFull> messageFulls = messageStructMapper.toFullList(messageInfoList);
+//
+//        // 3. 补充需要查询数据库的字段
+//        for (MessageFull full : messageFulls) {
+//            // 获取发送者信息
+//            full.setFromPath(userMapper.getStatusAndPathByUserName(full.getFromName()));
+//            // 获取接收者信息
+//            full.setToName(userMapper.getStatusAndPathByUserName(full.getToName()));
+//        }
+//
+//        return messageFulls;
+//    }
 
     @Override
     public void recallMessage(int id) {

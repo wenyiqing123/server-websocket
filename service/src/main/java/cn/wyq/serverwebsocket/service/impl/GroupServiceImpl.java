@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class GroupServiceImpl implements GroupService {
@@ -25,6 +26,18 @@ public class GroupServiceImpl implements GroupService {
     @Autowired
     private GroupMemberMapper groupMemberMapper;
 
+
+    @Override
+    public List<String> getGroupMemberNames(String groupId) {
+        QueryWrapper<GroupMember> query = new QueryWrapper<>();
+        query.eq("group_id", groupId);
+        List<GroupMember> members = groupMemberMapper.selectList(query);
+
+        // 提取所有成员的 userName 并返回一个 String 列表
+        return members.stream()
+                .map(GroupMember::getUserName)
+                .collect(Collectors.toList());
+    }
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Result createGroup(GroupCreateDTO dto) {
