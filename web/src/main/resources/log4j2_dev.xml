@@ -9,7 +9,8 @@
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
             <PatternLayout
-                    pattern="%clr{%d{HH:mm:ss.SSS}}{yellow} [%clr{%t}{red}] %-5level %clr{%l}{blue} - %clr{%msg%n}{green}"/>
+                    pattern="%clr{%d{HH:mm:ss.SSS}}{yellow} [%clr{%t}{red}] - %clr{%msg%n}{green}"/>
+<!--                    pattern="%clr{%d{HH:mm:ss.SSS}}{yellow} [%clr{%t}{red}] %-5level %clr{%l}{blue} - %clr{%msg%n}{green}"/>-->
         </Console>
 
         <RollingFile name="RollingFileAppender"

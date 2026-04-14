@@ -10,6 +10,8 @@ public interface GroupService {
 
     // 在 GroupService 接口中新增：
 
+    Result getGroupMembers(String groupId);
+
     /**
      * 根据群聊ID获取所有群成员的账号名
      */
@@ -24,4 +26,6 @@ public interface GroupService {
      * 获取我加入的群聊列表
      */
     Result getMyGroups(String userName);
+
+
 }

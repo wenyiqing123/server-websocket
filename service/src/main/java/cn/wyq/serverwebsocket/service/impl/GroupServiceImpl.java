@@ -3,6 +3,7 @@ package cn.wyq.serverwebsocket.service.impl;
 import cn.wyq.serverwebsocket.common.Result;
 import cn.wyq.serverwebsocket.mapper.ChatGroupMapper;
 import cn.wyq.serverwebsocket.mapper.GroupMemberMapper;
+import cn.wyq.serverwebsocket.mapper.UserMapper;
 import cn.wyq.serverwebsocket.pojo.dto.GroupCreateDTO;
 import cn.wyq.serverwebsocket.pojo.entity.ChatGroup;
 import cn.wyq.serverwebsocket.pojo.entity.GroupMember;
@@ -12,9 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,7 +25,28 @@ public class GroupServiceImpl implements GroupService {
     @Autowired
     private GroupMemberMapper groupMemberMapper;
 
+    @Autowired
+    private UserMapper userMapper;
 
+    @Override
+    public Result getGroupMembers(String groupId) {
+        // 联表查询或分两步查：
+        // 1. 查出群成员及其角色
+        QueryWrapper<GroupMember> qw = new QueryWrapper<>();
+        qw.eq("group_id", groupId);
+        List<GroupMember> members = groupMemberMapper.selectList(qw);
+
+        // 2. 包装成前端需要的列表（带头像）
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (GroupMember m : members) {
+            Map<String, Object> item = new HashMap<>();
+            item.put("userName", m.getUserName());
+            item.put("role", m.getRole()); // 0-成员, 1-管理, 2-群主
+            item.put("path", userMapper.getStatusAndPathByUserName(m.getUserName()));
+            result.add(item);
+        }
+        return Result.success(result);
+    }
     @Override
     public List<String> getGroupMemberNames(String groupId) {
         QueryWrapper<GroupMember> query = new QueryWrapper<>();

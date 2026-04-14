@@ -34,6 +34,20 @@ public class MessageController {
     @Autowired
     private MessageService messageService;
 
+    @GetMapping("/history/filter")
+    @Operation(summary = "高级筛选查询聊天记录")
+    public Result getFilteredHistory(
+            @RequestParam("userName") String userName,
+            @RequestParam("targetName") String targetName,
+            @RequestParam(value = "type", defaultValue = "0") Integer type,
+            @RequestParam(value = "keyword", required = false) String keyword) {
+
+        if (userName == null || targetName == null) {
+            return Result.error("查询参数不完整");
+        }
+        return messageService.getFilteredHistory(userName, targetName, type, keyword);
+    }
+
     /**
      * 查询所有消息
      *

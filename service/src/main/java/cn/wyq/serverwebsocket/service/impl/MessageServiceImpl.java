@@ -1,6 +1,7 @@
 package cn.wyq.serverwebsocket.service.impl;
 
 import cn.wyq.serverwebsocket.common.PageResult;
+import cn.wyq.serverwebsocket.common.Result;
 import cn.wyq.serverwebsocket.constant.RedisKeyConstants;
 import cn.wyq.serverwebsocket.exception.ServiceException;
 import cn.wyq.serverwebsocket.mapper.MessageMapper;
@@ -40,31 +41,72 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
     private final RedisTemplate<String, Object> redisTemplate;
 
 
-    // 你的方法名可能是 getMessageList 或类似的名字，找到处理历史消息查询的方法
-//    @Override
-//    public Result getMessageList(String fromName, String toName) {
-//        QueryWrapper<MessageInfo> query = new QueryWrapper<>();
-//
-//        // 🌟 核心修复：如果是群聊，只认 "发给这个群" 的消息
-//        if (toName.startsWith("GROUP_")) {
-//            query.eq("to_name", toName);
-//        }
-//        // 🌟 私聊逻辑：A发给B，或者 B发给A
-//        else {
-//            query.and(wrapper -> wrapper
-//                    .eq("from_name", fromName).eq("to_name", toName)
-//                    .or()
-//                    .eq("from_name", toName).eq("to_name", fromName)
-//            );
-//        }
-//
-//        // 按照时间排序
-//        query.orderByAsc("time");
-//
-//        // 假设你的 mapper 是 messageInfoMapper
-//        List<MessageInfo> list = messageMapper.selectList(query);
-//        return Result.success(list);
-//    }
+    @Override
+    public Result getFilteredHistory(String userName, String targetName, Integer type, String keyword) {
+        // 🚨 注意：如果你的数据库底层实体类叫 MessageInfo，请将泛型换成 MessageInfo
+        QueryWrapper<Message> query = new QueryWrapper<>();
+
+        // 1. 确定聊天对象（群聊 or 私聊）
+        if (targetName.startsWith("GROUP_")) {
+            query.eq("to_name", targetName);
+        } else {
+            query.and(wrapper -> wrapper
+                    .eq("from_name", userName).eq("to_name", targetName)
+                    .or()
+                    .eq("from_name", targetName).eq("to_name", userName)
+            );
+        }
+
+        // 2. 根据消息类型进行前缀筛选
+        // 0=全部, 1=纯文本, 2=图片, 3=文件
+        if (type != null) {
+            if (type == 1) {
+                // 纯文本：既不是图片也不是文件
+                query.notLikeRight("message", "[IMAGE]").notLikeRight("message", "[FILE]");
+            } else if (type == 2) {
+                // 图片：以 [IMAGE] 开头
+                query.likeRight("message", "[IMAGE]");
+            } else if (type == 3) {
+                // 文件：以 [FILE] 开头
+                query.likeRight("message", "[FILE]");
+            }
+        }
+
+        // 3. 关键词模糊搜索
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            query.like("message", keyword.trim());
+        }
+
+        // 4. 按时间倒序（最新的聊天记录排在最前面展示）
+        // 🚨 注意：如果你的数据库时间字段叫 time，请换成 "time"；如果是 send_at 就保持不变
+        query.orderByDesc("send_at");
+
+        // 5. 执行查询
+        List<Message> dbMessages = messageMapper.selectList(query);
+
+        // 6. 转换为前端需要的 MessageFull 格式
+        List<MessageFull> finalMessageList = new ArrayList<>();
+        for (Message dbMsg : dbMessages) {
+            MessageFull info = new MessageFull();
+            BeanUtils.copyProperties(dbMsg, info);
+            finalMessageList.add(info);
+        }
+
+        // 7. 补充发送者和接收者的头像信息
+        if (!finalMessageList.isEmpty()) {
+            for (MessageFull full : finalMessageList) {
+                if (full.getFromName() != null) {
+                    full.setFromPath(userMapper.getStatusAndPathByUserName(full.getFromName()));
+                }
+                if (full.getToName() != null && !full.getToName().startsWith("GROUP_")) {
+                    full.setToPath(userMapper.getStatusAndPathByUserName(full.getToName()));
+                }
+            }
+        }
+
+        return Result.success(finalMessageList);
+    }
+
     @Override
     public Integer addMessage(MessageInfo messageInfo) {
         messageMapper.addMessage(messageInfo);
@@ -131,24 +173,6 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
         return finalMessageList;
     }
 
-//    @Override
-//    public List<MessageFull> findAll(MessageInfo messageInfo) {
-//        // 1. 获取原始数据列表
-//        List<MessageInfo> messageInfoList = messageMapper.findAll(messageInfo);
-//        System.out.println("messageInfoList = " + messageInfoList);
-//        // 2. 使用 MapStruct 进行批量基础属性拷贝 (id, title, content 等)
-//        List<MessageFull> messageFulls = messageStructMapper.toFullList(messageInfoList);
-//
-//        // 3. 补充需要查询数据库的字段
-//        for (MessageFull full : messageFulls) {
-//            // 获取发送者信息
-//            full.setFromPath(userMapper.getStatusAndPathByUserName(full.getFromName()));
-//            // 获取接收者信息
-//            full.setToName(userMapper.getStatusAndPathByUserName(full.getToName()));
-//        }
-//
-//        return messageFulls;
-//    }
 
     @Override
     public void recallMessage(int id) {
