@@ -14,4 +14,5 @@ public class UserVo {
     private String accessToken;
     private String refreshToken;
     private UserEntity user;
+    private String email;
 }

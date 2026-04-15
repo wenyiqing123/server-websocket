@@ -20,4 +20,5 @@ public class UserEntity {
     private String path;
 //    @ToolParam(required = false,description = "用户角色=0：超级管理员，1：管理员，2：用户")
     private int role;
+
 }

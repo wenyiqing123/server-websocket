@@ -49,12 +49,33 @@ public class UserController {
     private final MailUtil mailUtil;
 
     private cn.wyq.serverwebsocket.mapper.UserMapper userMapper;
+
     @GetMapping("/hello")
     @LoginNotRequired
     @Operation(summary = "点击测试security是否放行", description = "测试security放行接口")
     public String hello() {
         log.info("请求测试 Security 放行白名单接口: /user/hello");
         return "hello";
+    }
+    @GetMapping("/pending-admins")
+    @Operation(summary = "获取待审批的管理员申请列表")
+    public Result getPendingAdmins() {
+        // TODO: 这里最好在网关层或拦截器里校验一下，只有 role == 0 的超管才能调这个接口，保证安全性
+        return Result.success(userService.getPendingAdmins());
+    }
+
+    @PutMapping("/approve-admin/{id}")
+    @Operation(summary = "通过管理员申请")
+    public Result approveAdmin(@PathVariable Integer id) {
+        boolean success = userService.approveAdmin(id);
+        return success ? Result.success("已通过该用户的管理员申请") : Result.error("操作失败，请稍后重试");
+    }
+
+    @PutMapping("/reject-admin/{id}")
+    @Operation(summary = "拒绝管理员申请")
+    public Result rejectAdmin(@PathVariable Integer id) {
+        boolean success = userService.rejectAdmin(id);
+        return success ? Result.success("已拒绝该用户的管理员申请") : Result.error("操作失败，请稍后重试");
     }
 
     /**
@@ -64,23 +85,17 @@ public class UserController {
     @Operation(summary = "用户登录", description = "用户登录接口", extensions = {
             @Extension(properties = {@ExtensionProperty(name = "x-order", value = "1")})
     })
-    public Result login(@RequestBody User user) {
+    public Result login(@RequestBody User user, @RequestParam Integer applyRole) {
         log.info("请求用户登录，尝试登录账号信息: {}", user);
-        return userService.login(user);
+        return userService.login(user, applyRole);
     }
 
     /**
      * 注册
      */
     @PostMapping("/register")
-    @Operation(summary = "用户注册", description = "用户注册接口")
-    public Result register(@RequestBody UserEmailDto userEmailDto) {
-        log.info("请求用户注册，注册信息 payload: {}", userEmailDto);
-        // 密码加密设置
-        userEmailDto.setPassword(passwordEncoder.encode(userEmailDto.getPassword()));
-        // 调 service
-        int register = userService.register(userEmailDto);
-        return Result.toAjax(register, 401, "该用户已存在");
+    public Result register(@RequestBody UserEmailDto userEmailDto, @RequestParam Integer applyRole) {
+        return Result.success(userService.register(userEmailDto, applyRole));
     }
 
     /**
@@ -228,4 +243,14 @@ public class UserController {
         return Result.success();
     }
 
+    @GetMapping("/current")
+    public Result getCurrentUser(){
+        int currentId = Math.toIntExact(BaseContext.getCurrentId());
+        return Result.success(userService.getCurrentUserById(currentId));
+    }
+    @PostMapping("/update-email")
+    @Operation(summary = "换绑邮箱")
+    public Result updateEmail(@RequestBody UpdateEmailDto dto) {
+        return userService.updateEmail(dto);
+    }
 }

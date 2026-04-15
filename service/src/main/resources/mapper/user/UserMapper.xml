@@ -18,7 +18,17 @@
     <select id="login" parameterType="cn.wyq.serverwebsocket.pojo.User" resultMap="User">
         select *
         from user
-        where user_name = #{userName}
+        where user_name = #{user.userName}
+
+<!--        <choose>-->
+<!--            <when test="applyRole == 0">-->
+<!--                and role = '2'-->
+<!--            </when>-->
+
+<!--            <otherwise>-->
+<!--                and role in ('0', '1')-->
+<!--            </otherwise>-->
+<!--        </choose>-->
     </select>
 
     <select id="selectAllUsers" resultMap="UserResultMap">
@@ -74,8 +84,8 @@
     </select>
 
     <insert id="register" useGeneratedKeys="true" keyProperty="id">
-        insert into user (user_name, password, path, role)
-        values (#{userName}, #{password}, #{path}, #{role})
+        insert into user (user_name, password, path, role,email,status)
+        values (#{userName}, #{password}, #{path}, #{role},#{email}, #{status})
     </insert>
 
     <select id="findByUsername" resultMap="User">
@@ -111,6 +121,21 @@
     </select>
     <select id="findAllUserIds" resultType="java.lang.Integer">
         select id from user;
+    </select>
+    <select id="findOneByUsername" resultType="cn.wyq.serverwebsocket.pojo.entity.UserEmailApplyEntity"
+            parameterType="java.lang.String">
+        select *
+        from user where user_name=#{username};
+    </select>
+    <select id="findEmailByUsername" resultType="java.lang.String" parameterType="java.lang.String">
+        select email
+        from user
+        where user_name=#{userName};
+    </select>
+    <select id="selectUserByEmail" resultType="cn.wyq.serverwebsocket.pojo.entity.UserEmailApplyEntity">
+        select *
+        from user
+        where email=#{email};
     </select>
 
 

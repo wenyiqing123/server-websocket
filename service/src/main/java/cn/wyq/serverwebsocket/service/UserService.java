@@ -5,6 +5,7 @@ import cn.wyq.serverwebsocket.common.PageResult;
 import cn.wyq.serverwebsocket.common.Result;
 import cn.wyq.serverwebsocket.pojo.User;
 import cn.wyq.serverwebsocket.pojo.dto.*;
+import cn.wyq.serverwebsocket.pojo.entity.UserEmailApplyEntity;
 import cn.wyq.serverwebsocket.pojo.entity.UserEntity;
 
 import java.net.MalformedURLException;
@@ -20,7 +21,11 @@ public interface UserService {
 
     // 修改用户信息
     int updateUser(UserEntity user);
-    Result login(User user);
+    Result login(User user,Integer applyRole);
+    /**
+     * 换绑/修改邮箱
+     */
+    Result updateEmail(UpdateEmailDto dto);
 // 在你的 UserService.java 中添加：
 
     /**
@@ -33,7 +38,7 @@ public interface UserService {
 
     User findById(int id);
 
-    int register(UserEmailDto userEmailDto);
+    int register(UserEmailDto userEmailDto,Integer applyRole);
 
 
     List<User> findAllUsers();
@@ -47,4 +52,20 @@ public interface UserService {
     List<UserExportDTO> export(UserQueryExportDTO userQueryExportDTO) throws MalformedURLException;
 
     void updatePassword(UserUpdatePasswordDTO userUpdatePasswordDTO);
+    /**
+     * 获取所有待审批的管理员申请列表
+     */
+    List<UserEmailApplyEntity> getPendingAdmins();
+
+    /**
+     * 审批通过：将用户状态从 0 改为 1
+     */
+    boolean approveAdmin(Integer userId);
+
+    /**
+     * 审批拒绝：将用户状态从 0 改为 2
+     */
+    boolean rejectAdmin(Integer userId);
+
+    UserEmailApplyEntity getCurrentUserById(int currentId);
 }

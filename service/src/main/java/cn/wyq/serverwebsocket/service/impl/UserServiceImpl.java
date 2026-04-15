@@ -8,6 +8,7 @@ import cn.wyq.serverwebsocket.exception.ServiceException;
 import cn.wyq.serverwebsocket.mapper.UserMapper;
 import cn.wyq.serverwebsocket.pojo.User;
 import cn.wyq.serverwebsocket.pojo.dto.*;
+import cn.wyq.serverwebsocket.pojo.entity.UserEmailApplyEntity;
 import cn.wyq.serverwebsocket.pojo.entity.UserEntity;
 import cn.wyq.serverwebsocket.pojo.vo.UserVo;
 import cn.wyq.serverwebsocket.service.MessageService;
@@ -28,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.net.MalformedURLException;
 import java.util.ArrayList;
@@ -64,11 +66,7 @@ public class UserServiceImpl implements UserService {
 
         // 1. 提取缓存条件判断 (替代原 condition 注解)
         // 确保只有在查第一页且无任何筛选条件时，才走缓存
-        boolean isCacheable = (userQueryDTO.getId() == null || String.valueOf(userQueryDTO.getId()).isEmpty()) &&
-                userQueryDTO.getPage() == 1 &&
-                userQueryDTO.getPageSize() == 9 &&
-                (userQueryDTO.getUserName() == null || userQueryDTO.getUserName().isEmpty()) &&
-                (userQueryDTO.getRole() == null || userQueryDTO.getRole() == 0);
+        boolean isCacheable = (userQueryDTO.getId() == null || String.valueOf(userQueryDTO.getId()).isEmpty()) && userQueryDTO.getPage() == 1 && userQueryDTO.getPageSize() == 9 && (userQueryDTO.getUserName() == null || userQueryDTO.getUserName().isEmpty()) && (userQueryDTO.getRole() == null || userQueryDTO.getRole() == 0);
 
         // 保持原本 Spring Cache 生成的 Key 格式完全一致
         String cacheKey = RedisKeyConstants.MANAGE_USERS_CACHE + ":page=1,pageSize=9:list";
@@ -103,6 +101,7 @@ public class UserServiceImpl implements UserService {
 
         return pageResult;
     }
+
     @Override
     public Result searchUser(String keyword) {
         if (keyword == null || keyword.trim().isEmpty()) {
@@ -126,6 +125,7 @@ public class UserServiceImpl implements UserService {
         }
         return Result.success(userList);
     }
+
     @Override
     public int deleteUserById(Integer id) {
         messageService.deleteMessageByUser(id);
@@ -149,10 +149,54 @@ public class UserServiceImpl implements UserService {
         redisTemplate.delete(cacheKey1);
         return result;
     }
-
     @Override
-    public Result login(User user) {
-        User loginUser = userMapper.login(user);
+    @Transactional(rollbackFor = Exception.class)
+    public Result updateEmail(UpdateEmailDto dto) {
+        // 1. 校验新邮箱是否已经被其他账号占用了
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("email", dto.getNewEmail());
+        if (userMapper.selectCount(queryWrapper) > 0) {
+            return Result.error("该邮箱已被其他账号绑定，请更换邮箱");
+        }
+
+        // 2. 查询当前用户是否存在
+        int currentId = Math.toIntExact(BaseContext.getCurrentId());
+        UserEmailApplyEntity currentUser = userMapper.getCurrentUserById(currentId);
+        if (currentUser == null) {
+            return Result.error("用户不存在");
+        }
+
+        // 🌟 3. 核心安全校验：校验账号密码
+
+        if (!passwordEncoder.matches(dto.getPassword(),currentUser.getPassword())) {
+            return Result.error("账号密码错误，无法修改邮箱");
+        }
+
+        // 🌟 4. 核心业务校验：校验新邮箱的验证码
+        boolean flag = mailUtil.verifyCode(dto.getNewEmail(), dto.getCode());
+        if (!flag) {
+            return Result.error("验证码错误或已过期");
+        }
+
+        // 5. 执行更新
+        currentUser.setEmail(dto.getNewEmail());
+        // 如果你用的是 MyBatis-Plus，直接 updateById；
+        // 如果是纯 MyBatis，请确保 userMapper 里有对应更新 email 的方法
+        userMapper.updateEmailById(currentUser);
+
+        // 🧹 6. 清除验证码缓存，防止一个验证码被恶意多次使用
+        // redisTemplate.delete("你存验证码的 Redis Key 前缀:" + dto.getNewEmail());
+
+        // 🧹 7. 清除用户列表缓存 (防止后台管理页面的数据没同步)
+        String cacheKey = RedisKeyConstants.MANAGE_USERS_CACHE + ":page=1,pageSize=9:list";
+        redisTemplate.delete(cacheKey);
+
+        return Result.success("邮箱绑定成功");
+    }
+    @Override
+    public Result login(User user, Integer applyRole) {
+
+        User loginUser = userMapper.login(user, applyRole);
         if (loginUser == null) throw new ServiceException("用户名或密码错误", 401);
         if (!passwordEncoder.matches(user.getPassword(), loginUser.getPassword())) {
             return Result.error("用户名或密码错误");
@@ -162,8 +206,9 @@ public class UserServiceImpl implements UserService {
             String refreshToken = JWTUtil.generateRefreshToken(loginUser.getId(), loginUser.getUserName());
 
             UserEntity userEntity = new UserEntity();
+            String email = userMapper.findEmailByUsername(loginUser.getUserName());
             BeanUtils.copyProperties(loginUser, userEntity);
-            UserVo userVo = new UserVo(accessToken, refreshToken, userEntity);
+            UserVo userVo = new UserVo(accessToken, refreshToken, userEntity, email);
 
             // ✅ 将 refreshToken 存入 Redis，保留踢人或单点登录的控制权
             redisUtil.set("refreshToken:userId:" + loginUser.getId(), refreshToken, 7, TimeUnit.DAYS);
@@ -207,6 +252,35 @@ public class UserServiceImpl implements UserService {
         map.put("refreshToken", newRefreshToken);
         return map;
     }
+    @Override
+    public List<UserEmailApplyEntity> getPendingAdmins() {
+
+        // 如果想按申请时间排序，可以加上 .orderByDesc("create_time")
+        return userMapper.selectPendingAdminList();
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean approveAdmin(Integer userId) {
+        // 🧹 清除缓存，确保超管界面的用户列表能及时刷新
+        String cacheKey = RedisKeyConstants.MANAGE_USERS_CACHE + ":page=1,pageSize=9:list";
+        redisTemplate.delete(cacheKey);
+
+        return userMapper.approveAdmin(userId) > 0;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean rejectAdmin(Integer userId) {
+
+        return userMapper.rejectAdmin(userId) > 0;
+    }
+
+    @Override
+    public UserEmailApplyEntity getCurrentUserById(int currentId) {
+
+        return userMapper.getCurrentUserById(currentId);
+    }
 
     @Override
     public List<UserExportDTO> export(UserQueryExportDTO userQueryExportDTO) {
@@ -244,19 +318,19 @@ public class UserServiceImpl implements UserService {
         // 这里假设你的 mapper 里有根据 id 查询的方法，叫 selectById 或 getById
         User currentUser = userMapper.findById(Math.toIntExact(currentId));
         if (currentUser == null) {
-            throw new ServiceException("用户不存在",400); // 替换为你项目中的自定义异常类
+            throw new ServiceException("用户不存在", 400); // 替换为你项目中的自定义异常类
         }
 
         // 3. 核心防线：校验旧密码是否正确
         // 前端传的是明文：userUpdatePasswordDTO.getOldPassword()
         // 数据库里是密文：currentUser.getPassword()
         if (!passwordEncoder.matches(userUpdatePasswordDTO.getOldPassword(), currentUser.getPassword())) {
-            throw new ServiceException("原密码输入错误",400);
+            throw new ServiceException("原密码输入错误", 400);
         }
 
         // 4. 体验优化：新密码不能和旧密码一样（可选）
         if (passwordEncoder.matches(userUpdatePasswordDTO.getNewPassword(), currentUser.getPassword())) {
-            throw new ServiceException("新密码不能与原密码相同",400);
+            throw new ServiceException("新密码不能与原密码相同", 400);
         }
 
         // 5. 对新密码进行加密
@@ -268,7 +342,7 @@ public class UserServiceImpl implements UserService {
         updateUser.setPassword(encodedNewPassword);
         // 如果你的表里有 updateTime 或者 updateUser 字段，且没有配置 MyBatis-Plus 自动填充，记得在这里手动 set 一下
         // updateUser.setUpdateTime(LocalDateTime.now());
-        redisTemplate.delete("refreshToken:userId:"+currentId);
+        redisTemplate.delete("refreshToken:userId:" + currentId);
         // 7. 调用 mapper 执行更新
         userMapper.updateUser(updateUser);
     }
@@ -346,38 +420,74 @@ public class UserServiceImpl implements UserService {
      * 🌟 重构：注册成功后，必须将新 ID 同步加入布隆过滤器
      */
     @Override
-    public int register(UserEmailDto userEmailDto) {
-        String code = userEmailDto.getCode();
-        if (userEmailDto.getEmail()!=null) {
-            String email = userEmailDto.getEmail();
-            boolean flag = mailUtil.verifyCode(email, code);
-            if (!flag) throw new ServiceException("验证码错误", 400);
+    @Transactional(rollbackFor = Exception.class) // 涉及数据库插入和可能的多步操作，强烈建议加事务
+    public int register(UserEmailDto userEmailDto, Integer applyRole) {
+     UserEmailApplyEntity userEmailApplyEntity1=   userMapper.selectUserByEmail(userEmailDto.getEmail());
+     if (userEmailApplyEntity1!=null){
+         throw new ServiceException("该邮箱用户已存在",400);
+     }
+        // 1. 邮箱验证码校验
+        String email = userEmailDto.getEmail();
+
+        if (email != null) {
+
+            boolean flag = mailUtil.verifyCode(email, userEmailDto.getCode());
+            if (!flag) {
+                throw new ServiceException("验证码错误或已过期", 400);
+            }
         }
+
+        // 2. 校验用户名是否已存在
         User byUsername = userMapper.findByUsername(userEmailDto.getUserName());
-        if (byUsername != null) {
-            return 0;
+        if (byUsername != null) throw new ServiceException("用户名已存在", 400);
+
+        // 3. 构建用户实体并拷贝前端传来的基础属性 (userName, password, email 等)
+        UserEmailApplyEntity userEmailApplyEntity = new UserEmailApplyEntity();
+
+
+        BeanUtils.copyProperties(userEmailDto, userEmailApplyEntity);
+
+        // 🌟 4. 核心新增逻辑：融入“申请-审批”的角色与状态分配
+
+        if (applyRole != null && applyRole.equals(1)) {
+            // 申请管理员：角色设为 1，状态设为 0 (待审批)
+            userEmailApplyEntity.setRole(1);
+            userEmailApplyEntity.setStatus(0);
+        } else {
+            // 普通用户：角色设为 0，状态设为 1 (正常)
+            userEmailApplyEntity.setRole(0);
+            userEmailApplyEntity.setStatus(1);
         }
 
-        User user = new User();
-        BeanUtils.copyProperties(userEmailDto, user);
+        // 如果没有传头像，给一个默认头像
+        if (userEmailApplyEntity.getPath() == null || userEmailApplyEntity.getPath().isEmpty()) {
+            userEmailApplyEntity.setPath("http://localhost:8000/default_avatar.png");
+        }
 
-        // 执行数据库插入
-        int result = userMapper.register(user);
+        userEmailApplyEntity.setPassword(passwordEncoder.encode(userEmailApplyEntity.getPassword()));
+        // 5. 执行数据库插入
+        int result = userMapper.register(userEmailApplyEntity);
 
-        // 🌟 核心新增：获取刚生成的用户 ID (前提：MyBatis 的 insert 语句配置了主键返回)
-        Integer newUserId = user.getId();
-
-        // 将新 ID 加入布隆过滤器
+        // 🌟 6. 核心并发处理：获取刚生成的用户 ID，同步加入布隆过滤器
+        // (前提：MyBatis 的 register/insert 语句配置了 useGeneratedKeys="true" keyProperty="id")
+        Integer newUserId = userEmailApplyEntity.getId();
         if (newUserId != null) {
             RBloomFilter<Integer> bloomFilter = redissonClient.getBloomFilter("user:bloom:filter");
             bloomFilter.add(newUserId);
             log.info("新注册用户 ID {} 已同步加入布隆过滤器", newUserId);
         }
 
-        // 🧹 手动清除缓存 (注册了新用户，第一页的列表数据可能发生了变化)
+        // 🧹 7. 手动清除缓存 (注册了新用户，第一页的列表数据发生了变化，防止脏读)
         String cacheKey = RedisKeyConstants.MANAGE_USERS_CACHE + ":page=1,pageSize=9:list";
         redisTemplate.delete(cacheKey);
 
-        return result;
+        // 🧹 8. (强烈建议) 清除邮箱验证码，防止同一个验证码被恶意多次调用注册
+        if (userEmailApplyEntity.getEmail() != null) {
+            redisTemplate.delete("你存验证码的 Redis Key 前缀:" + userEmailApplyEntity.getEmail());
+        }
+        return 1; // 返回影响的行数，通常为 1
+
     }
+
+
 }
