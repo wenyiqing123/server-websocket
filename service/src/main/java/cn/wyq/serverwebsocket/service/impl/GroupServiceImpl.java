@@ -7,6 +7,7 @@ import cn.wyq.serverwebsocket.mapper.UserMapper;
 import cn.wyq.serverwebsocket.pojo.dto.GroupCreateDTO;
 import cn.wyq.serverwebsocket.pojo.entity.ChatGroup;
 import cn.wyq.serverwebsocket.pojo.entity.GroupMember;
+import cn.wyq.serverwebsocket.pojo.vo.GroupMemberQueryVo;
 import cn.wyq.serverwebsocket.service.GroupService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,23 +30,130 @@ public class GroupServiceImpl implements GroupService {
     private UserMapper userMapper;
 
     @Override
-    public Result getGroupMembers(String groupId) {
-        // 联表查询或分两步查：
-        // 1. 查出群成员及其角色
-        QueryWrapper<GroupMember> qw = new QueryWrapper<>();
-        qw.eq("group_id", groupId);
-        List<GroupMember> members = groupMemberMapper.selectList(qw);
+    public Result getGroupMembersDetail(String groupId) {
+        // 1. 查出群内所有成员
+        QueryWrapper<GroupMember> query = new QueryWrapper<>();
+        query.eq("group_id", groupId);
+        List<GroupMember> members = groupMemberMapper.selectList(query);
 
-        // 2. 包装成前端需要的列表（带头像）
-        List<Map<String, Object>> result = new ArrayList<>();
-        for (GroupMember m : members) {
+        // 2. 组装前端需要的详细信息（带头像）
+        List<Map<String, Object>> resultList = new ArrayList<>();
+        for (GroupMember member : members) {
             Map<String, Object> item = new HashMap<>();
-            item.put("userName", m.getUserName());
-            item.put("role", m.getRole()); // 0-成员, 1-管理, 2-群主
-            item.put("path", userMapper.getStatusAndPathByUserName(m.getUserName()));
-            result.add(item);
+            item.put("userName", member.getUserName());
+            item.put("role", member.getRole()); // 0-成员, 1-管理, 2-群主
+            item.put("joinTime", member.getJoinTime());
+            // 查用户头像
+            item.put("path", userMapper.getStatusAndPathByUserName(member.getUserName()));
+            resultList.add(item);
         }
-        return Result.success(result);
+
+        // 3. 按照角色排序（群主在前，管理员其次，普通成员在后）
+        resultList.sort((a, b) -> Integer.compare((Integer) b.get("role"), (Integer) a.get("role")));
+
+        return Result.success(resultList);
+    }
+
+    @Override
+    public Result updateGroupInfo(String groupId, String groupName, String groupAvatar, String operatorName) {
+        // 1. 校验操作者权限
+        QueryWrapper<GroupMember> authQuery = new QueryWrapper<>();
+        authQuery.eq("group_id", groupId).eq("user_name", operatorName);
+        GroupMember operator = groupMemberMapper.selectOne(authQuery);
+
+        if (operator == null || operator.getRole() < 1) {
+            return Result.error("权限不足：仅群主或管理员可修改群信息");
+        }
+
+        // 2. 更新 chat_group 表
+        ChatGroup group = new ChatGroup();
+        group.setId(groupId);
+        if (groupName != null && !groupName.trim().isEmpty()) group.setGroupName(groupName);
+        if (groupAvatar != null && !groupAvatar.trim().isEmpty()) group.setPath(groupAvatar);
+
+        chatGroupMapper.updateById(group);
+        return Result.success("群信息修改成功");
+    }
+
+    @Override
+    public Result kickGroupMember(String groupId, String targetUserName, String operatorName) {
+        // 1. 不能踢自己
+        if (targetUserName.equals(operatorName)) return Result.error("不能将自己踢出群聊");
+
+        // 2. 获取操作者和被踢者的信息
+        QueryWrapper<GroupMember> opQuery = new QueryWrapper<>();
+        opQuery.eq("group_id", groupId).eq("user_name", operatorName);
+        GroupMember operator = groupMemberMapper.selectOne(opQuery);
+
+        QueryWrapper<GroupMember> targetQuery = new QueryWrapper<>();
+        targetQuery.eq("group_id", groupId).eq("user_name", targetUserName);
+        GroupMember target = groupMemberMapper.selectOne(targetQuery);
+
+        if (operator == null || target == null) return Result.error("群成员信息异常");
+
+        // 3. 严格的权限校验
+        // 群主(2)可以踢任何人(1, 0)
+        // 管理员(1)只能踢普通成员(0)
+        if (operator.getRole() == 0 || operator.getRole() <= target.getRole()) {
+            return Result.error("权限不足：无法踢出该成员");
+        }
+
+        // 4. 执行删除
+        groupMemberMapper.delete(targetQuery);
+        return Result.success("已将 " + targetUserName + " 移出群聊");
+    }
+
+    @Override
+    public Result quitGroup(String groupId, String userName) {
+        QueryWrapper<GroupMember> query = new QueryWrapper<>();
+        query.eq("group_id", groupId).eq("user_name", userName);
+        GroupMember member = groupMemberMapper.selectOne(query);
+
+        if (member == null) return Result.error("您不在该群聊中");
+
+        // 如果是群主退群，提示必须解散
+        if (member.getRole() == 2) {
+            return Result.error("群主无法直接退出，请选择【解散群聊】");
+        }
+
+        groupMemberMapper.delete(query);
+        return Result.success("已成功退出群聊");
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class) // 涉及多表操作，必须加事务
+    public Result dismissGroup(String groupId, String operatorName) {
+        // 1. 校验必须是群主
+        QueryWrapper<GroupMember> query = new QueryWrapper<>();
+        query.eq("group_id", groupId).eq("user_name", operatorName);
+        GroupMember operator = groupMemberMapper.selectOne(query);
+
+        if (operator == null || operator.getRole() != 2) {
+            return Result.error("权限不足：仅群主可以解散群聊");
+        }
+
+        // 2. 删除群聊基础信息
+        chatGroupMapper.deleteById(groupId);
+
+        // 3. 清空群成员表中的记录
+        QueryWrapper<GroupMember> delMembersQuery = new QueryWrapper<>();
+        delMembersQuery.eq("group_id", groupId);
+        groupMemberMapper.delete(delMembersQuery);
+
+        // 4. (可选) 清空该群的聊天记录
+        // 如果你需要同时清空聊天记录，解开下面的注释
+        /*
+        QueryWrapper<Message> delMsgsQuery = new QueryWrapper<>();
+        delMsgsQuery.eq("to_name", groupId);
+        messageMapper.delete(delMsgsQuery);
+        */
+
+        return Result.success("群聊已解散");
+    }
+    @Override
+    public Result getGroupMembers(String groupId) {
+        List<GroupMemberQueryVo> groupMemberQueryVoList=  groupMemberMapper.queryGroupMembers(groupId);
+        return Result.success(groupMemberQueryVoList);
     }
     @Override
     public List<String> getGroupMemberNames(String groupId) {

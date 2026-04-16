@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ChatMessageVO {
+public class ChatMessageVo {
     private String role;    // user 或 ai
     private String content; // 聊天内容
     private String mood;    // 情绪标签（如果截获到了的话）
