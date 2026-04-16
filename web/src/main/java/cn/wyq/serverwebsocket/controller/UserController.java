@@ -144,6 +144,16 @@ public class UserController {
         return Result.success(path);
     }
 
+    @GetMapping("/path-email")
+    @LoginNotRequired
+    @Operation(summary = "通过email获取用户路径", description = "通过email获取用户路径")
+    public Result getPathByemail(@RequestParam String email) {
+        log.info("请求获取指定用户的头像路径，目标用户名: {}", email);
+        String path = userService.getPathByEmail(email);
+        return Result.success(path);
+    }
+
+
     /**
      * 删除用户
      */
@@ -171,7 +181,19 @@ public class UserController {
         int result = userService.updateUser(user);
         return AjaxResult.toAjax(result);
     }
+    @GetMapping("/info")
+    @Operation(summary = "根据用户名获取公开资料")
+    public Result getUserInfoByName(@RequestParam String userName) {
+        // 复用你已有的根据用户名查询的方法
+        UserEmailApplyEntity user = userMapper.findOneByUsername(userName);
 
+        if (user != null) {
+            // 🌟 核心安全防御：返回给前端前，必须把密码设为空，防止隐私泄露！
+            user.setPassword(null);
+            return Result.success(user);
+        }
+        return Result.error("查无此人");
+    }
     /**
      * 分页查询用户
      */
@@ -180,6 +202,12 @@ public class UserController {
     public PageResult<List<UserEntity>> Userlist(@ParameterObject UserQueryDTO userQueryDTO) {
         log.info("请求分页查询用户列表，查询条件 payload: {}", userQueryDTO);
         return userService.userList(userQueryDTO);
+    }
+    @GetMapping("/append/list")
+    @Operation(summary = "分页查询用户", description = "分页查询用户接口")
+    public PageResult<List<UserEntity>> UserAppendlist(@ParameterObject UserQueryDTO userQueryDTO) {
+        log.info("请求分页查询用户列表，查询条件 payload: {}", userQueryDTO);
+        return userService.userAppendList(userQueryDTO);
     }
 
     /**
@@ -261,10 +289,10 @@ public class UserController {
 
     @PutMapping("/client-update")
     @Operation(summary = "C端用户修改个人资料")
-                                    //接收需要修改的信息
+    //接收需要修改的信息
     public Result clientUpdateProfile(@RequestBody User user) {
         UserEmailApplyEntity userEmailApplyEntity = userMapper.findOneByUsername(user.getUserName());
-        if (userEmailApplyEntity!=null) throw new ServiceException("该用户名已存在",400);
+        if (userEmailApplyEntity != null) throw new ServiceException("该用户名已存在", 400);
         //获取当前用户id
         int currentId = Math.toIntExact(BaseContext.getCurrentId());
         //查询当前用户信息
@@ -290,7 +318,7 @@ public class UserController {
         if (user == null) {
             return Result.error("用户不存在");
         }
-        if (!passwordEncoder.matches(oldPassword,user.getPassword())) {
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
             return Result.error("原密码错误");
         }
 
@@ -342,5 +370,19 @@ public class UserController {
         // redisTemplate.delete("邮箱验证码Key前缀:" + dto.getNewEmail());
 
         return Result.success("邮箱绑定成功");
+    }
+
+    @PostMapping("/login-email")
+    @Operation(summary = "邮箱验证码登录")
+    @LoginNotRequired
+    public Result loginByEmail(@RequestBody EmailLoginDto dto) {
+        return userService.loginByEmail(dto);
+    }
+
+    @PostMapping("/forgot-password")
+    @Operation(summary = "忘记密码重置")
+    @LoginNotRequired
+    public Result forgotPassword(@RequestBody ForgotPasswordDto dto) {
+        return userService.forgotPassword(dto);
     }
 }

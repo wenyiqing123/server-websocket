@@ -7,7 +7,7 @@ public interface FriendService {
      * 发起好友申请
      */
     Result applyFriend(String userName, String friendName);
-
+    Result deleteFriend(String userName, String friendName);
     // 在 cn.wyq.serverwebsocket.service.FriendService 中添加：
 
     /**

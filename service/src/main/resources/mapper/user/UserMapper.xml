@@ -9,47 +9,68 @@
         <result property="role" column="role"></result>
     </resultMap>
     <resultMap id="UserResultMap" type="cn.wyq.serverwebsocket.pojo.entity.UserEntity">
-        <id property="id" column="id" />
-        <result property="userName" column="user_name" />
-        <result property="password" column="password" />
-        <result property="path" column="path" />
-        <result property="role" column="role" />
+        <id property="id" column="id"/>
+        <result property="userName" column="user_name"/>
+        <result property="password" column="password"/>
+        <result property="path" column="path"/>
+        <result property="role" column="role"/>
     </resultMap>
     <select id="login" parameterType="cn.wyq.serverwebsocket.pojo.User" resultMap="User">
         select *
         from user
         where user_name = #{user.userName}
 
-<!--        <choose>-->
-<!--            <when test="applyRole == 0">-->
-<!--                and role = '2'-->
-<!--            </when>-->
+        <!--        <choose>-->
+        <!--            <when test="applyRole == 0">-->
+        <!--                and role = '2'-->
+        <!--            </when>-->
 
-<!--            <otherwise>-->
-<!--                and role in ('0', '1')-->
-<!--            </otherwise>-->
-<!--        </choose>-->
+        <!--            <otherwise>-->
+        <!--                and role in ('0', '1')-->
+        <!--            </otherwise>-->
+        <!--        </choose>-->
     </select>
 
     <select id="selectAllUsers" resultMap="UserResultMap">
         SELECT id, user_name, password, path, role
         FROM user
         <where>
+            status='1'
             <if test="id!=null and id!=''">
-                id = #{id}
+               and id = #{id}
             </if>
             <if test="userName!=null and userName!=''">
-                user_name like concat('%',#{userName},'%')
+                and user_name like concat('%',#{userName},'%')
             </if>
             <if test="role!=null and role!=''">
-                role = #{role}
+                and  role = #{role}
+            </if>
+
+        </where>
+        ORDER BY id DESC
+    </select>
+    <select id="selectAllAppendUsers" resultMap="UserResultMap">
+        SELECT id, user_name, password, path, role
+        FROM user
+        <where>
+            role='2'
+            <if test="id!=null and id!=''">
+                and  id = #{id}
+            </if>
+            <if test="userName!=null and userName!=''">
+                and  user_name like concat('%',#{userName},'%')
+            </if>
+            <if test="role!=null and role!=''">
+                and role = #{role}
             </if>
         </where>
         ORDER BY id DESC
     </select>
 
     <delete id="deleteById">
-        DELETE FROM user WHERE id = #{id}
+        DELETE
+        FROM user
+        WHERE id = #{id}
     </delete>
 
     <update id="updateUser" parameterType="cn.wyq.serverwebsocket.pojo.entity.UserEntity">
@@ -84,8 +105,8 @@
     </select>
 
     <insert id="register" useGeneratedKeys="true" keyProperty="id">
-        insert into user (user_name, password, path, role,email,status)
-        values (#{userName}, #{password}, #{path}, #{role},#{email}, #{status})
+        insert into user (user_name, password, path, role, email, status)
+        values (#{userName}, #{password}, #{path}, #{role}, #{email}, #{status})
     </insert>
 
     <select id="findByUsername" resultMap="User">
@@ -120,22 +141,24 @@
         ORDER BY id DESC
     </select>
     <select id="findAllUserIds" resultType="java.lang.Integer">
-        select id from user;
+        select id
+        from user;
     </select>
     <select id="findOneByUsername" resultType="cn.wyq.serverwebsocket.pojo.entity.UserEmailApplyEntity"
             parameterType="java.lang.String">
         select *
-        from user where user_name=#{username};
+        from user
+        where user_name = #{username};
     </select>
     <select id="findEmailByUsername" resultType="java.lang.String" parameterType="java.lang.String">
         select email
         from user
-        where user_name=#{userName};
+        where user_name = #{userName};
     </select>
     <select id="selectUserByEmail" resultType="cn.wyq.serverwebsocket.pojo.entity.UserEmailApplyEntity">
         select *
         from user
-        where email=#{email};
+        where email = #{email};
     </select>
 
 

@@ -16,7 +16,11 @@
         <result property="toName" column="to_name"/>
         <result property="sendAt" column="send_at"/>
     </resultMap>
-
+    <delete id="deleteChatHistory">
+        DELETE FROM message
+        WHERE (from_name = #{user1} AND to_name = #{user2})
+           OR (from_name = #{user2} AND to_name = #{user1})
+    </delete>
     <insert id="addMessage" parameterType="cn.wyq.serverwebsocket.pojo.socket.MessageInfo" useGeneratedKeys="true"
             keyProperty="id">
         insert into message (message, from_name, to_name, send_at)

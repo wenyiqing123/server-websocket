@@ -34,6 +34,11 @@ public class MessageController {
     @Autowired
     private MessageService messageService;
 
+    @DeleteMapping("/clear")
+    @Operation(summary = "清空与某人的聊天记录")
+    public Result clearHistory(@RequestParam String userName, @RequestParam String targetName) {
+        return messageService.clearHistory(userName, targetName);
+    }
     @GetMapping("/history/filter")
     @Operation(summary = "高级筛选查询聊天记录")
     public Result getFilteredHistory(

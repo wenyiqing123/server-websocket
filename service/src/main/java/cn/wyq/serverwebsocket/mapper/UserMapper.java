@@ -18,6 +18,7 @@ import java.util.List;
 public interface UserMapper extends BaseMapper<User> {
     // 查询所有
     Page<UserEntity> selectAllUsers(UserQueryDTO userQueryDTO);
+    Page<UserEntity> selectAllAppendUsers(UserQueryDTO userQueryDTO);
 
     // 删除
     int deleteById(Integer id);
@@ -78,4 +79,7 @@ public interface UserMapper extends BaseMapper<User> {
 
     @Update("update user set password=#{password} where id=#{id}")
     void updatePasswordById(UserEmailApplyEntity user);
+
+    @Select("select path from user where email=#{email};")
+    String getPathByEmail(String email);
 }

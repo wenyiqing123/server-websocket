@@ -39,7 +39,12 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
     // 💡 核心新增：注入 RedisTemplate
     // 由于使用了 @RequiredArgsConstructor，声明为 private final 即可自动注入
     private final RedisTemplate<String, Object> redisTemplate;
-
+    @Override
+    public Result clearHistory(String userName, String targetName) {
+        // 直接调用 Mapper 删除两人之间的所有消息
+        int rows = messageMapper.deleteChatHistory(userName, targetName);
+        return Result.success("聊天记录已清空");
+    }
 
     @Override
     public Result getFilteredHistory(String userName, String targetName, Integer type, String keyword) {

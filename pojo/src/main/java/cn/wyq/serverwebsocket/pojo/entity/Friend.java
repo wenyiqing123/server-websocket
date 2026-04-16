@@ -17,6 +17,7 @@ public class Friend {
 
     private String friendName;
 
+
     /**
      * 状态: 0-待通过, 1-已是好友, 2-已拒绝
      */

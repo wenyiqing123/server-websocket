@@ -18,7 +18,7 @@ public interface MessageService  extends IService<Message> {
     List<MessageFull> findAll(MessageInfo messageInfo);
 
     void recallMessage(int id);
-
+    Result clearHistory(String userName, String targetName);
     PageResult<List<Message>> pageQuery(MessageQueryDTO messageQueryDTO);
 
     void deleteMessage(Integer id);

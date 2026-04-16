@@ -29,6 +29,11 @@ public class FriendController {
         }
         return friendService.getPendingRequests(userName);
     }
+    @DeleteMapping("/delete")
+    @Operation(summary = "删除好友")
+    public Result deleteFriend(@RequestParam String userName, @RequestParam String friendName) {
+        return friendService.deleteFriend(userName, friendName);
+    }
 
     @PutMapping("/accept/{id}")
     @Operation(summary = "同意好友申请")

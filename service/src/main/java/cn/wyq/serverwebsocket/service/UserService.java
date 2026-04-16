@@ -15,6 +15,7 @@ import java.util.Map;
 public interface UserService {
     // 查询所有用户
     PageResult<List<UserEntity>> userList(UserQueryDTO userQueryDTO);
+    PageResult<List<UserEntity>> userAppendList(UserQueryDTO userQueryDTO);
 
     // 根据ID删除用户
     int deleteUserById(Integer id);
@@ -68,4 +69,9 @@ public interface UserService {
     boolean rejectAdmin(Integer userId);
 
     UserEmailApplyEntity getCurrentUserById(int currentId);
+    Result loginByEmail(EmailLoginDto dto);
+    Result forgotPassword(ForgotPasswordDto dto);
+
+
+    String getPathByEmail(String email);
 }

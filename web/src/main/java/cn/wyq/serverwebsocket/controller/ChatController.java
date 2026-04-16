@@ -2,6 +2,7 @@ package cn.wyq.serverwebsocket.controller;
 
 import cn.wyq.serverwebsocket.annotation.LoginNotRequired;
 import cn.wyq.serverwebsocket.common.Result;
+import cn.wyq.serverwebsocket.pojo.dto.AiReplyDto;
 import cn.wyq.serverwebsocket.service.ChatService;
 import cn.wyq.serverwebsocket.service.DocumentService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -103,5 +104,16 @@ public class ChatController {
             log.error("删除文档失败", e);
             return Result.error("删除文档失败: " + e.getMessage());
         }
+    }
+    @PostMapping("/suggest-reply")
+    @LoginNotRequired
+    @Operation(summary = "AI辅助聊天", description = "根据上下文生成高情商回复")
+    public Result suggestReply(@RequestBody AiReplyDto dto) {
+        // 调用 service 的方法
+        String reply = chatService.generateSuggestReply(dto);
+        if (reply != null) {
+            return Result.success(reply);
+        }
+        return Result.error("AI 暂时大脑短路了，请重试");
     }
 }

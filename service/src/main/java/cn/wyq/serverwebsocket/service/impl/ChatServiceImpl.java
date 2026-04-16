@@ -3,10 +3,14 @@ package cn.wyq.serverwebsocket.service.impl;
 import cn.wyq.serverwebsocket.constant.ModelConstant;
 import cn.wyq.serverwebsocket.exception.ServiceException;
 import cn.wyq.serverwebsocket.mapper.ChatMapper;
+import cn.wyq.serverwebsocket.pojo.dto.AiReplyDto;
 import cn.wyq.serverwebsocket.pojo.entity.Chat;
 import cn.wyq.serverwebsocket.pojo.entity.SysConfig;
 import cn.wyq.serverwebsocket.service.ChatService;
 import cn.wyq.serverwebsocket.service.SysConfigService;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvisor;
@@ -18,9 +22,13 @@ import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import org.springframework.web.client.RestTemplate;
 import reactor.core.publisher.Flux;
 
 import java.time.LocalDate;
@@ -30,16 +38,18 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class ChatServiceImpl implements ChatService {
-
+    // 🌟 阿里云百炼平台的 OpenAI 兼容接口地址
+    private static final String ALIYUN_API_URL = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions";
     // 🌟 注入两个在配置类里捏好的不同机甲
     private final ChatClient girlfriendClient;
     private final ChatClient serviceClient;
-
     private final ChatMemory chatMemory;
     private final ChatMapper chatMapper;
     private final VectorStore vectorStore;
     private final SysConfigService sysConfigService;
-
+    // 🌟 填入你在阿里云百炼平台申请的 API Key
+    @Value("${spring.ai.openai.api-key:sk-5fe3023e1e5643469ba7f17b32efc864}")
+    private String aliyunApiKey;
     // 🌟 正确：加上 ${} 占位符，并建议提供一个默认值（以防配置文件没写）
     @Value("${spring.ai.openai.chat.options.model:qwen-plus}")
     private String model;
@@ -152,5 +162,65 @@ public class ChatServiceImpl implements ChatService {
         chatMapper.deleteById(sessionId);
         chatMemory.clear(getIsolatedMemoryId("girlfriend", sessionId));
         chatMemory.clear(getIsolatedMemoryId("service", sessionId));
+    }
+
+
+    public String generateSuggestReply(AiReplyDto dto) {
+        RestTemplate restTemplate = new RestTemplate();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        // 使用 Bearer Token 鉴权
+        headers.setBearerAuth(aliyunApiKey);
+
+        // 🧠 核心：提示词调教
+        String systemPrompt = String.format(
+                "你是一个极其幽默、高情商的聊天嘴替。当前用户是【%s】，正在与【%s】聊天。\n" +
+                        "请根据提供的最新聊天记录上下文，生成一句合适、自然、能勾起对方聊天兴趣的回复。\n" +
+                        "严格要求：\n" +
+                        "1. 绝不要输出任何解释、寒暄、分析过程，直接给出你能想到的最好的一句回复。\n" +
+                        "2. 语气必须像真人在微信里聊天，可以适当使用 emoji。\n" +
+                        "3. 字数严格控制在 40 字以内。",
+                dto.getMyUsername(), dto.getTargetName()
+        );
+
+        JSONObject requestBody = new JSONObject();
+        // 🌟 指定阿里云的模型：强烈推荐使用 qwen-turbo
+        requestBody.put("model", "qwen-turbo");
+        requestBody.put("temperature", 0.8); // 调高一点，让回复更有创意和随机性
+
+        JSONArray messages = new JSONArray();
+
+        // System 角色设定
+        JSONObject systemMsg = new JSONObject();
+        systemMsg.put("role", "system");
+        systemMsg.put("content", systemPrompt);
+        messages.add(systemMsg);
+
+        // User 输入上下文
+        JSONObject userMsg = new JSONObject();
+        userMsg.put("role", "user");
+        userMsg.put("content", "聊天上下文如下：\n" + dto.getContext());
+        messages.add(userMsg);
+
+        requestBody.put("messages", messages);
+
+        HttpEntity<String> entity = new HttpEntity<>(requestBody.toJSONString(), headers);
+
+        try {
+            // 发起请求
+            String response = restTemplate.postForObject(ALIYUN_API_URL, entity, String.class);
+            JSONObject jsonResponse = JSON.parseObject(response);
+
+            // 解析 OpenAI 格式的返回值
+            return jsonResponse.getJSONArray("choices")
+                    .getJSONObject(0)
+                    .getJSONObject("message")
+                    .getString("content")
+                    .trim();
+        } catch (Exception e) {
+            log.error("调用阿里云百炼 API 失败: ", e);
+            return null;
+        }
     }
 }

@@ -2,13 +2,17 @@ package cn.wyq.serverwebsocket.service.impl;
 
 import cn.wyq.serverwebsocket.common.Result;
 import cn.wyq.serverwebsocket.mapper.FriendMapper;
+import cn.wyq.serverwebsocket.mapper.MessageMapper;
 import cn.wyq.serverwebsocket.mapper.UserMapper;
 import cn.wyq.serverwebsocket.pojo.User;
 import cn.wyq.serverwebsocket.pojo.entity.Friend;
+import cn.wyq.serverwebsocket.pojo.vo.FriendPathVO;
 import cn.wyq.serverwebsocket.service.FriendService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,11 +24,27 @@ public class FriendServiceImpl implements FriendService {
 
     @Autowired
     private FriendMapper friendMapper;
+    @Autowired
+    private MessageMapper messageMapper;
 
     // 在 cn.wyq.serverwebsocket.service.impl.FriendServiceImpl 中添加：
 
     // ... 原有的 applyFriend 方法 ...
 
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Result deleteFriend(String userName, String friendName) {
+        // 1. 删除我方的好友关系 (A -> B)
+        friendMapper.deleteFriendRecord(userName, friendName);
+
+        // 2. 删除对方的好友关系 (B -> A)
+        friendMapper.deleteFriendRecord(friendName, userName);
+
+        // 3. （可选）连带清空两人的聊天记录。如果你不想删记录，把这行注释掉即可
+        messageMapper.deleteChatHistory(userName, friendName);
+
+        return Result.success("好友已删除");
+    }
     @Override
     public Result getPendingRequests(String userName) {
         // 查询条件：friend_name 是我，且 status 是 0（待处理）
@@ -34,9 +54,15 @@ public class FriendServiceImpl implements FriendService {
         // 按时间倒序，最新的申请在最上面
         queryWrapper.orderByDesc("create_time");
 
-        java.util.List<Friend> pendingList = friendMapper.selectList(queryWrapper);
-
-        return Result.success(pendingList);
+        List<Friend> pendingList = friendMapper.selectList(queryWrapper);
+        ArrayList<FriendPathVO> friendPathVOArrayList = new ArrayList<>();
+        for (Friend friend : pendingList) {
+            FriendPathVO friendPathVO = new FriendPathVO();
+            BeanUtils.copyProperties(friend,friendPathVO);
+            friendPathVO.setPath(userMapper.findOneByUsername(friend.getUserName()).getPath());
+            friendPathVOArrayList.add(friendPathVO);
+        }
+        return Result.success(friendPathVOArrayList);
     }
     @Autowired
     private UserMapper userMapper;
