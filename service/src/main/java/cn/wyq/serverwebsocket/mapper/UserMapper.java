@@ -72,4 +72,10 @@ public interface UserMapper extends BaseMapper<User> {
 
     @Update("update user set email=#{email} where id=#{id};")
     void updateEmailById(UserEmailApplyEntity currentUser);
+
+    @Update("update user set user_name=#{userName},path=#{path} where id=#{id}")
+    void updateUsernameAvatar(UserEmailApplyEntity existingUser);
+
+    @Update("update user set password=#{password} where id=#{id}")
+    void updatePasswordById(UserEmailApplyEntity user);
 }

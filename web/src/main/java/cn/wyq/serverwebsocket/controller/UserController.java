@@ -5,8 +5,11 @@ import cn.wyq.serverwebsocket.annotation.LoginNotRequired;
 import cn.wyq.serverwebsocket.common.AjaxResult;
 import cn.wyq.serverwebsocket.common.PageResult;
 import cn.wyq.serverwebsocket.common.Result;
+import cn.wyq.serverwebsocket.exception.ServiceException;
+import cn.wyq.serverwebsocket.mapper.UserMapper;
 import cn.wyq.serverwebsocket.pojo.User;
 import cn.wyq.serverwebsocket.pojo.dto.*;
+import cn.wyq.serverwebsocket.pojo.entity.UserEmailApplyEntity;
 import cn.wyq.serverwebsocket.pojo.entity.UserEntity;
 import cn.wyq.serverwebsocket.sentinel.GlobalBlockHandler;
 import cn.wyq.serverwebsocket.service.UserService;
@@ -15,6 +18,7 @@ import cn.wyq.serverwebsocket.utils.MailUtil;
 import com.alibaba.csp.sentinel.annotation.SentinelResource;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.write.style.column.LongestMatchColumnWidthStyleStrategy;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.extensions.Extension;
 import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
@@ -47,8 +51,7 @@ public class UserController {
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
     private final MailUtil mailUtil;
-
-    private cn.wyq.serverwebsocket.mapper.UserMapper userMapper;
+    private final UserMapper userMapper;
 
     @GetMapping("/hello")
     @LoginNotRequired
@@ -57,6 +60,7 @@ public class UserController {
         log.info("请求测试 Security 放行白名单接口: /user/hello");
         return "hello";
     }
+
     @GetMapping("/pending-admins")
     @Operation(summary = "获取待审批的管理员申请列表")
     public Result getPendingAdmins() {
@@ -244,13 +248,99 @@ public class UserController {
     }
 
     @GetMapping("/current")
-    public Result getCurrentUser(){
+    public Result getCurrentUser() {
         int currentId = Math.toIntExact(BaseContext.getCurrentId());
         return Result.success(userService.getCurrentUserById(currentId));
     }
+
     @PostMapping("/update-email")
     @Operation(summary = "换绑邮箱")
     public Result updateEmail(@RequestBody UpdateEmailDto dto) {
         return userService.updateEmail(dto);
+    }
+
+    @PutMapping("/client-update")
+    @Operation(summary = "C端用户修改个人资料")
+                                    //接收需要修改的信息
+    public Result clientUpdateProfile(@RequestBody User user) {
+        UserEmailApplyEntity userEmailApplyEntity = userMapper.findOneByUsername(user.getUserName());
+        if (userEmailApplyEntity!=null) throw new ServiceException("该用户名已存在",400);
+        //获取当前用户id
+        int currentId = Math.toIntExact(BaseContext.getCurrentId());
+        //查询当前用户信息
+        UserEmailApplyEntity existingUser = userMapper.getCurrentUserById(currentId);
+
+        if (existingUser != null) {
+            existingUser.setUserName(user.getUserName());
+            existingUser.setPath(user.getPath());
+            userMapper.updateUsernameAvatar(existingUser);
+            return Result.success("更新成功");
+        }
+        return Result.error("用户不存在");
+    }
+
+    @PutMapping("/client-password")
+    @Operation(summary = "C端用户修改密码")
+    public Result clientUpdatePassword(@RequestBody Map<String, String> params) {
+        String userName = params.get("userName");
+        String oldPassword = params.get("oldPassword");
+        String newPassword = params.get("newPassword");
+
+        UserEmailApplyEntity user = userMapper.findOneByUsername(userName);
+        if (user == null) {
+            return Result.error("用户不存在");
+        }
+        if (!passwordEncoder.matches(oldPassword,user.getPassword())) {
+            return Result.error("原密码错误");
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userMapper.updatePasswordById(user);
+        return Result.success("密码修改成功");
+    }
+
+    @PutMapping("/client-email")
+    @Operation(summary = "C端用户修改/换绑邮箱")
+    public Result clientUpdateEmail(@RequestBody UpdateEmailDto dto) {
+
+        /**
+         * username
+         * password
+         * email
+         * code
+         */
+        // 1. 查询当前用户
+        UserEmailApplyEntity user = userMapper.findOneByUsername(dto.getUserName());
+        if (user == null) {
+            return Result.error("用户状态异常");
+        }
+
+        // 2. 校验登录密码是否正确
+
+        if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
+            return Result.error("当前密码错误，无法修改邮箱");
+        }
+
+        // 3. 校验新邮箱的验证码
+        boolean isCodeValid = mailUtil.verifyCode(dto.getNewEmail(), dto.getCode());
+        if (!isCodeValid) {
+            return Result.error("验证码错误或已过期");
+        }
+
+        // 4. 校验该邮箱是否已被其他账号占用 (可选，视你的业务需求)
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("email", dto.getNewEmail());
+        if (userMapper.selectCount(queryWrapper) > 0) {
+            return Result.error("该邮箱已被其他账号绑定，请更换");
+        }
+
+        // 5. 执行更新
+        user.setEmail(dto.getNewEmail());
+        userMapper.updateEmailById(user);
+
+        // 6. 建议：更新成功后删掉 Redis 中的验证码，防止二次利用
+        // redisTemplate.delete("邮箱验证码Key前缀:" + dto.getNewEmail());
+
+        return Result.success("邮箱绑定成功");
     }
 }
