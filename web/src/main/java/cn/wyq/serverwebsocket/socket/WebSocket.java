@@ -101,31 +101,66 @@ public class WebSocket {
     public void onError(Throwable error, Session session, @PathParam("username") String username) {
         log.error("用户[{}]连接异常", username, error);
     }
+    // =======================================================
+    // 🌟 新增：供外部(Service)调用的静态路由分发方法
+    // =======================================================
+    public static void sendToTarget(String toName, String jsonMessage, String senderName) {
+        if (toName == null) return;
 
+        if (toName.startsWith("GROUP_")) {
+            // 【群聊撤回分发】
+            if (groupService == null) groupService = ApplicationHelper.getBean(GroupService.class);
+            List<String> groupMembers = groupService.getGroupMemberNames(toName);
+            for (String memberName : groupMembers) {
+                Session targetSession = onlineUsers.get(memberName);
+                // 广播给群成员，但不发给撤回者本人（因为前端本人页面已经处理过了）
+                if (targetSession != null && targetSession.isOpen() && !memberName.equals(senderName)) {
+                    targetSession.getAsyncRemote().sendText(jsonMessage);
+                }
+            }
+        } else {
+            // 【私聊撤回分发】
+            Session targetSession = onlineUsers.get(toName);
+            if (targetSession != null && targetSession.isOpen()) {
+                targetSession.getAsyncRemote().sendText(jsonMessage);
+            }
+        }
+    }
     @OnMessage
     public void onMsg(Session session, String message, @PathParam("username") String username) throws IOException {
         initServices();
         log.info("收到来自[{}]的消息: {}", username, message);
 
-        // 1. 解析并保存消息到数据库
+        // 1. 解析前端发来的消息
         MessageInfo messageInfo = JSON.parseObject(message, MessageInfo.class);
-        Integer id = messageService.addMessage(messageInfo);
 
-        // 2. 构建完整消息对象返回
+        // 2. 保存到数据库
+        messageService.addMessage(messageInfo);
+
+        // 🌟 核心修改 1：从对象中提取 MyBatis 自动注入的真实 ID，而不是接收方法的返回值
+        Integer realId = messageInfo.getId();
+        log.info("消息落库成功，真实生成的 ID = {}", realId);
+
+        // 3. 构建包含真实 ID 的完整消息对象
         MessageFull messageFull = JSON.parseObject(message, MessageFull.class);
-        messageFull.setId(id);
+        messageFull.setId(realId);
         String jsonResponse = JSON.toJSONString(messageFull);
 
-        // 3. 🌟 核心路由逻辑：不再全服广播，而是区分私聊和群聊
-        String toName = messageInfo.getToName();
+        // =================== 🌟 核心修改 2：消息必须抄送给自己 ===================
+        // 只有把带 ID 的消息发给发送者本人，前端的 webSocketOnMessage 才能触发替换逻辑！
+        Session mySession = onlineUsers.get(username);
+        if (mySession != null && mySession.isOpen()) {
+            mySession.getAsyncRemote().sendText(jsonResponse);
+        }
 
+        // 4. 将消息发给接收方
+        String toName = messageInfo.getToName();
         if (toName != null && toName.startsWith("GROUP_")) {
             // 【群聊分发】
-            // 通过 GroupService 查询这个群里所有的成员账号
             List<String> groupMembers = groupService.getGroupMemberNames(toName);
             for (String memberName : groupMembers) {
                 Session targetSession = onlineUsers.get(memberName);
-                // 如果该成员在线，且不是发送者本人（前端已在本地push），则发送
+                // 已经发给自己了，跳过本人
                 if (targetSession != null && targetSession.isOpen() && !memberName.equals(username)) {
                     targetSession.getAsyncRemote().sendText(jsonResponse);
                 }
@@ -133,7 +168,8 @@ public class WebSocket {
         } else {
             // 【私聊分发】
             Session targetSession = onlineUsers.get(toName);
-            if (targetSession != null && targetSession.isOpen()) {
+            // 发给对方，确保对方不是自己
+            if (targetSession != null && targetSession.isOpen() && !toName.equals(username)) {
                 targetSession.getAsyncRemote().sendText(jsonResponse);
             }
         }

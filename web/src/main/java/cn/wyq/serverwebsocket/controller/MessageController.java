@@ -9,8 +9,10 @@ import cn.wyq.serverwebsocket.pojo.entity.Message;
 import cn.wyq.serverwebsocket.pojo.socket.MessageFull;
 import cn.wyq.serverwebsocket.pojo.socket.MessageInfo;
 import cn.wyq.serverwebsocket.service.MessageService;
+import cn.wyq.serverwebsocket.socket.WebSocket;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.write.style.column.LongestMatchColumnWidthStyleStrategy;
+import com.alibaba.fastjson.JSON;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
@@ -73,12 +75,19 @@ public class MessageController {
      * @param id
      * @return
      */
-    @PatchMapping("/{id}")
-    @Operation(summary = "撤回消息", description = "根据消息ID撤回消息")
-    public Result recallMessage(@PathVariable int id) {
-        log.info("请求撤回消息，待撤回消息ID: {}", id);
-        messageService.recallMessage(id);
-        return Result.success();
+    @PatchMapping("/{id}") // (以你实际的映射路径为准)
+    public Result recallMsg(@PathVariable("id") int id) {
+
+        // 1. 调用 Service 执行业务逻辑，拿到组装好的撤回消息对象
+        MessageFull recallEvent = messageService.recallMessage(id);
+
+        // 2. 序列化为 JSON
+        String jsonRecall = JSON.toJSONString(recallEvent);
+
+        // 🌟 3. 在 Controller 层调用 WebSocket 静态方法，跨网线通知对方！
+        WebSocket.sendToTarget(recallEvent.getToName(), jsonRecall, recallEvent.getFromName());
+
+        return Result.success("撤回成功");
     }
 
     /**

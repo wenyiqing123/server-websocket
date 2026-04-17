@@ -36,6 +36,8 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
     private final UserMapper userMapper;
     private final MessageStructMapper messageStructMapper;
 
+
+
     // 💡 核心新增：注入 RedisTemplate
     // 由于使用了 @RequiredArgsConstructor，声明为 private final 即可自动注入
     private final RedisTemplate<String, Object> redisTemplate;
@@ -180,20 +182,34 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
 
 
     @Override
-    public void recallMessage(int id) {
-        //判断时间差是否大于两分钟
-        MessageInfo messageInfo = messageMapper.checkTime(id);
-        if (messageInfo != null) {
-            throw new ServiceException("消息超过两分钟不能撤回", 400);
+    public MessageFull recallMessage(int id) {
+        // 1. 查出原消息
+        MessageInfo oldMsg = messageMapper.checkTime(id);
+
+
+        // 2. 超时判断
+
+        if (oldMsg == null) {
+            throw new ServiceException("消息发送超过两分钟不能撤回", 400);
         }
+
         try {
+            // 3. 数据库将消息内容置空/打上撤回标记
             messageMapper.recallMessage(id);
 
-            // 💡 架构师温馨提示：撤回消息也会改变第一页的列表，建议清除缓存
-            // String cacheKey = RedisKeyConstants.MANAGE_MESSAGES_CACHE + ":page=1:pageSize=9:list";
-            // redisTemplate.delete(cacheKey);
+            // 4. 组装一条空消息对象并返回给 Controller
+            MessageFull recallEvent = new MessageFull();
+            recallEvent.setId(id);
+            recallEvent.setMessage(""); // 传空字符串，前端识别为撤回
+            recallEvent.setFromName(oldMsg.getFromName());
+            recallEvent.setToName(oldMsg.getToName());
+            recallEvent.setTime(oldMsg.getTime());
+
+            // 🌟 核心：直接返回，Service 层绝对不碰 WebSocket！
+            return recallEvent;
 
         } catch (Exception e) {
+            log.error("撤回消息异常", e);
             throw new ServiceException("撤回消息失败", 500);
         }
     }

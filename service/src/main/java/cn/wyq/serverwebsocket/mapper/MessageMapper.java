@@ -25,7 +25,7 @@ public interface MessageMapper extends BaseMapper<Message> {
 
     @Select("SELECT *\n" +
             "FROM message\n" +
-            "WHERE TIMESTAMPDIFF(MINUTE, send_at, NOW()) > 2 and id=#{id};")
+            "WHERE TIMESTAMPDIFF(MINUTE, send_at, NOW()) < 2 and id=#{id};")
     MessageInfo checkTime(int id);
 
     Page<Message> pageQuery(MessageQueryDTO messageQueryDTO);
