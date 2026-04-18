@@ -42,7 +42,6 @@ public class FriendServiceImpl implements FriendService {
 
         // 3. （可选）连带清空两人的聊天记录。如果你不想删记录，把这行注释掉即可
         messageMapper.deleteChatHistory(userName, friendName);
-
         return Result.success("好友已删除");
     }
     @Override
@@ -135,6 +134,12 @@ public class FriendServiceImpl implements FriendService {
         }
 
         return Result.success("已同意好友申请");
+    }
+
+    @Override
+    public List<String> getMyFriendsNameByUsername(String userName) {
+
+        return friendMapper.getMyFriendsNameByUsername(userName);
     }
 
     @Override

@@ -17,5 +17,6 @@ public class RedisKeyConstants {
     public static final String MANAGE_USERS_CACHE = "manage_users";
 
     public static final String USER_CACHE="user:id:";
+    public static final String offlineKey="offline_broadcast:";
 
 }

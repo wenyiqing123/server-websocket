@@ -14,7 +14,6 @@ import cn.wyq.serverwebsocket.pojo.dto.*;
 import cn.wyq.serverwebsocket.pojo.entity.UserEmailApplyEntity;
 import cn.wyq.serverwebsocket.pojo.entity.UserEntity;
 import cn.wyq.serverwebsocket.pojo.vo.UserVo;
-import cn.wyq.serverwebsocket.service.MessageService;
 import cn.wyq.serverwebsocket.service.UserService;
 import cn.wyq.serverwebsocket.utils.BaseContext;
 import cn.wyq.serverwebsocket.utils.JWTUtil;
@@ -55,13 +54,14 @@ public class UserServiceImpl implements UserService {
 
     private final MailUtil mailUtil;
 
-    private final MessageService messageService;
+
 
     private final RedisTemplate<String, Object> redisTemplate;
     private final ChatGroupMapper chatGroupMapper;
     private final MessageMapper messageMapper;
     private final FriendMapper friendMapper;
     private final RedissonClient redissonClient;
+
 
     @Override
     @SuppressWarnings("unchecked")

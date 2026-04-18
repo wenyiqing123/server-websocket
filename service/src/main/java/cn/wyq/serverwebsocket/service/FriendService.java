@@ -2,6 +2,8 @@ package cn.wyq.serverwebsocket.service;
 
 import cn.wyq.serverwebsocket.common.Result;
 
+import java.util.List;
+
 public interface FriendService {
     /**
      * 发起好友申请
@@ -25,4 +27,6 @@ public interface FriendService {
      * 同意好友申请
      */
     Result acceptFriend(Integer id, String userName);
+
+    List<String> getMyFriendsNameByUsername(String userName);
 }

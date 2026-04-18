@@ -12,6 +12,7 @@ import org.redisson.api.RBloomFilter;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
@@ -25,6 +26,7 @@ public class CacheInitRunner {
     @Autowired
     private MessageService messageService;
     @Autowired
+    @Lazy
     private UserService userService;
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;

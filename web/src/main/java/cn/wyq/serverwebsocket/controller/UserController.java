@@ -12,7 +12,9 @@ import cn.wyq.serverwebsocket.pojo.dto.*;
 import cn.wyq.serverwebsocket.pojo.entity.UserEmailApplyEntity;
 import cn.wyq.serverwebsocket.pojo.entity.UserEntity;
 import cn.wyq.serverwebsocket.sentinel.GlobalBlockHandler;
+import cn.wyq.serverwebsocket.service.FriendService;
 import cn.wyq.serverwebsocket.service.UserService;
+import cn.wyq.serverwebsocket.socket.WebSocket;
 import cn.wyq.serverwebsocket.utils.BaseContext;
 import cn.wyq.serverwebsocket.utils.MailUtil;
 import com.alibaba.csp.sentinel.annotation.SentinelResource;
@@ -47,7 +49,7 @@ import java.util.Map;
 @Slf4j
 @RequiredArgsConstructor
 public class UserController {
-
+    private final FriendService friendService;
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
     private final MailUtil mailUtil;
@@ -64,7 +66,6 @@ public class UserController {
     @GetMapping("/pending-admins")
     @Operation(summary = "获取待审批的管理员申请列表")
     public Result getPendingAdmins() {
-        // TODO: 这里最好在网关层或拦截器里校验一下，只有 role == 0 的超管才能调这个接口，保证安全性
         return Result.success(userService.getPendingAdmins());
     }
 
@@ -91,7 +92,17 @@ public class UserController {
     })
     public Result login(@RequestBody User user, @RequestParam Integer applyRole) {
         log.info("请求用户登录，尝试登录账号信息: {}", user);
-        return userService.login(user, applyRole);
+        Result login = userService.login(user, applyRole);
+        if (login.get("code").equals(200)){
+            List<String> friendNames= friendService.getMyFriendsNameByUsername(user.getUserName());
+
+            if (friendNames != null && !friendNames.isEmpty()) {
+                for (String friendName : friendNames) {
+                    WebSocket.sendSystemBroadcast(friendName, "你的好友 [" + user.getUserName() + "] 刚刚上线了！");
+                }
+            }
+        }
+        return login;
     }
 
     /**
@@ -153,7 +164,6 @@ public class UserController {
         return Result.success(path);
     }
 
-
     /**
      * 删除用户
      */
@@ -165,7 +175,6 @@ public class UserController {
         return AjaxResult.toAjax(result);
     }
 
-
     /**
      * 修改用户信息
      */
@@ -173,7 +182,6 @@ public class UserController {
     @Operation(summary = "修改用户", description = "支持修改用户名、权限和头像路径")
     public AjaxResult<Void> updateUser(@RequestBody UserEntity user) {
         log.info("请求修改用户信息，参数 payload: {}", user);
-        // 如果修改了密码，需要重新加密
         if (user.getPassword() != null && !user.getPassword().isEmpty()) {
             log.info("检测到密码修改请求，执行密码重新加密");
             user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -181,19 +189,18 @@ public class UserController {
         int result = userService.updateUser(user);
         return AjaxResult.toAjax(result);
     }
+
     @GetMapping("/info")
     @Operation(summary = "根据用户名获取公开资料")
     public Result getUserInfoByName(@RequestParam String userName) {
-        // 复用你已有的根据用户名查询的方法
         UserEmailApplyEntity user = userMapper.findOneByUsername(userName);
-
         if (user != null) {
-            // 🌟 核心安全防御：返回给前端前，必须把密码设为空，防止隐私泄露！
             user.setPassword(null);
             return Result.success(user);
         }
         return Result.error("查无此人");
     }
+
     /**
      * 分页查询用户
      */
@@ -203,6 +210,7 @@ public class UserController {
         log.info("请求分页查询用户列表，查询条件 payload: {}", userQueryDTO);
         return userService.userList(userQueryDTO);
     }
+
     @GetMapping("/append/list")
     @Operation(summary = "分页查询用户", description = "分页查询用户接口")
     public PageResult<List<UserEntity>> UserAppendlist(@ParameterObject UserQueryDTO userQueryDTO) {
@@ -239,14 +247,11 @@ public class UserController {
     @Operation(summary = "按条件导出excel", description = "按条件导出excel")
     public void exportUser(@ParameterObject UserQueryExportDTO userQueryExportDTO, HttpServletResponse response) throws IOException {
         log.info("导出用户列表到excel：{}", userQueryExportDTO);
-        // 1. 设置响应头
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setCharacterEncoding("utf-8");
         String fileName = URLEncoder.encode("用户列表", "UTF-8");
         response.setHeader("Content-disposition", "attachment;filename=" + fileName + ".xlsx");
-        // 2. 获取数据（模拟从 service 获取）
         List<UserExportDTO> userExportDTOList = userService.export(userQueryExportDTO);
-        // 3. 一行代码写出
         EasyExcel.write(response.getOutputStream(), UserExportDTO.class)
                 .registerWriteHandler(new LongestMatchColumnWidthStyleStrategy())
                 .sheet("用户信息")
@@ -289,19 +294,23 @@ public class UserController {
 
     @PutMapping("/client-update")
     @Operation(summary = "C端用户修改个人资料")
-    //接收需要修改的信息
     public Result clientUpdateProfile(@RequestBody User user) {
         UserEmailApplyEntity userEmailApplyEntity = userMapper.findOneByUsername(user.getUserName());
         if (userEmailApplyEntity != null) throw new ServiceException("该用户名已存在", 400);
-        //获取当前用户id
+
         int currentId = Math.toIntExact(BaseContext.getCurrentId());
-        //查询当前用户信息
         UserEmailApplyEntity existingUser = userMapper.getCurrentUserById(currentId);
 
         if (existingUser != null) {
+            String oldUserName = existingUser.getUserName();
             existingUser.setUserName(user.getUserName());
             existingUser.setPath(user.getPath());
             userMapper.updateUsernameAvatar(existingUser);
+
+            // 发送系统广播：通知本人资料更新成功
+            // 💡 这里发送给【新的】用户名，因为如果它当前在线的话，此时 session 可能需要重新校验绑定
+            WebSocket.sendSystemBroadcast(user.getUserName(), "个人资料更新成功。");
+
             return Result.success("更新成功");
         }
         return Result.error("用户不存在");
@@ -324,50 +333,41 @@ public class UserController {
 
         user.setPassword(passwordEncoder.encode(newPassword));
         userMapper.updatePasswordById(user);
+
+        // 发送系统广播：通知本人密码修改成功
+        WebSocket.sendSystemBroadcast(userName, "登录密码修改成功，下次请使用新密码登录。");
+
         return Result.success("密码修改成功");
     }
 
     @PutMapping("/client-email")
     @Operation(summary = "C端用户修改/换绑邮箱")
     public Result clientUpdateEmail(@RequestBody UpdateEmailDto dto) {
-
-        /**
-         * username
-         * password
-         * email
-         * code
-         */
-        // 1. 查询当前用户
         UserEmailApplyEntity user = userMapper.findOneByUsername(dto.getUserName());
         if (user == null) {
             return Result.error("用户状态异常");
         }
 
-        // 2. 校验登录密码是否正确
-
         if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
             return Result.error("当前密码错误，无法修改邮箱");
         }
 
-        // 3. 校验新邮箱的验证码
         boolean isCodeValid = mailUtil.verifyCode(dto.getNewEmail(), dto.getCode());
         if (!isCodeValid) {
             return Result.error("验证码错误或已过期");
         }
 
-        // 4. 校验该邮箱是否已被其他账号占用 (可选，视你的业务需求)
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("email", dto.getNewEmail());
         if (userMapper.selectCount(queryWrapper) > 0) {
             return Result.error("该邮箱已被其他账号绑定，请更换");
         }
 
-        // 5. 执行更新
         user.setEmail(dto.getNewEmail());
         userMapper.updateEmailById(user);
 
-        // 6. 建议：更新成功后删掉 Redis 中的验证码，防止二次利用
-        // redisTemplate.delete("邮箱验证码Key前缀:" + dto.getNewEmail());
+        // 发送系统广播：通知本人邮箱换绑成功
+        WebSocket.sendSystemBroadcast(dto.getUserName(), "邮箱换绑成功，当前绑定邮箱为：" + dto.getNewEmail());
 
         return Result.success("邮箱绑定成功");
     }
@@ -376,7 +376,35 @@ public class UserController {
     @Operation(summary = "邮箱验证码登录")
     @LoginNotRequired
     public Result loginByEmail(@RequestBody EmailLoginDto dto) {
-        return userService.loginByEmail(dto);
+        // 1. 先执行原本的登录逻辑
+        Result result = userService.loginByEmail(dto);
+
+        // 🌟 2. 新增广播逻辑：只有登录成功，才向好友广播上线通知
+        if (result.get("code") .equals(200) ) {
+            try {
+                // 因为 dto 里只有邮箱没有用户名，需要先通过邮箱查出具体的实体对象
+                UserEmailApplyEntity user = userMapper.selectUserByEmail(dto.getEmail());
+
+                if (user != null) {
+                    String userName = user.getUserName();
+
+                    // 查出该用户的所有好友名称
+                    List<String> friendsname =  friendService.getMyFriendsNameByUsername(userName);
+
+                    // 遍历好友列表，挨个发送上线广播
+                    if (friendsname != null && !friendsname.isEmpty()) {
+                        for (String friendName : friendsname) {
+                            // 这里可以稍微改改文案，和密码登录做个区分，显得系统更有细节
+                            WebSocket.sendSystemBroadcast(friendName, "你的好友 [" + userName + "] 刚刚上线了！");
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                log.error("发送邮箱登录上线广播失败", e); // 捕获异常，绝不让次要的广播功能阻塞核心的登录逻辑
+            }
+        }
+
+        return result;
     }
 
     @PostMapping("/forgot-password")

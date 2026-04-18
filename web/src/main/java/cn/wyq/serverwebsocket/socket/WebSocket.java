@@ -2,6 +2,7 @@ package cn.wyq.serverwebsocket.socket;
 
 import cn.wyq.serverwebsocket.common.ApplicationHelper;
 import cn.wyq.serverwebsocket.config.WebSocketConfig;
+import cn.wyq.serverwebsocket.constant.RedisKeyConstants;
 import cn.wyq.serverwebsocket.pojo.User;
 import cn.wyq.serverwebsocket.pojo.socket.MessageFull;
 import cn.wyq.serverwebsocket.pojo.socket.MessageInfo;
@@ -16,6 +17,7 @@ import jakarta.websocket.*;
 import jakarta.websocket.server.PathParam;
 import jakarta.websocket.server.ServerEndpoint;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -26,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -41,7 +44,7 @@ public class WebSocket {
     private static RedisUtil redisUtil;
     private static UserService userService;
     private static GroupService groupService; // 🌟 新增 GroupService 用于群聊路由
-
+    private static RedisTemplate<String, Object> redisTemplate;
     // 在线用户 Session 映射：username -> Session
     private static final Map<String, Session> onlineUsers = new ConcurrentHashMap<>();
     // 当前在线人数
@@ -54,11 +57,12 @@ public class WebSocket {
     /**
      * 初始化 Spring 管理的 Bean
      */
-    private void initServices() {
+    private static void initServices() {
         if (userService == null) userService = ApplicationHelper.getBean(UserService.class);
         if (messageService == null) messageService = ApplicationHelper.getBean(MessageService.class);
         if (redisUtil == null) redisUtil = ApplicationHelper.getBean(RedisUtil.class);
         if (groupService == null) groupService = ApplicationHelper.getBean(GroupService.class); // 🌟 新增
+        if (redisTemplate == null) redisTemplate = (RedisTemplate<String, Object>) ApplicationHelper.getBean("redisTemplate");
     }
 
     @OnOpen
@@ -100,6 +104,37 @@ public class WebSocket {
     @OnError
     public void onError(Throwable error, Session session, @PathParam("username") String username) {
         log.error("用户[{}]连接异常", username, error);
+    }
+
+    // =======================================================
+    // 🌟 新增：发送系统广播的专属大喇叭
+    // =======================================================
+    public static void sendSystemBroadcast(String targetUsername, String content) {
+        if (targetUsername == null || content == null) return;
+        initServices(); // 确保组件已注入
+
+        // 构造消息体
+        MessageFull sysMsg = new MessageFull();
+        sysMsg.setFromName("SYSTEM_BROADCAST");
+        sysMsg.setToName(targetUsername);
+        sysMsg.setMessage(content);
+        sysMsg.setTime(LocalDateTime.now());
+
+        String jsonMessage = JSON.toJSONString(sysMsg);
+
+        Session targetSession = onlineUsers.get(targetUsername);
+        if (targetSession != null && targetSession.isOpen()) {
+            // 🟢 用户在线：直接通过 WebSocket 发送
+            targetSession.getAsyncRemote().sendText(jsonMessage);
+        } else {
+            // 🔴 用户离线：存入 Redis 离线信箱！
+            // 使用 List 结构，向队列尾部 (RightPush) 追加消息
+            String offlineKey = RedisKeyConstants.offlineKey + targetUsername;
+            redisTemplate.opsForList().rightPush(offlineKey, jsonMessage);
+            // 可选：设置离线消息的过期时间（比如 7 天没上线就作废，避免 Redis 撑爆）
+            redisTemplate.expire(offlineKey, 7, TimeUnit.DAYS);
+            log.info("用户 [{}] 离线，广播已存入 Redis 离线信箱", targetUsername);
+        }
     }
     // =======================================================
     // 🌟 新增：供外部(Service)调用的静态路由分发方法

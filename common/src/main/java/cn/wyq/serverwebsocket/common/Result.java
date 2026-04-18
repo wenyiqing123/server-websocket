@@ -1,9 +1,14 @@
 package cn.wyq.serverwebsocket.common;
 
+import lombok.Builder;
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.HashMap;
 
+@Data
 
+@Builder
 public class Result extends HashMap<String, Object> implements Serializable {
     private static final int SUCCESS_CODE = 200;
     private static final String SUCCESS_MSG = "操作成功";
