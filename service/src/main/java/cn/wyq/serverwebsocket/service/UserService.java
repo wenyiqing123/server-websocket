@@ -74,4 +74,6 @@ public interface UserService {
 
 
     String getPathByEmail(String email);
+
+    void updateUsernameInGroupAndFriend(String oldUserName, String newUserName);
 }

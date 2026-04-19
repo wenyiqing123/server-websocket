@@ -93,8 +93,8 @@ public class UserController {
     public Result login(@RequestBody User user, @RequestParam Integer applyRole) {
         log.info("请求用户登录，尝试登录账号信息: {}", user);
         Result login = userService.login(user, applyRole);
-        if (login.get("code").equals(200)){
-            List<String> friendNames= friendService.getMyFriendsNameByUsername(user.getUserName());
+        if (login.get("code").equals(200)) {
+            List<String> friendNames = friendService.getMyFriendsNameByUsername(user.getUserName());
 
             if (friendNames != null && !friendNames.isEmpty()) {
                 for (String friendName : friendNames) {
@@ -181,6 +181,7 @@ public class UserController {
     @PutMapping("/update")
     @Operation(summary = "修改用户", description = "支持修改用户名、权限和头像路径")
     public AjaxResult<Void> updateUser(@RequestBody UserEntity user) {
+//        UserEmailApplyEntity oneByUsername = userMapper.findOneByUsername(user.getUserName());
         log.info("请求修改用户信息，参数 payload: {}", user);
         if (user.getPassword() != null && !user.getPassword().isEmpty()) {
             log.info("检测到密码修改请求，执行密码重新加密");
@@ -296,7 +297,8 @@ public class UserController {
     @Operation(summary = "C端用户修改个人资料")
     public Result clientUpdateProfile(@RequestBody User user) {
         UserEmailApplyEntity userEmailApplyEntity = userMapper.findOneByUsername(user.getUserName());
-        if (userEmailApplyEntity != null) throw new ServiceException("该用户名已存在", 400);
+        if (userEmailApplyEntity != null && !user.getUserName().equals(userEmailApplyEntity.getUserName()))
+            throw new ServiceException("该用户名已存在", 400);
 
         int currentId = Math.toIntExact(BaseContext.getCurrentId());
         UserEmailApplyEntity existingUser = userMapper.getCurrentUserById(currentId);
@@ -306,7 +308,7 @@ public class UserController {
             existingUser.setUserName(user.getUserName());
             existingUser.setPath(user.getPath());
             userMapper.updateUsernameAvatar(existingUser);
-
+            userService.updateUsernameInGroupAndFriend(oldUserName, user.getUserName());
             // 发送系统广播：通知本人资料更新成功
             // 💡 这里发送给【新的】用户名，因为如果它当前在线的话，此时 session 可能需要重新校验绑定
             WebSocket.sendSystemBroadcast(user.getUserName(), "个人资料更新成功。");
@@ -380,7 +382,7 @@ public class UserController {
         Result result = userService.loginByEmail(dto);
 
         // 🌟 2. 新增广播逻辑：只有登录成功，才向好友广播上线通知
-        if (result.get("code") .equals(200) ) {
+        if (result.get("code").equals(200)) {
             try {
                 // 因为 dto 里只有邮箱没有用户名，需要先通过邮箱查出具体的实体对象
                 UserEmailApplyEntity user = userMapper.selectUserByEmail(dto.getEmail());
@@ -389,7 +391,7 @@ public class UserController {
                     String userName = user.getUserName();
 
                     // 查出该用户的所有好友名称
-                    List<String> friendsname =  friendService.getMyFriendsNameByUsername(userName);
+                    List<String> friendsname = friendService.getMyFriendsNameByUsername(userName);
 
                     // 遍历好友列表，挨个发送上线广播
                     if (friendsname != null && !friendsname.isEmpty()) {

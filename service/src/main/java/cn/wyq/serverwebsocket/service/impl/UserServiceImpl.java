@@ -223,6 +223,20 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public int updateUser(UserEntity user) {
+        UserEmailApplyEntity oneByUsername = userMapper.findOneByUsername(user.getUserName());
+        if (oneByUsername!=null) throw new ServiceException("该用户名已存在",400);
+//        System.out.println(user.getId());
+        UserEmailApplyEntity currentUserById = userMapper.getCurrentUserById(user.getId());
+//        UserEmailApplyEntity oneByUsername = userMapper.findOneByUsername(user.getUserName());
+        String oldUserName=currentUserById.getUserName();
+        String newUserName=user.getUserName();
+       if (!oldUserName.equals(newUserName)){
+           int ownerRows = userMapper.updateUserNameInGroupOwner(oldUserName, newUserName);
+           int friendRows = userMapper.updateUserNameInFriend(oldUserName, newUserName);
+           int memberRows = userMapper.updateUserNameInGroupMember(oldUserName, newUserName);
+           int messageRows=userMapper.updateUserNameInMessage(oldUserName,newUserName);
+           int conversationRows=userMapper.updateUserNameInConversation(oldUserName,newUserName);
+       }
         int result = userMapper.updateUser(user);
 
         // 🧹 手动清除缓存
@@ -274,7 +288,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Result login(User user, Integer applyRole) {
-        User loginUser = userMapper.login(user, applyRole);
+//        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        User loginUser = userMapper.findByUsername(user.getUserName());
         if (loginUser == null) throw new ServiceException("用户名或密码错误", 401);
 
         if (!passwordEncoder.matches(user.getPassword(), loginUser.getPassword())) {
@@ -591,5 +606,30 @@ public class UserServiceImpl implements UserService {
     @Override
     public String getPathByEmail(String email) {
         return userMapper.getPathByEmail(email);
+    }
+
+
+
+// ...
+
+
+    @Override
+    @Transactional(rollbackFor = Exception.class) // 🌟 涉及到多表修改，千万别忘了加事务！
+    public void updateUsernameInGroupAndFriend(String oldUserName, String newUserName) {
+
+        // 如果新老名字一样，直接 return，这才是最该在代码层拦截的“判断”
+        if (oldUserName.equals(newUserName)) {
+            return;
+        }
+
+        // 直接执行更新，MyBatis 会返回受影响的行数
+        int ownerRows = userMapper.updateUserNameInGroupOwner(oldUserName, newUserName);
+        int friendRows = userMapper.updateUserNameInFriend(oldUserName, newUserName);
+        int memberRows = userMapper.updateUserNameInGroupMember(oldUserName, newUserName);
+        int messageRows=userMapper.updateUserNameInMessage(oldUserName,newUserName);
+        int conversationRows=userMapper.updateUserNameInConversation(oldUserName,newUserName);
+        // 🌟 打印日志：通过返回值，我们就能清楚地知道到底有没有数据被修改
+        log.info("【用户改名联级更新】[{}] 改为 [{}]: 更新群主表 {} 行, 好友表 {} 行, 群成员表 {} 行",
+                oldUserName, newUserName, ownerRows, friendRows, memberRows);
     }
 }

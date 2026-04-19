@@ -18,6 +18,7 @@ import java.util.List;
 public interface UserMapper extends BaseMapper<User> {
     // 查询所有
     Page<UserEntity> selectAllUsers(UserQueryDTO userQueryDTO);
+
     Page<UserEntity> selectAllAppendUsers(UserQueryDTO userQueryDTO);
 
     // 删除
@@ -82,4 +83,25 @@ public interface UserMapper extends BaseMapper<User> {
 
     @Select("select path from user where email=#{email};")
     String getPathByEmail(String email);
+
+    @Update("update chat_group set owner_name =#{newUserName}  where owner_name=#{oldUserName}")
+    int updateUserNameInGroupOwner(String oldUserName, String newUserName);
+
+    @Update("UPDATE friend SET " +
+            "user_name = CASE WHEN user_name = #{oldUserName} THEN #{newUserName} ELSE user_name END, " +
+            "friend_name = CASE WHEN friend_name = #{oldUserName} THEN #{newUserName} ELSE friend_name END " +
+            "WHERE user_name = #{oldUserName} OR friend_name = #{oldUserName}")
+    int updateUserNameInFriend(String oldUserName, String newUserName);
+
+    @Update("update group_member set user_name =#{newUserName}  where user_name=#{oldUserName}")
+    int updateUserNameInGroupMember(String oldUserName, String newUserName);
+
+    @Update("UPDATE message SET " +
+            "from_name = CASE WHEN from_name = #{oldUserName} THEN #{newUserName} ELSE from_name END, " +
+            "to_name = CASE WHEN to_name = #{oldUserName} THEN #{newUserName} ELSE to_name END " +
+            "WHERE from_name = #{oldUserName} OR to_name = #{oldUserName}")
+    int updateUserNameInMessage(String oldUserName, String newUserName);
+
+    @Update("update conversation set user_name=#{newUserName} where user_name=#{oldUserName}")
+    int updateUserNameInConversation(String oldUserName, String newUserName);
 }
