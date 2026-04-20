@@ -1,7 +1,10 @@
 package cn.wyq.serverwebsocket.service;
 
+import cn.wyq.serverwebsocket.common.PageResult;
 import cn.wyq.serverwebsocket.common.Result;
 import cn.wyq.serverwebsocket.pojo.dto.GroupCreateDTO;
+import cn.wyq.serverwebsocket.pojo.dto.GroupQueryDTO;
+import cn.wyq.serverwebsocket.pojo.entity.ChatGroup;
 
 import java.util.List;
 
@@ -53,4 +56,4 @@ public interface GroupService {
     Result getMyGroups(String userName);
 
 
-}
+    PageResult<List<ChatGroup>> getGroupPage(GroupQueryDTO queryDTO);}

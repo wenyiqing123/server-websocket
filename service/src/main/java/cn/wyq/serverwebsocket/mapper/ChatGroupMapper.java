@@ -1,7 +1,9 @@
 package cn.wyq.serverwebsocket.mapper;
 
+import cn.wyq.serverwebsocket.pojo.dto.GroupQueryDTO;
 import cn.wyq.serverwebsocket.pojo.entity.ChatGroup;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.github.pagehelper.Page;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
@@ -27,4 +29,6 @@ public interface ChatGroupMapper extends BaseMapper<ChatGroup> {
 
     @Select("select count(*) from group_member where group_id=#{groupId}")
     int countGroupMembers(String groupId);
+
+    Page<ChatGroup> selectGroupList(GroupQueryDTO queryDTO);
 }

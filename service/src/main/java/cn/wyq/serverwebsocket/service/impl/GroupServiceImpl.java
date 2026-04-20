@@ -1,20 +1,29 @@
 package cn.wyq.serverwebsocket.service.impl;
 
+import cn.wyq.serverwebsocket.common.PageResult;
 import cn.wyq.serverwebsocket.common.Result;
 import cn.wyq.serverwebsocket.mapper.ChatGroupMapper;
 import cn.wyq.serverwebsocket.mapper.GroupMemberMapper;
 import cn.wyq.serverwebsocket.mapper.UserMapper;
 import cn.wyq.serverwebsocket.pojo.dto.GroupCreateDTO;
+import cn.wyq.serverwebsocket.pojo.dto.GroupQueryDTO;
 import cn.wyq.serverwebsocket.pojo.entity.ChatGroup;
 import cn.wyq.serverwebsocket.pojo.entity.GroupMember;
+import cn.wyq.serverwebsocket.pojo.entity.UserEmailApplyEntity;
 import cn.wyq.serverwebsocket.pojo.vo.GroupMemberQueryVo;
 import cn.wyq.serverwebsocket.service.GroupService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -123,13 +132,29 @@ public class GroupServiceImpl implements GroupService {
     @Override
     @Transactional(rollbackFor = Exception.class) // 涉及多表操作，必须加事务
     public Result dismissGroup(String groupId, String operatorName) {
-        // 1. 校验必须是群主
-        QueryWrapper<GroupMember> query = new QueryWrapper<>();
-        query.eq("group_id", groupId).eq("user_name", operatorName);
-        GroupMember operator = groupMemberMapper.selectOne(query);
 
-        if (operator == null || operator.getRole() != 2) {
-            return Result.error("权限不足：仅群主可以解散群聊");
+        // --- 🌟 第一重校验：检查操作者是否为【系统管理员】 ---
+        // 假设你的系统管理员 role 是 1 (根据你之前的代码推测)
+        UserEmailApplyEntity currentUser = userMapper.findOneByUsername(operatorName);
+        boolean isSystemAdmin = (currentUser != null && (currentUser.getRole() == 1||currentUser.getRole() == 0));
+
+        // --- 🌟 第二重校验：如果不是系统管理员，检查他是不是该群的【群主】 ---
+        if (!isSystemAdmin) {
+            QueryWrapper<GroupMember> query = new QueryWrapper<>();
+            query.eq("group_id", groupId).eq("user_name", operatorName);
+            GroupMember operator = groupMemberMapper.selectOne(query);
+
+            if (operator == null || operator.getRole() != 2) {
+                return Result.error("权限不足：仅群主或系统管理员可以解散群聊");
+            }
+        }
+
+        // --- 权限校验通过，开始执行删除 ---
+
+        // 1. 检查群是否存在（增加代码健壮性）
+        ChatGroup group = chatGroupMapper.selectById(groupId);
+        if (group == null) {
+            return Result.error("群聊不存在或已被解散");
         }
 
         // 2. 删除群聊基础信息
@@ -141,14 +166,13 @@ public class GroupServiceImpl implements GroupService {
         groupMemberMapper.delete(delMembersQuery);
 
         // 4. (可选) 清空该群的聊天记录
-        // 如果你需要同时清空聊天记录，解开下面的注释
         /*
         QueryWrapper<Message> delMsgsQuery = new QueryWrapper<>();
-        delMsgsQuery.eq("to_name", groupId);
+        delMsgsQuery.eq("to_name", "GROUP_" + groupId); // 注意：这里通常带有前缀
         messageMapper.delete(delMsgsQuery);
         */
 
-        return Result.success("群聊已解散");
+        return Result.success("群聊已成功解散");
     }
     @Override
     public Result getGroupMembers(String groupId) {
@@ -188,7 +212,7 @@ public class GroupServiceImpl implements GroupService {
         group.setGroupName(dto.getGroupName());
         group.setPath(dto.getGroupAvatar()); // 对应你数据库的 path
         group.setOwnerName(dto.getOwnerName());
-        group.setCreateTime(new Date());
+        group.setCreateTime(LocalDateTime.now());
         chatGroupMapper.insert(group);
 
         // 5. 将群主加入成员表
@@ -196,7 +220,7 @@ public class GroupServiceImpl implements GroupService {
         owner.setGroupId(groupId);
         owner.setUserName(dto.getOwnerName());
         owner.setRole(2); // 群主
-        owner.setJoinTime(new Date());
+        owner.setJoinTime(LocalDateTime.now());
         groupMemberMapper.insert(owner);
 
         // 6. 遍历并加入勾选的好友
@@ -205,7 +229,7 @@ public class GroupServiceImpl implements GroupService {
             member.setGroupId(groupId);
             member.setUserName(memberName);
             member.setRole(0); // 普通成员
-            member.setJoinTime(new Date());
+            member.setJoinTime(LocalDateTime.now());
             groupMemberMapper.insert(member);
         }
 
@@ -233,5 +257,21 @@ public class GroupServiceImpl implements GroupService {
         List<ChatGroup> myGroups = chatGroupMapper.selectList(groupQuery);
 
         return Result.success(myGroups);
+    }
+
+    @Override
+    public PageResult<List<ChatGroup>> getGroupPage(GroupQueryDTO queryDTO) {
+        // 1. 开启 PageHelper 分页拦截
+        PageHelper.startPage(queryDTO.getPage(), queryDTO.getPageSize());
+
+        // 2. 执行数据库查询 (此时 MyBatis 执行的 SQL 会被自动注入 LIMIT)
+        Page<ChatGroup> page = chatGroupMapper.selectGroupList(queryDTO);
+
+        // 3. 封装返回标准的 PageResult
+        long total = page.getTotal();
+        List<ChatGroup> records = page.getResult();
+
+        return PageResult.success(total, records);
+        // 假设你的 PageResult 有 success(long total, List data) 这个静态方法
     }
 }

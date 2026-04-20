@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Data
 @TableName("chat_group")
@@ -25,5 +25,5 @@ public class ChatGroup {
     private String ownerName;
 
     // 创建时间
-    private Date createTime;
+    private LocalDateTime createTime;
 }

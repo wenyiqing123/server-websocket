@@ -1,7 +1,10 @@
 package cn.wyq.serverwebsocket.controller;
 
+import cn.wyq.serverwebsocket.common.PageResult;
 import cn.wyq.serverwebsocket.common.Result;
 import cn.wyq.serverwebsocket.pojo.dto.GroupCreateDTO;
+import cn.wyq.serverwebsocket.pojo.dto.GroupQueryDTO;
+import cn.wyq.serverwebsocket.pojo.entity.ChatGroup;
 import cn.wyq.serverwebsocket.service.GroupService;
 import cn.wyq.serverwebsocket.socket.WebSocket;
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,6 +22,34 @@ public class GroupController {
 
     @Autowired
     private GroupService groupService;
+
+
+    @GetMapping("/page")
+    @Operation(summary = "管理端：动态分页查询群聊列表")
+    public PageResult<List<ChatGroup>> listGroups(GroupQueryDTO queryDTO) {
+
+        // 赋予默认分页参数，防止前端漏传
+        if (queryDTO.getPage() == null) queryDTO.setPage(1);
+        if (queryDTO.getPageSize() == null) queryDTO.setPageSize(10);
+
+        // 调用 Service 获取分页结果
+        PageResult<List<ChatGroup>> pageResult = groupService.getGroupPage(queryDTO);
+
+        // 使用标准的 Result 统一响应包装器返回
+        return pageResult;
+    }
+//    @DeleteMapping("/admin-dismiss")
+//    @Operation(summary = "强制解散群聊")
+//    public Result<Void> dismissGroup(
+//            @RequestParam Long groupId,
+//            @RequestParam String operatorName) {
+//
+//        // 调用 Service 层执行解散逻辑
+//        groupService.adminDismissGroup(groupId, operatorName);
+//
+//        return Result.success("群聊解散成功");
+//    }
+
 
     @PostMapping("/create")
     @Operation(summary = "创建群聊并邀请成员")
@@ -131,17 +162,20 @@ public class GroupController {
             @RequestParam("groupId") String groupId,
             @RequestParam("operatorName") String operatorName) {
 
-        // 🌟 核心细节：必须在调用解散 Service 【之前】获取名单，否则群删了可能就查不到成员了
+        // 1. 获取名单（提前获取，防删后找不到）
         List<String> members = groupService.getGroupMemberNames("GROUP_" + groupId);
 
+        // 2. 执行解散核心逻辑
         Result result = groupService.dismissGroup(groupId, operatorName);
 
-        // 直接广播，不进行响应码判断
-        // 挨个通知被解散的群成员（跳过群主）
-        if (members != null) {
-            for (String member : members) {
-                if (!member.equals(operatorName)) {
-                    WebSocket.sendSystemBroadcast(member, "你所在的群聊已被群主 [" + operatorName + "] 解散。");
+        // 3. 🌟 核心修复：必须判断后端真的解散成功了 (状态码为 200)，才能发送广播！
+        if (result.get("code") != null && result.get("code") .equals("200") ) {
+            if (members != null) {
+                for (String member : members) {
+                    // 不给自己发通知
+                    if (!member.equals(operatorName)) {
+                        WebSocket.sendSystemBroadcast(member, "你所在的群聊已被 [" + operatorName + "] 解散。");
+                    }
                 }
             }
         }
