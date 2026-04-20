@@ -67,22 +67,22 @@ public class UserServiceImpl implements UserService {
     @SuppressWarnings("unchecked")
     public PageResult<List<UserEntity>> userList(UserQueryDTO userQueryDTO) {
         // 1. 提取缓存条件判断
-        boolean isCacheable = (userQueryDTO.getId() == null || String.valueOf(userQueryDTO.getId()).isEmpty())
-                && userQueryDTO.getPage() == 1
-                && userQueryDTO.getPageSize() == 9
-                && (userQueryDTO.getUserName() == null || userQueryDTO.getUserName().isEmpty())
-                && (userQueryDTO.getRole() == null || userQueryDTO.getRole() == 0);
-
-        String cacheKey = RedisKeyConstants.MANAGE_USERS_CACHE + ":page=1,pageSize=9:list";
-
-        // 2. 查缓存
-        if (isCacheable) {
-            Object cachedData = redisTemplate.opsForValue().get(cacheKey);
-            if (cachedData != null) {
-                log.debug("命中用户首页分页缓存！");
-                return (PageResult<List<UserEntity>>) cachedData;
-            }
-        }
+//        boolean isCacheable = (userQueryDTO.getId() == null || String.valueOf(userQueryDTO.getId()).isEmpty())
+//                && userQueryDTO.getPage() == 1
+//                && userQueryDTO.getPageSize() == 9
+//                && (userQueryDTO.getUserName() == null || userQueryDTO.getUserName().isEmpty())
+//                && (userQueryDTO.getRole() == null || userQueryDTO.getRole() == 0);
+//
+//        String cacheKey = RedisKeyConstants.MANAGE_USERS_CACHE + ":page=1,pageSize=9:list";
+//
+//        // 2. 查缓存
+//        if (isCacheable) {
+//            Object cachedData = redisTemplate.opsForValue().get(cacheKey);
+//            if (cachedData != null) {
+//                log.debug("命中用户首页分页缓存！");
+//                return (PageResult<List<UserEntity>>) cachedData;
+//            }
+//        }
 
         // 3. 缓存未命中，查数据库
         PageHelper.startPage(userQueryDTO.getPage(), userQueryDTO.getPageSize());
@@ -92,14 +92,14 @@ public class UserServiceImpl implements UserService {
         PageResult<List<UserEntity>> pageResult = PageResult.success(total, userList);
 
         // 4. 🛡️ 核心防御：写缓存并防穿透
-        if (isCacheable) {
-            if (userList == null || userList.isEmpty()) {
-                redisTemplate.opsForValue().set(cacheKey, pageResult, 1, TimeUnit.MINUTES);
-                log.info("用户列表为空，已存入空缓存防穿透");
-            } else {
-                redisTemplate.opsForValue().set(cacheKey, pageResult, 2, TimeUnit.HOURS);
-            }
-        }
+//        if (isCacheable) {
+//            if (userList == null || userList.isEmpty()) {
+//                redisTemplate.opsForValue().set(cacheKey, pageResult, 1, TimeUnit.MINUTES);
+//                log.info("用户列表为空，已存入空缓存防穿透");
+//            } else {
+//                redisTemplate.opsForValue().set(cacheKey, pageResult, 2, TimeUnit.HOURS);
+//            }
+//        }
         return pageResult;
     }
 
