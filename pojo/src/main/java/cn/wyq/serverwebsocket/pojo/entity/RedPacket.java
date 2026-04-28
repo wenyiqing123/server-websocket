@@ -1,0 +1,58 @@
+package cn.wyq.serverwebsocket.pojo.entity;
+
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Builder;
+import lombok.Data;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+@Data
+@Builder
+@TableName("u_red_packet")
+public class RedPacket {
+
+    @TableId(type = IdType.AUTO)
+    private Long id;
+
+    /**
+     * 发红包者ID
+     */
+    private Long senderId;
+
+    /**
+     * 房间/群组ID
+     */
+    private Long roomId;
+
+    /**
+     * 总金额
+     */
+    private BigDecimal totalAmount;
+
+    /**
+     * 总个数
+     */
+    private Integer totalCount;
+
+    /**
+     * 剩余金额
+     */
+    private BigDecimal remainingAmount;
+
+    /**
+     * 剩余个数
+     */
+    private Integer remainingCount;
+
+    /**
+     * 状态：0-进行中、1-已抢完、2-已过期退回
+     */
+    private Integer status;
+
+    private LocalDateTime createTime;
+
+    private LocalDateTime finishTime;
+}

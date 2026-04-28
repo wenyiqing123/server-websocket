@@ -9,6 +9,7 @@ import cn.wyq.serverwebsocket.pojo.entity.UserEntity;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.github.pagehelper.Page;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
@@ -17,7 +18,7 @@ import java.util.List;
 @Mapper
 public interface UserMapper extends BaseMapper<User> {
     // 查询所有
-    Page<UserEntity> selectAllUsers(UserQueryDTO userQueryDTO);
+    Page<UserEmailApplyEntity> selectAllUsers(UserQueryDTO userQueryDTO);
 
     Page<UserEntity> selectAllAppendUsers(UserQueryDTO userQueryDTO);
 
@@ -56,7 +57,7 @@ public interface UserMapper extends BaseMapper<User> {
 
     String getPath(String username);
 
-    List<UserEntity> export(UserQueryExportDTO userQueryExportDTO);
+    List<UserEmailApplyEntity> export(UserQueryExportDTO userQueryExportDTO);
 
     List<Integer> findAllUserIds();
 
@@ -104,4 +105,5 @@ public interface UserMapper extends BaseMapper<User> {
 
     @Update("update conversation set user_name=#{newUserName} where user_name=#{oldUserName}")
     int updateUserNameInConversation(String oldUserName, String newUserName);
-}
+
+    int insertBatch(@Param("list") List<UserEmailApplyEntity> list);}

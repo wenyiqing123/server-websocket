@@ -1,35 +1,31 @@
 package cn.wyq.serverwebsocket.pojo.dto;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import com.alibaba.excel.annotation.ExcelProperty;
+import com.alibaba.excel.annotation.write.style.ColumnWidth;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
 
 @Data
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
-
 public class MessageExportDTO {
 
+    @ExcelProperty("消息编号")
+    @ColumnWidth(15)
     private Integer id;
 
+    @ExcelProperty("消息内容")
+    @ColumnWidth(40)
     private String message;
 
+    @ExcelProperty("发送者")
+    @ColumnWidth(20)
     private String fromName;
 
+    @ExcelProperty("接收者")
+    @ColumnWidth(25) // 群聊名称可能会比较长，稍微给宽一点
     private String toName;
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") // 用于接收参数（请求参数）
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8") // 用于序列化和反序列化 JSON
-    private LocalDateTime sendAtStart;
-
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    private LocalDateTime sendAtEnd;
-
+    @ExcelProperty("发送时间")
+    @ColumnWidth(25)
+    private LocalDateTime sendAt;
 }

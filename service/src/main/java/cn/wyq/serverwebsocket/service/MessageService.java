@@ -9,7 +9,9 @@ import cn.wyq.serverwebsocket.pojo.entity.Message;
 import cn.wyq.serverwebsocket.pojo.socket.MessageFull;
 import cn.wyq.serverwebsocket.pojo.socket.MessageInfo;
 import com.baomidou.mybatisplus.extension.service.IService;
+import jakarta.servlet.http.HttpServletResponse;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface MessageService  extends IService<Message> {
@@ -36,4 +38,6 @@ public interface MessageService  extends IService<Message> {
     List<Message> export(MessageExportDTO messageExportDTO);
 
     void deleteMessageByUser(Integer id);
+    // 新增导出方法接口
+    void exportMessages(MessageQueryDTO messageQueryDTO, HttpServletResponse response) throws IOException;
 }

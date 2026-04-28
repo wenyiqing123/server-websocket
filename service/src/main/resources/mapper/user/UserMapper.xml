@@ -31,13 +31,16 @@
         <!--        </choose>-->
     </select>
 
-    <select id="selectAllUsers" resultMap="UserResultMap">
-        SELECT id, user_name, password, path, role
+    <select id="selectAllUsers" resultType="cn.wyq.serverwebsocket.pojo.entity.UserEmailApplyEntity">
+        SELECT id, user_name, password,email, path, role
         FROM user
         <where>
             status='1'
             <if test="id!=null and id!=''">
                 and id = #{id}
+            </if>
+            <if test="email!=null and email!=''">
+                and email like concat('%',#{email},'%')
             </if>
             <if test="userName!=null and userName!=''">
                 and user_name like concat('%',#{userName},'%')
@@ -54,10 +57,10 @@
         <where>
             role='2'
             <if test="id!=null and id!=''">
-                and  id = #{id}
+                and id = #{id}
             </if>
             <if test="userName!=null and userName!=''">
-                and  user_name like concat('%',#{userName},'%')
+                and user_name like concat('%',#{userName},'%')
             </if>
             <if test="role!=null and role!=''">
                 and role = #{role}
@@ -107,6 +110,27 @@
         insert into user (user_name, password, path, role, email, status)
         values (#{userName}, #{password}, #{path}, #{role}, #{email}, #{status})
     </insert>
+    <insert id="insertBatch">
+        INSERT INTO user (
+        user_name,
+        email,
+        role,
+        password,
+        path,
+        status
+        )
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.userName},
+            #{item.email},
+            #{item.role},
+            #{item.password},
+            #{item.path},
+            #{item.status}
+            )
+        </foreach>
+    </insert>
 
     <select id="findByUsername" resultMap="User">
         select *
@@ -123,12 +147,15 @@
         from user
         where user_name = #{username}
     </select>
-    <select id="export" resultType="cn.wyq.serverwebsocket.pojo.entity.UserEntity">
-        SELECT id, user_name, password, path, role
+    <select id="export" resultType="cn.wyq.serverwebsocket.pojo.entity.UserEmailApplyEntity">
+        SELECT id, user_name,email, role
         FROM user
         <where>
             <if test="id!=null and id!=''">
                 id = #{id}
+            </if>
+            <if test="email!=null and email!=''">
+                email like concat('%',#{email},'%')
             </if>
             <if test="userName!=null and userName!=''">
                 user_name like concat('%',#{userName},'%')

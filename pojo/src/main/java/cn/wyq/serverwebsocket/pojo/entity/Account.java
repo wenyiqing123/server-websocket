@@ -1,0 +1,37 @@
+package cn.wyq.serverwebsocket.pojo.entity;
+
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+@TableName("u_account")
+public class Account {
+
+    @TableId
+    private Long userId;
+
+    /**
+     * 当前可用余额
+     */
+    private BigDecimal balance;
+
+    /**
+     * 冻结金额
+     */
+    private BigDecimal freezeAmount;
+
+    /**
+     * 更新时间
+     */
+    private LocalDateTime updateTime;
+}

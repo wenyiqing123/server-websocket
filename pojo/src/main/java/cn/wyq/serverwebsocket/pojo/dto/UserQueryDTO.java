@@ -15,5 +15,6 @@ public class UserQueryDTO {
     private Integer id;
     private String userName;
     private Integer role;
+    private String email;
 
 }

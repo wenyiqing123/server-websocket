@@ -14,7 +14,7 @@ import java.util.Map;
 
 public interface UserService {
     // 查询所有用户
-    PageResult<List<UserEntity>> userList(UserQueryDTO userQueryDTO);
+    PageResult<List<UserEmailApplyEntity>> userList(UserQueryDTO userQueryDTO);
     PageResult<List<UserEntity>> userAppendList(UserQueryDTO userQueryDTO);
 
     // 根据ID删除用户
@@ -27,6 +27,7 @@ public interface UserService {
      * 换绑/修改邮箱
      */
     Result updateEmail(UpdateEmailDto dto);
+    void importUsers(List<UserImportDTO> dtoList);
 // 在你的 UserService.java 中添加：
 
     /**

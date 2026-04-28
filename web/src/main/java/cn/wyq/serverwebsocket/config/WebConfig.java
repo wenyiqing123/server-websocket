@@ -76,8 +76,8 @@ public class WebConfig implements WebMvcConfigurer {
                 .addResourceLocations("classpath:/static/");
 
         // Knife4j / Swagger 接口文档映射
-        registry.addResourceHandler("/doc.html").addResourceLocations("classpath:/META-INF/resources/");
-        registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
+//        registry.addResourceHandler("/doc.html").addResourceLocations("classpath:/META-INF/resources/");
+//        registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
     }
 
     // ================== 3. 拦截器配置 ==================

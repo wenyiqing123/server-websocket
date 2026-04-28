@@ -4,6 +4,7 @@ import cn.wyq.serverwebsocket.common.PageResult;
 import cn.wyq.serverwebsocket.common.Result;
 import cn.wyq.serverwebsocket.constant.RedisKeyConstants;
 import cn.wyq.serverwebsocket.exception.ServiceException;
+import cn.wyq.serverwebsocket.mapper.ChatGroupMapper;
 import cn.wyq.serverwebsocket.mapper.MessageMapper;
 import cn.wyq.serverwebsocket.mapper.MessageStructMapper;
 import cn.wyq.serverwebsocket.mapper.UserMapper;
@@ -13,19 +14,22 @@ import cn.wyq.serverwebsocket.pojo.entity.Message;
 import cn.wyq.serverwebsocket.pojo.socket.MessageFull;
 import cn.wyq.serverwebsocket.pojo.socket.MessageInfo;
 import cn.wyq.serverwebsocket.service.MessageService;
+import com.alibaba.excel.EasyExcel;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 @Service("messageService")
 @Slf4j
@@ -35,12 +39,13 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
     private final MessageMapper messageMapper;
     private final UserMapper userMapper;
     private final MessageStructMapper messageStructMapper;
-
+    private final ChatGroupMapper chatGroupMapper;
 
 
     // 💡 核心新增：注入 RedisTemplate
     // 由于使用了 @RequiredArgsConstructor，声明为 private final 即可自动注入
     private final RedisTemplate<String, Object> redisTemplate;
+
     @Override
     public Result clearHistory(String userName, String targetName) {
         // 直接调用 Mapper 删除两人之间的所有消息
@@ -217,50 +222,19 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
     @Override
     @SuppressWarnings("unchecked")
     public PageResult<List<Message>> pageQuery(MessageQueryDTO messageQueryDTO) {
-        // 1. 将原注解中的复杂 condition 转换为清晰的 Java 逻辑判断
-        // 只有在查询第一页，且没有任何筛选条件时，才走缓存逻辑
-        boolean isCacheable = messageQueryDTO.getPage() == 1
-                && messageQueryDTO.getPageSize() == 9
-                && messageQueryDTO.getId() == null
-                && (messageQueryDTO.getMessage() == null || messageQueryDTO.getMessage().isEmpty())
-                && (messageQueryDTO.getFromName() == null || messageQueryDTO.getFromName().isEmpty())
-                && (messageQueryDTO.getToName() == null || messageQueryDTO.getToName().isEmpty())
-                && messageQueryDTO.getSendAtStart() == null
-                && messageQueryDTO.getSendAtEnd() == null;
-
-        // 拼装缓存 Key，保持和之前 Spring Cache 生成的 Key 格式绝对一致
-        String cacheKey = RedisKeyConstants.MANAGE_MESSAGES_CACHE + ":page=1:pageSize=9:list";
-
-        // 2. 如果满足缓存条件，尝试从 Redis 获取数据
-        if (isCacheable) {
-            Object cachedData = redisTemplate.opsForValue().get(cacheKey);
-            if (cachedData != null) {
-                log.debug("命中首页消息分页缓存！");
-                return (PageResult<List<Message>>) cachedData;
-            }
-        }
-
         // 3. 缓存未命中（或带条件查询），执行数据库检索
         PageHelper.startPage(messageQueryDTO.getPage(), messageQueryDTO.getPageSize());
         Page<Message> page = messageMapper.pageQuery(messageQueryDTO);
 
         long total = page.getTotal();
         List<Message> result = page.getResult();
-        PageResult<List<Message>> pageResult = PageResult.success(total, result);
-
-        // 4. 🛡️ 如果是首页查询，将结果写入 Redis (核心防穿透逻辑)
-        if (isCacheable) {
-            if (result == null || result.isEmpty()) {
-                // 如果数据库为空（可能是新系统没数据，或遭遇恶意穿透）
-                // 存入一个包含空 List 的 PageResult 对象，过期时间 1 分钟
-                redisTemplate.opsForValue().set(cacheKey, pageResult, 1, TimeUnit.MINUTES);
-                log.info("消息列表为空，已存入空缓存防穿透");
-            } else {
-                // 如果是正常数据，存入缓存，过期时间 2 小时
-                redisTemplate.opsForValue().set(cacheKey, pageResult, 2, TimeUnit.HOURS);
+        for (Message message : result) {
+            if (message.getToName().startsWith("GROUP")) {
+                String groupName = chatGroupMapper.findGroupNameByGroupId(message.getToName());
+                message.setToName("群聊："+groupName);
             }
         }
-
+        PageResult<List<Message>> pageResult = PageResult.success(total, result);
         return pageResult;
     }
 
@@ -289,5 +263,40 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
     @Override
     public void deleteMessageByUser(Integer id) {
         messageMapper.deleteMessageByUser(id);
+    }
+
+    @Override
+    public void exportMessages(MessageQueryDTO messageQueryDTO, HttpServletResponse response) throws IOException {
+        // 1. 直接全量查询，不走分页
+        List<Message> list = messageMapper.selectListByCondition(messageQueryDTO);
+
+        // 2. 将查出来的实体集合转换为导出的 DTO 集合，并处理群聊格式
+        List<MessageExportDTO> exportList = new ArrayList<>();
+        for (Message message : list) {
+            MessageExportDTO dto = new MessageExportDTO();
+            // 拷贝基础属性 (id, message, fromName, sendAt)
+            BeanUtils.copyProperties(message, dto);
+
+            // 单独处理 toName (群聊逻辑保持和你原来的一模一样)
+            if (message.getToName() != null && message.getToName().startsWith("GROUP")) {
+                String groupName = chatGroupMapper.findGroupNameByGroupId(message.getToName());
+                dto.setToName("群聊：" + groupName);
+            } else {
+                dto.setToName(message.getToName());
+            }
+
+            exportList.add(dto);
+        }
+
+        // 3. 设置 HTTP 响应头，触发浏览器下载
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setCharacterEncoding("utf-8");
+        String fileName = URLEncoder.encode("消息记录明细", "UTF-8");
+        response.setHeader("Content-disposition", "attachment;filename=" + fileName + ".xlsx");
+
+        // 4. 使用 EasyExcel 将数据写入输出流
+        EasyExcel.write(response.getOutputStream(), MessageExportDTO.class)
+                .sheet("消息数据")
+                .doWrite(exportList);
     }
 }

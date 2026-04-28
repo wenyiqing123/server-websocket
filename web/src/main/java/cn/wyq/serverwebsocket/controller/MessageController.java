@@ -3,15 +3,12 @@ package cn.wyq.serverwebsocket.controller;
 import cn.wyq.serverwebsocket.common.AjaxResult;
 import cn.wyq.serverwebsocket.common.PageResult;
 import cn.wyq.serverwebsocket.common.Result;
-import cn.wyq.serverwebsocket.pojo.dto.MessageExportDTO;
 import cn.wyq.serverwebsocket.pojo.dto.MessageQueryDTO;
 import cn.wyq.serverwebsocket.pojo.entity.Message;
 import cn.wyq.serverwebsocket.pojo.socket.MessageFull;
 import cn.wyq.serverwebsocket.pojo.socket.MessageInfo;
 import cn.wyq.serverwebsocket.service.MessageService;
 import cn.wyq.serverwebsocket.socket.WebSocket;
-import com.alibaba.excel.EasyExcel;
-import com.alibaba.excel.write.style.column.LongestMatchColumnWidthStyleStrategy;
 import com.alibaba.fastjson.JSON;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -23,7 +20,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.net.URLEncoder;
 import java.util.List;
 
 @RestController
@@ -111,21 +107,11 @@ public class MessageController {
         return AjaxResult.success();
     }
 
+
     @GetMapping("/export")
-    @Operation(summary = "按条件导出excel", description = "按条件导出excel")
-    public void exportUser(@ParameterObject MessageExportDTO messageExportDTO, HttpServletResponse response) throws IOException {
-        log.info("导出消息记录到excel：{}",messageExportDTO);
-        // 1. 设置响应头
-        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-        response.setCharacterEncoding("utf-8");
-        String fileName = URLEncoder.encode("消息列表", "UTF-8");
-        response.setHeader("Content-disposition", "attachment;filename=" + fileName + ".xlsx");
-        // 2. 获取数据（模拟从 service 获取）
-        List<Message> messageList = messageService.export(messageExportDTO);
-        // 3. 一行代码写出
-        EasyExcel.write(response.getOutputStream(), Message.class)
-                .registerWriteHandler(new LongestMatchColumnWidthStyleStrategy())
-                .sheet("消息信息")
-                .doWrite(messageList);
+    @Operation(summary = "按条件导出消息", description = "根据检索条件导出全量消息记录，不进行分页")
+    public void exportMessages(@ParameterObject MessageQueryDTO messageQueryDTO, HttpServletResponse response) throws IOException {
+        log.info("请求导出消息记录，导出条件 payload: {}", messageQueryDTO);
+        messageService.exportMessages(messageQueryDTO, response);
     }
 }

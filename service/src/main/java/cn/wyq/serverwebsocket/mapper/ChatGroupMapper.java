@@ -31,4 +31,7 @@ public interface ChatGroupMapper extends BaseMapper<ChatGroup> {
     int countGroupMembers(String groupId);
 
     Page<ChatGroup> selectGroupList(GroupQueryDTO queryDTO);
+
+    @Select("select group_name from chat_group where id=#{toName}")
+    String findGroupNameByGroupId(String toName);
 }

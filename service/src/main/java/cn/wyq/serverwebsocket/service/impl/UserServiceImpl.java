@@ -33,7 +33,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -65,41 +64,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @SuppressWarnings("unchecked")
-    public PageResult<List<UserEntity>> userList(UserQueryDTO userQueryDTO) {
-        // 1. 提取缓存条件判断
-//        boolean isCacheable = (userQueryDTO.getId() == null || String.valueOf(userQueryDTO.getId()).isEmpty())
-//                && userQueryDTO.getPage() == 1
-//                && userQueryDTO.getPageSize() == 9
-//                && (userQueryDTO.getUserName() == null || userQueryDTO.getUserName().isEmpty())
-//                && (userQueryDTO.getRole() == null || userQueryDTO.getRole() == 0);
-//
-//        String cacheKey = RedisKeyConstants.MANAGE_USERS_CACHE + ":page=1,pageSize=9:list";
-//
-//        // 2. 查缓存
-//        if (isCacheable) {
-//            Object cachedData = redisTemplate.opsForValue().get(cacheKey);
-//            if (cachedData != null) {
-//                log.debug("命中用户首页分页缓存！");
-//                return (PageResult<List<UserEntity>>) cachedData;
-//            }
-//        }
-
+    public PageResult<List<UserEmailApplyEntity>> userList(UserQueryDTO userQueryDTO) {
         // 3. 缓存未命中，查数据库
         PageHelper.startPage(userQueryDTO.getPage(), userQueryDTO.getPageSize());
-        Page<UserEntity> page = userMapper.selectAllUsers(userQueryDTO);
+        Page<UserEmailApplyEntity> page = userMapper.selectAllUsers(userQueryDTO);
         long total = page.getTotal();
-        List<UserEntity> userList = page.getResult();
-        PageResult<List<UserEntity>> pageResult = PageResult.success(total, userList);
-
-        // 4. 🛡️ 核心防御：写缓存并防穿透
-//        if (isCacheable) {
-//            if (userList == null || userList.isEmpty()) {
-//                redisTemplate.opsForValue().set(cacheKey, pageResult, 1, TimeUnit.MINUTES);
-//                log.info("用户列表为空，已存入空缓存防穿透");
-//            } else {
-//                redisTemplate.opsForValue().set(cacheKey, pageResult, 2, TimeUnit.HOURS);
-//            }
-//        }
+        List<UserEmailApplyEntity> userList = page.getResult();
+        PageResult<List<UserEmailApplyEntity>> pageResult = PageResult.success(total, userList);
         return pageResult;
     }
 
@@ -287,6 +258,38 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void importUsers(List<UserImportDTO> dtoList) {
+        List<UserEmailApplyEntity> insertList = new ArrayList<>();
+
+        // 🌟 性能优化：在循环外只加密一次默认密码
+        String defaultPassword = passwordEncoder.encode("123456");
+        String defaultAvatar = "http://localhost:8000/file/55b8a0ad0e664e5bbf290f737dd29f49.jpg";
+
+        for (UserImportDTO dto : dtoList) {
+            UserEmailApplyEntity user = new UserEmailApplyEntity();
+
+            // 1. 注入 Excel 解析的数据
+            user.setUserName(dto.getUserName());
+            user.setEmail(dto.getEmail());
+            user.setRole(dto.getRole() != null ? dto.getRole() : 2); // 没填默认普通用户(2)
+
+            // 2. 注入系统强制默认值
+            user.setPassword(defaultPassword);
+            user.setPath(defaultAvatar);
+            user.setStatus(1); // 默认状态正常
+
+            insertList.add(user);
+        }
+
+        // 3. 调用 MyBatis 原生批量插入方法
+        // 注意：如果数据量极大(上万条)，建议在 Service 拆分成每 1000 条插入一次，防止 SQL 过长报错。
+        if (!insertList.isEmpty()) {
+            userMapper.insertBatch(insertList);
+        }
+    }
+
+    @Override
     public Result login(User user, Integer applyRole) {
 //        user.setPassword(passwordEncoder.encode(user.getPassword()));
         User loginUser = userMapper.findByUsername(user.getUserName());
@@ -375,26 +378,27 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserExportDTO> export(UserQueryExportDTO userQueryExportDTO) {
-        List<UserEntity> userList = userMapper.export(userQueryExportDTO);
+        List<UserEmailApplyEntity> userList = userMapper.export(userQueryExportDTO);
         List<UserExportDTO> exportDTOList = new ArrayList<>();
 
-        for (UserEntity user : userList) {
+        for (UserEmailApplyEntity user : userList) {
             UserExportDTO dto = new UserExportDTO();
             dto.setId(user.getId());
             dto.setUserName(user.getUserName());
+            dto.setEmail(user.getEmail());
             dto.setRole(user.getRole());
 
-            String rawPath = user.getPath();
-            if (rawPath != null && !rawPath.trim().isEmpty()) {
-                try {
-                    dto.setPath(new java.net.URL(rawPath));
-                } catch (MalformedURLException e) {
-                    log.error("用户 [{}] 的头像路径格式非法: {}", user.getUserName(), rawPath);
-                    dto.setPath(null);
-                }
-            } else {
-                dto.setPath(null);
-            }
+//            String rawPath = user.getPath();
+//            if (rawPath != null && !rawPath.trim().isEmpty()) {
+//                try {
+//                    dto.setPath(new java.net.URL(rawPath));
+//                } catch (MalformedURLException e) {
+//                    log.error("用户 [{}] 的头像路径格式非法: {}", user.getUserName(), rawPath);
+//                    dto.setPath(null);
+//                }
+//            } else {
+//                dto.setPath(null);
+//            }
             exportDTOList.add(dto);
         }
         return exportDTOList;

@@ -42,4 +42,7 @@ public interface MessageMapper extends BaseMapper<Message> {
 
     @Delete("delete from message where from_name=#{userName} or to_name=#{userName};")
     void deleteAllMessagesByUserName(String userName);
+
+    // 新增：不分页的全量条件查询
+    List<Message> selectListByCondition(MessageQueryDTO messageQueryDTO);
 }

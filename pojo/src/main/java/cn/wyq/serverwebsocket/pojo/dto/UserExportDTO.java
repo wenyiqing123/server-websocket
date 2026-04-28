@@ -18,14 +18,12 @@ import java.net.URL;
 @NoArgsConstructor
 @Builder
 // 🚨 必须放在类上！统管所有数据行的高度，给图片留出垂直空间
-@ContentRowHeight(100)
+@ContentRowHeight(20)
 // 💡 建议顺手加个表头高度，让第一行的标题看起来更大气
 @HeadRowHeight(25)
 public class UserExportDTO {
 
-    @ExcelProperty("用户头像")
-    // 💡 放在字段上！控制单列宽度。15 大概就是个正方形，适合放头像
-    @ColumnWidth(25)
+    @ExcelIgnore
     private URL path;
 
     @ExcelProperty("用户编号")
@@ -35,6 +33,9 @@ public class UserExportDTO {
     @ExcelProperty("用户名")
     @ColumnWidth(20) // 名字可能有点长，给 20
     private String userName;
+    @ExcelProperty(value = "绑定邮箱")
+    @ColumnWidth(100) // 权限字数固定，给 15
+    private String email;
 
     @ExcelIgnore
     private String password;
@@ -42,4 +43,5 @@ public class UserExportDTO {
     @ExcelProperty(value = "用户权限", converter = RoleConverter.class)
     @ColumnWidth(15) // 权限字数固定，给 15
     private Integer role;
+
 }

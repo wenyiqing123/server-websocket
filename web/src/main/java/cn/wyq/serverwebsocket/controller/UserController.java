@@ -32,9 +32,11 @@ import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -207,7 +209,7 @@ public class UserController {
      */
     @GetMapping("/list")
     @Operation(summary = "分页查询用户", description = "分页查询用户接口")
-    public PageResult<List<UserEntity>> Userlist(@ParameterObject UserQueryDTO userQueryDTO) {
+    public PageResult<List<UserEmailApplyEntity>> Userlist(@ParameterObject UserQueryDTO userQueryDTO) {
         log.info("请求分页查询用户列表，查询条件 payload: {}", userQueryDTO);
         return userService.userList(userQueryDTO);
     }
@@ -257,6 +259,44 @@ public class UserController {
                 .registerWriteHandler(new LongestMatchColumnWidthStyleStrategy())
                 .sheet("用户信息")
                 .doWrite(userExportDTOList);
+    }
+
+    @PostMapping("/import")
+    @Operation(summary = "通过Excel批量导入用户")
+    public Result importUser(@RequestParam("file") MultipartFile file) {
+        try {
+            // 1. 使用 EasyExcel 同步读取文件流转换为 DTO 集合
+            List<UserImportDTO> userList = EasyExcel.read(file.getInputStream())
+                    .head(UserImportDTO.class)
+                    .sheet()
+                    .doReadSync();
+
+            if (userList == null || userList.isEmpty()) {
+                return Result.error("上传的 Excel 为空或没有数据");
+            }
+
+            // 2. 调用 Service 层进行业务处理和入库
+            userService.importUsers(userList);
+
+            return Result.success("成功导入 " + userList.size() + " 条用户数据");
+        } catch (Exception e) {
+            log.error("导入用户 Excel 失败", e);
+            return Result.error("导入失败，请检查 Excel 模板格式是否正确");
+        }
+    }
+    @GetMapping("/importTemplate")
+    @Operation(summary = "下载用户导入模板")
+    @LoginNotRequired
+    public void downloadImportTemplate(HttpServletResponse response) throws IOException {
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setCharacterEncoding("utf-8");
+        String fileName = URLEncoder.encode("用户导入模板", "UTF-8");
+        response.setHeader("Content-disposition", "attachment;filename=" + fileName + ".xlsx");
+
+        // 写入一个空的 ArrayList，这样生成的 Excel 就只有表头，没有数据
+        EasyExcel.write(response.getOutputStream(), UserImportDTO.class)
+                .sheet("模板")
+                .doWrite(new ArrayList<>());
     }
 
     @SentinelResource(value = "getUser",
