@@ -5,6 +5,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.client.RestTemplate;
@@ -18,6 +19,7 @@ import java.time.format.DateTimeFormatter;
 @EnableCaching //开启redis缓存
 @EnableTransactionManagement //开启注解方式的事务管理
 @EnableScheduling  //spring task注解：定时任务
+@EnableAsync
 public class ServerWebsocketApplication {
 
     public static void main(String[] args) {

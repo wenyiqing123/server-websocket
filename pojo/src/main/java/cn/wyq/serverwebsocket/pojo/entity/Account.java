@@ -18,8 +18,7 @@ import java.time.LocalDateTime;
 public class Account {
 
     @TableId
-    private Long userId;
-
+    private Integer userId;       // 改为 Integer
     /**
      * 当前可用余额
      */

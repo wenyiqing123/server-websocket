@@ -17,8 +17,7 @@ public class AccountLog {
     @TableId(type = IdType.AUTO)
     private Long id;
 
-    private Long userId;
-
+    private Integer userId;       // 改为 Integer
     /**
      * 变动类型：1-转账、2-发红包、3-抢红包
      */

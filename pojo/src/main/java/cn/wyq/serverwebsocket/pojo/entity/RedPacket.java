@@ -20,12 +20,11 @@ public class RedPacket {
     /**
      * 发红包者ID
      */
-    private Long senderId;
-
+    private Integer senderId;     // 改为 Integer
     /**
      * 房间/群组ID
      */
-    private Long roomId;
+    private String groupId;
 
     /**
      * 总金额
@@ -52,6 +51,7 @@ public class RedPacket {
      */
     private Integer status;
 
+    private Integer receiverId;   // 改为 Integer
     private LocalDateTime createTime;
 
     private LocalDateTime finishTime;

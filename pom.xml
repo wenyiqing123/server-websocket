@@ -39,10 +39,23 @@
         <easyexcel.version>3.3.2</easyexcel.version>
         <sentinel.http.version>1.8.6</sentinel.http.version>
         <azure-version>1.0.0-beta.1</azure-version>
+        <alipay-version>4.38.221.ALL</alipay-version>
+        <fastjson2-version>2.0.47</fastjson2-version>
     </properties>
-
     <dependencyManagement>
+
         <dependencies>
+            <!-- 引入 Fastjson2 -->
+            <dependency>
+                <groupId>com.alibaba.fastjson2</groupId>
+                <artifactId>fastjson2</artifactId>
+                <version>${fastjson2-version}</version> <!-- 建议使用较新的稳定版本，具体版本号可查阅 Maven 中央仓库 -->
+            </dependency>
+            <dependency>
+                <groupId>com.alipay.sdk</groupId>
+                <artifactId>alipay-sdk-java</artifactId>
+                <version>${alipay-version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.springframework.ai</groupId>
                 <artifactId>spring-ai-starter-vector-store-redis</artifactId>
@@ -149,6 +162,16 @@
                 <enabled>false</enabled>
             </snapshots>
         </repository>
+
+            <repository>
+                <id>central</id>
+                <url>https://repo1.maven.org/maven2/</url>
+            </repository>
+            <repository>
+                <id>alipay-public</id>
+                <url>https://maven.alipay.com/nexus/content/groups/public/</url>
+            </repository>
+
     </repositories>
 
     <dependencies>
