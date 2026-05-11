@@ -73,4 +73,6 @@ public class MessageStatsController {
                 messageStatsService.getActiveUsersAndMessages(sendAtStart, sendAtEnd);
         return AjaxResult.success(usersAndMessagesList);
     }
+
+
 }
