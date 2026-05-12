@@ -1,9 +1,7 @@
 package cn.wyq.serverwebsocket.mapper;
 
 
-import cn.wyq.serverwebsocket.pojo.vo.BreakdownVO;
-import cn.wyq.serverwebsocket.pojo.vo.FinanceSummaryVO;
-import cn.wyq.serverwebsocket.pojo.vo.TrendVO;
+import cn.wyq.serverwebsocket.pojo.vo.*;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -29,4 +27,12 @@ public interface FinanceMapper {
      * 获取资金消耗占比
      */
     List<BreakdownVO> getRevenueBreakdown(@Param("startDate") String startDate, @Param("endDate") String endDate);
+    // 充值订单健康度
+    List<OrderHealthVO> getOrderHealth(@Param("startDate") String startDate, @Param("endDate") String endDate);
+
+    // 红包生态流转对比
+    List<RedPacketFlowVO> getRedPacketFlow(@Param("startDate") String startDate, @Param("endDate") String endDate);
+
+    // 全站财富风云榜 (排行榜与时间无关，查询当前实时状态)
+    List<WealthRankVO> getWealthRank();
 }

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.wyq.serverwebsocket.mapper.UserWalletMapper">
+
+    <select id="selectWalletList" resultType="cn.wyq.serverwebsocket.pojo.vo.UserWalletVO">
+        SELECT
+        a.user_id AS userId,
+        u.user_name AS userName,
+        a.balance,
+        a.freeze_amount AS freezeAmount,
+        DATE_FORMAT(a.update_time, '%Y-%m-%d %H:%i:%s') AS updateTime
+        FROM u_account a
+        LEFT JOIN user u ON a.user_id = u.id
+        <where>
+            <if test="userId != null">
+                AND a.user_id = #{userId}
+            </if>
+            <if test="userName != null and userName != ''">
+                AND u.user_name LIKE CONCAT('%', #{userName}, '%')
+            </if>
+        </where>
+        ORDER BY a.balance DESC
+    </select>
+
+    <select id="getBalanceForUpdate" resultType="java.math.BigDecimal">
+        SELECT balance FROM u_account WHERE user_id = #{userId} FOR UPDATE
+    </select>
+
+    <update id="updateBalance">
+        UPDATE u_account
+        SET balance = balance + #{amount},
+            update_time = NOW()
+        WHERE user_id = #{userId}
+    </update>
+
+    <insert id="insertAccountLog">
+        INSERT INTO u_account_log
+            (user_id, type, amount, balance_after, order_no, remark, create_time)
+        VALUES
+            (#{userId}, #{type}, #{amount}, #{balanceAfter}, #{orderNo}, #{remark}, NOW())
+    </insert>
+
+</mapper>

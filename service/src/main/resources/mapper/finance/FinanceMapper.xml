@@ -52,4 +52,49 @@
         GROUP BY type
     </select>
 
+    <select id="getOrderHealth" resultType="cn.wyq.serverwebsocket.pojo.vo.OrderHealthVO">
+        SELECT
+            status,
+            COUNT(*) AS count
+        FROM recharge_order
+        WHERE DATE(create_time) BETWEEN #{startDate} AND #{endDate}
+        GROUP BY status
+    </select>
+
+    <select id="getRedPacketFlow" resultType="cn.wyq.serverwebsocket.pojo.vo.RedPacketFlowVO">
+        WITH dates AS (
+            SELECT DATE_FORMAT(create_time, '%Y-%m-%d') AS date FROM u_red_packet
+            WHERE DATE(create_time) BETWEEN #{startDate} AND #{endDate}
+            UNION
+            SELECT DATE_FORMAT(create_time, '%Y-%m-%d') AS date FROM u_red_packet_record
+            WHERE DATE(create_time) BETWEEN #{startDate} AND #{endDate}
+        )
+        SELECT
+            d.date,
+            IFNULL(s.sentAmount, 0) AS sentAmount,
+            IFNULL(r.receivedAmount, 0) AS receivedAmount
+        FROM dates d
+                 LEFT JOIN (
+            SELECT DATE_FORMAT(create_time, '%Y-%m-%d') AS date, SUM(total_amount) AS sentAmount
+            FROM u_red_packet
+            GROUP BY date
+        ) s ON d.date = s.date
+                 LEFT JOIN (
+            SELECT DATE_FORMAT(create_time, '%Y-%m-%d') AS date, SUM(amount) AS receivedAmount
+            FROM u_red_packet_record
+            GROUP BY date
+        ) r ON d.date = r.date
+        ORDER BY d.date ASC
+    </select>
+
+    <select id="getWealthRank" resultType="cn.wyq.serverwebsocket.pojo.vo.WealthRankVO">
+        SELECT
+            u.user_name AS userName,
+            a.balance
+        FROM u_account a
+                 LEFT JOIN user u ON a.user_id = u.id
+        ORDER BY a.balance DESC
+        LIMIT 10
+    </select>
+
 </mapper>

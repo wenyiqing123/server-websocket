@@ -1,9 +1,7 @@
 package cn.wyq.serverwebsocket.controller;
 
 import cn.wyq.serverwebsocket.common.Result;
-import cn.wyq.serverwebsocket.pojo.vo.BreakdownVO;
-import cn.wyq.serverwebsocket.pojo.vo.FinanceSummaryVO;
-import cn.wyq.serverwebsocket.pojo.vo.TrendVO;
+import cn.wyq.serverwebsocket.pojo.vo.*;
 import cn.wyq.serverwebsocket.service.FinanceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -45,5 +43,35 @@ public class FinanceController {
             @RequestParam("endDate") String endDate) {
         List<BreakdownVO> breakdownList = financeService.getRevenueBreakdown(startDate, endDate);
         return Result.success(breakdownList);
+    }
+    /**
+     * 获取充值订单健康度
+     */
+    @GetMapping("/orderHealth")
+    public Result getOrderHealth(
+            @RequestParam("startDate") String startDate,
+            @RequestParam("endDate") String endDate) {
+        List<OrderHealthVO> list = financeService.getOrderHealth(startDate, endDate);
+        return Result.success(list);
+    }
+
+    /**
+     * 获取红包生态流转对比
+     */
+    @GetMapping("/redPacketFlow")
+    public Result getRedPacketFlow(
+            @RequestParam("startDate") String startDate,
+            @RequestParam("endDate") String endDate) {
+        List<RedPacketFlowVO> list = financeService.getRedPacketFlow(startDate, endDate);
+        return Result.success(list);
+    }
+
+    /**
+     * 获取全站财富风云榜 (前10名)
+     */
+    @GetMapping("/wealthRank")
+    public Result getWealthRank() {
+        List<WealthRankVO> list = financeService.getWealthRank();
+        return Result.success(list);
     }
 }

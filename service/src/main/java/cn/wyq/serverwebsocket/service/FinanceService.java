@@ -1,8 +1,6 @@
 package cn.wyq.serverwebsocket.service;
 
-import cn.wyq.serverwebsocket.pojo.vo.BreakdownVO;
-import cn.wyq.serverwebsocket.pojo.vo.FinanceSummaryVO;
-import cn.wyq.serverwebsocket.pojo.vo.TrendVO;
+import cn.wyq.serverwebsocket.pojo.vo.*;
 
 import java.util.List;
 
@@ -25,4 +23,14 @@ public interface FinanceService {
      * 获取资金消耗占比
      */
     List<BreakdownVO> getRevenueBreakdown(String startDate, String endDate);
+
+
+    // 充值订单健康度
+    List<OrderHealthVO> getOrderHealth(String startDate, String endDate);
+
+    // 红包生态流转对比
+    List<RedPacketFlowVO> getRedPacketFlow(String startDate, String endDate);
+
+    // 全站财富风云榜
+    List<WealthRankVO> getWealthRank();
 }

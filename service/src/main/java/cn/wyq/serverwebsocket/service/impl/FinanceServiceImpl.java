@@ -1,9 +1,7 @@
 package cn.wyq.serverwebsocket.service.impl;
 
 import cn.wyq.serverwebsocket.mapper.FinanceMapper;
-import cn.wyq.serverwebsocket.pojo.vo.BreakdownVO;
-import cn.wyq.serverwebsocket.pojo.vo.FinanceSummaryVO;
-import cn.wyq.serverwebsocket.pojo.vo.TrendVO;
+import cn.wyq.serverwebsocket.pojo.vo.*;
 import cn.wyq.serverwebsocket.service.FinanceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,5 +35,19 @@ public class FinanceServiceImpl implements FinanceService {
     @Override
     public List<BreakdownVO> getRevenueBreakdown(String startDate, String endDate) {
         return financeMapper.getRevenueBreakdown(startDate, endDate);
+    }
+    @Override
+    public List<OrderHealthVO> getOrderHealth(String startDate, String endDate) {
+        return financeMapper.getOrderHealth(startDate, endDate);
+    }
+
+    @Override
+    public List<RedPacketFlowVO> getRedPacketFlow(String startDate, String endDate) {
+        return financeMapper.getRedPacketFlow(startDate, endDate);
+    }
+
+    @Override
+    public List<WealthRankVO> getWealthRank() {
+        return financeMapper.getWealthRank();
     }
 }
