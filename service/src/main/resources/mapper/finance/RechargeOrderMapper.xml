@@ -20,7 +20,11 @@
     <select id="selectOrderForUpdate" resultType="cn.wyq.serverwebsocket.pojo.entity.RechargeOrder">
         SELECT * FROM recharge_order WHERE out_trade_no = #{outTradeNo} FOR UPDATE
     </select>
-
+    <update id="updateOrderStatusToClosed">
+        UPDATE recharge_order
+        SET status = 2
+        WHERE out_trade_no = #{outTradeNo} AND status = 0
+    </update>
     <update id="updateOrderStatusToSuccess">
         UPDATE recharge_order
         SET status = 1, pay_time = NOW()

@@ -28,7 +28,7 @@ public interface RechargeOrderMapper extends BaseMapper<RechargeOrder> {
      * @return 订单信息
      */
     RechargeOrder selectOrderForUpdate(@Param("outTradeNo") String outTradeNo);
-
+   int updateOrderStatusToClosed(String outTradeNo);
     /**
      * 更新订单状态为支付成功
      * @param outTradeNo 内部订单号

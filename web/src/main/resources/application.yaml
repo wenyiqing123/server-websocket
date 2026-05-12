@@ -154,4 +154,4 @@ alipay:
   charset: "UTF-8"
   format: "json"
 # 后端url:只能在公网生效
-  notify-url: http://7062e6f9.r3.cpolar.top/alipay/notify
+  notify-url: http://6b6d3211.r3.cpolar.top/alipay/notify

@@ -3,6 +3,7 @@ package cn.wyq.serverwebsocket.controller;
 import cn.wyq.serverwebsocket.annotation.LoginNotRequired;
 import cn.wyq.serverwebsocket.common.Result;
 import cn.wyq.serverwebsocket.config.AlipayConfig;
+import cn.wyq.serverwebsocket.mapper.RechargeOrderMapper;
 import cn.wyq.serverwebsocket.service.RechargeService;
 import cn.wyq.serverwebsocket.utils.BaseContext;
 import com.alibaba.fastjson2.JSONObject;
@@ -14,10 +15,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
@@ -33,10 +31,22 @@ public class AlipayController {
     private RechargeService rechargeService;
     @Autowired
     private AlipayConfig alipayConfig;
-
+    @Autowired
+    private RechargeOrderMapper orderMapper;
     // 🌟 优化：把回调地址写在 application.yml 里，比如: alipay.notify-url: http://xxx/alipay/notify
     @Value("${alipay.notify-url:http://2affce96.r7.cpolar.cn/alipay/notify}")
     private String notifyUrl;
+
+    @PostMapping("/alipay/cancel/{outTradeNo}")
+    public Result cancelOrder(@PathVariable String outTradeNo) {
+        // 直接在数据库中将订单状态改为 2 (已关闭/超时)
+        // 注意：只更新状态为 0 (待支付) 的订单，防止误操作
+        int updated = orderMapper.updateOrderStatusToClosed(outTradeNo);
+        if (updated > 0) {
+            return Result.success("订单已主动关闭");
+        }
+        return Result.error("订单取消失败或订单状态已改变");
+    }
 
     /**
      * 1. 前端请求生成二维码
@@ -59,6 +69,7 @@ public class AlipayController {
         bizContent.put("out_trade_no", outTradeNo);
         bizContent.put("total_amount", amount);
         bizContent.put("subject", "聊天系统余额充值");
+        bizContent.put("timeout_express", "1m");
         request.setBizContent(bizContent.toJSONString());
 
         AlipayTradePrecreateResponse response = alipayClient.execute(request);
@@ -128,6 +139,7 @@ public class AlipayController {
             return "failure";
         }
     }
+
     /**
      * 3. 供前端轮询查询订单支付状态
      */
