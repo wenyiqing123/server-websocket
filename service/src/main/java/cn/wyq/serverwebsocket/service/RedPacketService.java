@@ -7,6 +7,7 @@ import cn.wyq.serverwebsocket.pojo.entity.*;
 import cn.wyq.serverwebsocket.pojo.vo.RedPacketDetailVO;
 import cn.wyq.serverwebsocket.utils.RedPacketUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -109,25 +110,41 @@ public class RedPacketService {
      */
     @Transactional(rollbackFor = Exception.class)
     public Long sendRedPacket(Integer senderId, String groupId, BigDecimal totalAmount, Integer totalCount, String receiverName) {
-        log.info("用户 [{}] 开始发送红包，金额: {}, 个数: {}, 专属接收人: {}", senderId, totalAmount, totalCount, receiverName);
+        log.info("用户 [{}] 开始发送红包，金额: {}, 个数: {}, 群组ID: {}, 专属接收人: {}", senderId, totalAmount, totalCount, groupId, receiverName);
 
-        // 1. 悲观锁查询账户余额
+        // 🌟 1. 判断红包类型并获取 receiverId
+        Integer receiverId = null; // 默认为空，代表没有专属接收人（即群红包）
+        boolean isExclusive = "0".equals(groupId) && StringUtils.isNotBlank(receiverName);
+
+        if (isExclusive) {
+            // 如果是专属红包，查询接收人信息
+            UserEmailApplyEntity receiverEntity = userMapper.findOneByUsername(receiverName);
+            if (receiverEntity == null) {
+                throw new RuntimeException("发送失败：未找到指定的专属接收人");
+            }
+            receiverId = receiverEntity.getId();
+        } else if (StringUtils.isBlank(groupId)) {
+            // 参数合法性兜底校验：既不是专属红包，群ID又为空，则拒绝发送
+            throw new IllegalArgumentException("参数异常：群红包必须指定群组ID");
+        }
+
+        // 2. 悲观锁查询账户余额
         Account account = accountMapper.selectByUserIdForUpdate(senderId);
         if (account == null) {
             throw new RuntimeException("账户异常：未找到该用户钱包");
         }
 
-        // 2. 校验余额是否充足
+        // 3. 校验余额是否充足
         if (account.getBalance().compareTo(totalAmount) < 0) {
             throw new RuntimeException("余额不足，无法发送红包");
         }
 
-        // 3. 扣减余额并更新入库
+        // 4. 扣减余额并更新入库
         BigDecimal balanceAfter = account.getBalance().subtract(totalAmount);
         account.setBalance(balanceAfter);
         accountMapper.updateById(account);
 
-        // 4. 生成业务单号，记录资金流水 (发红包记为负数出账)
+        // 5. 生成业务单号，记录资金流水 (发红包记为负数出账)
         String orderNo = "RP" + System.currentTimeMillis() + UUID.randomUUID().toString().substring(0, 6);
         AccountLog accountLog = AccountLog.builder()
                 .userId(senderId)
@@ -135,13 +152,13 @@ public class RedPacketService {
                 .amount(totalAmount.negate())
                 .balanceAfter(balanceAfter)
                 .orderNo(orderNo)
-                .remark(receiverName == null ? "发出群聊红包" : "发出专属红包")
+                // 根据判空结果写入动态备注
+                .remark(isExclusive ? "发出专属红包" : "发出群聊红包")
                 .createTime(LocalDateTime.now())
                 .build();
         accountLogMapper.insert(accountLog);
-        UserEmailApplyEntity oneByUsername = userMapper.findOneByUsername(receiverName);
-        int receiverId = oneByUsername.getId();
-        // 5. 创建红包主记录并入库
+
+        // 6. 创建红包主记录并入库
         RedPacket redPacket = RedPacket.builder()
                 .senderId(senderId)
                 .groupId(groupId)
@@ -150,30 +167,31 @@ public class RedPacketService {
                 .remainingAmount(totalAmount)
                 .remainingCount(totalCount)
                 .status(0) // 0-进行中
-                .receiverId(receiverId) // 🌟 记录接收人
+                // 🌟 记录接收人。如果是群聊红包这里为 null；专属红包则是具体用户 ID
+                .receiverId(receiverId)
                 .createTime(LocalDateTime.now())
                 .build();
         redPacketMapper.insert(redPacket);
 
-        // 6. 调用二倍均值算法拆分红包
+        // 7. 调用二倍均值算法拆分红包
         List<BigDecimal> splitAmounts = RedPacketUtils.splitRedPacket(totalAmount, totalCount);
         log.info("红包拆分完毕，共 {} 份", splitAmounts.size());
 
-        // 7. 将拆分后的金额全部转为 String 数组
+        // 8. 将拆分后的金额全部转为 String 数组
         String[] amountArray = splitAmounts.stream()
                 .map(BigDecimal::toString)
                 .toArray(String[]::new);
 
-        // 8. 存入 Redis 队列
+        // 9. 存入 Redis 队列
         String redisListKey = RedPacketConstant.REDIS_KEY_PREFIX + redPacket.getId() + RedPacketConstant.REDIS_KEY_LIST_SUFFIX;
         stringRedisTemplate.opsForList().rightPushAll(redisListKey, amountArray);
 
-        // 9. 在 Redis 中单独存一个该红包的“剩余可抢个数”
+        // 10. 在 Redis 中单独存一个该红包的“剩余可抢个数”
         String redisCountKey = RedPacketConstant.REDIS_KEY_PREFIX + redPacket.getId() + RedPacketConstant.REDIS_KEY_COUNT_SUFFIX;
         stringRedisTemplate.opsForValue().set(redisCountKey, String.valueOf(totalCount));
 
-        // 10. 🌟 如果是专属红包，在 Redis 中额外记录一条专属接收人标识
-        if (receiverId != 0) {
+        // 11. 🌟 如果是专属红包，在 Redis 中额外记录一条专属接收人标识
+        if (isExclusive) {
             String redisReceiverKey = RedPacketConstant.REDIS_KEY_PREFIX + redPacket.getId() + ":receiver";
             stringRedisTemplate.opsForValue().set(redisReceiverKey, String.valueOf(receiverId));
         }

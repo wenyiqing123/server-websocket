@@ -69,4 +69,5 @@ public interface RechargeOrderMapper extends BaseMapper<RechargeOrder> {
             @Param("orderNo") String orderNo,
             @Param("remark") String remark
     );
+    int closeExpiredOrders(@Param("minutes") int minutes);
 }
