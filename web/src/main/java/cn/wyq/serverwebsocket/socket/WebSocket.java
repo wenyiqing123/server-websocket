@@ -12,6 +12,7 @@ import cn.wyq.serverwebsocket.service.UserService;
 import cn.wyq.serverwebsocket.util.MessageUtils;
 import cn.wyq.serverwebsocket.utils.RedisUtil;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import jakarta.servlet.http.HttpSession;
 import jakarta.websocket.*;
 import jakarta.websocket.server.PathParam;
@@ -166,13 +167,43 @@ public class WebSocket {
         initServices();
         log.info("收到来自[{}]的消息: {}", username, message);
 
-        // 1. 解析前端发来的消息
+        // ==========================================================
+        // 🌟 简便魔法：先解析成通用的 JSONObject
+        // ==========================================================
+        JSONObject jsonObject = JSON.parseObject(message);
+        String type = jsonObject.getString("type");
+
+        // ==========================================================
+        // 🌟 核心拦截区：合并后的音视频信令拦截 (包含 offer, answer, ice, hangup)
+        // ==========================================================
+        if ("offer".equals(type) || "answer".equals(type) || "ice".equals(type) || "hangup".equals(type)) {
+
+            String toName = jsonObject.getString("toName");
+            Session targetSession = onlineUsers.get(toName);
+
+            // 原封不动地把整串 JSON 转发给对方
+            if (targetSession != null && targetSession.isOpen()) {
+                // ✅ 修改：使用线程安全方法
+                sendMessageSafe(targetSession, message);
+                log.info("【音视频信令】转发成功 | 类型: {} | {} -> {}", type, username, toName);
+            } else {
+                // 对方不在线的情况
+                log.warn("【音视频信令】转发失败，对方不在线 | 类型: {} | 目标: {}", type, toName);
+            }
+
+            return; // 🛑 拦截成功，直接退出，绝对不走下面的数据库逻辑！
+        }
+
+        // ==========================================================
+        // 🌟 以下是你原封不动的聊天落库逻辑
+        // 当走到这里，说明是普通聊天消息。
+        // ==========================================================
         MessageInfo messageInfo = JSON.parseObject(message, MessageInfo.class);
 
         // 2. 保存到数据库
         messageService.addMessage(messageInfo);
 
-        // 🌟 核心修改 1：从对象中提取 MyBatis 自动注入的真实 ID，而不是接收方法的返回值
+        // 从对象中提取 MyBatis 自动注入的真实 ID
         Integer realId = messageInfo.getId();
         log.info("消息落库成功，真实生成的 ID = {}", realId);
 
@@ -181,12 +212,10 @@ public class WebSocket {
         messageFull.setId(realId);
         String jsonResponse = JSON.toJSONString(messageFull);
 
-        // =================== 🌟 核心修改 2：消息必须抄送给自己 ===================
-        // 只有把带 ID 的消息发给发送者本人，前端的 webSocketOnMessage 才能触发替换逻辑！
+        // 消息必须抄送给自己
         Session mySession = onlineUsers.get(username);
-        if (mySession != null && mySession.isOpen()) {
-            mySession.getAsyncRemote().sendText(jsonResponse);
-        }
+        // ✅ 修改：使用线程安全方法 (内部自带判空验证)
+        sendMessageSafe(mySession, jsonResponse);
 
         // 4. 将消息发给接收方
         String toName = messageInfo.getToName();
@@ -194,18 +223,19 @@ public class WebSocket {
             // 【群聊分发】
             List<String> groupMembers = groupService.getGroupMemberNames(toName);
             for (String memberName : groupMembers) {
-                Session targetSession = onlineUsers.get(memberName);
-                // 已经发给自己了，跳过本人
-                if (targetSession != null && targetSession.isOpen() && !memberName.equals(username)) {
-                    targetSession.getAsyncRemote().sendText(jsonResponse);
+                // 不发给自己
+                if (!memberName.equals(username)) {
+                    Session targetSession = onlineUsers.get(memberName);
+                    // ✅ 修改：使用线程安全方法
+                    sendMessageSafe(targetSession, jsonResponse);
                 }
             }
         } else {
             // 【私聊分发】
-            Session targetSession = onlineUsers.get(toName);
-            // 发给对方，确保对方不是自己
-            if (targetSession != null && targetSession.isOpen() && !toName.equals(username)) {
-                targetSession.getAsyncRemote().sendText(jsonResponse);
+            if (!toName.equals(username)) {
+                Session targetSession = onlineUsers.get(toName);
+                // ✅ 修改：使用线程安全方法
+                sendMessageSafe(targetSession, jsonResponse);
             }
         }
     }
@@ -231,5 +261,21 @@ public class WebSocket {
                 log.error("给用户[{}]发送广播失败", name, e);
             }
         });
+    }
+    /**
+     * 🌟 线程安全的发送消息方法（解决 TEXT_FULL_WRITING 报错）
+     */
+    private void sendMessageSafe(Session session, String message) {
+        if (session != null && session.isOpen()) {
+            // 对当前 Session 加锁，确保同一时刻只有一个线程在通过该 Session 发消息
+            synchronized (session) {
+                try {
+                    // 🌟 必须改成 getBasicRemote() 同步发送！
+                    session.getBasicRemote().sendText(message);
+                } catch (IOException e) {
+                    log.error("WebSocket 消息发送失败, 目标SessionID: {}", session.getId(), e);
+                }
+            }
+        }
     }
 }

@@ -1,0 +1,18 @@
+
+r
+java:S3740-"/Provide the parametrized type for this generic.(ÆÆª‡8Ÿ‘‘½Ã3J$aa0c55dd-e61c-4a67-9751-730f807f7839
+š
+java:S37766"RRefactor this method to reduce its Cognitive Complexity from 16 to the 15 allowed.(¸ð™ªúÿÿÿÿ8¦‘‘½Ã3J$52cf95d1-cc6a-4d22-a3e1-b641fd98d13b
+z
+java:S1854W"7Remove this useless assignment to local variable "res".(æ®¤á8¦‘‘½Ã3J$5676e64d-2507-45da-8830-c564b7fb9793
+o
+java:S3011A",This accessibility update should be removed.(âŽ·Ò8©‘‘½Ã3J$7c2a9c12-3f18-4be3-a917-3bf07957a661
+‰
+java:S6201H"FReplace this instanceof check and cast with 'instanceof Result result'(‰¡ïÈ8ª‘‘½Ã3J$7f81c393-3716-4530-9dc4-a6520e98c297
+ƒ	java:S125M"<This block of commented-out lines of code should be removed.(¾Ùí™þÿÿÿÿ8ª‘‘½Ã3J$37691622-ffac-4758-b7e8-3e385b9db461
+o
+java:S3011Q",This accessibility update should be removed.(±Ò›µ8«‘‘½Ã3J$1980eeb6-d73d-441c-84b7-4b7b4a35c944
+o
+java:S3011V",This accessibility update should be removed.(Ó«ÀÔ8¬‘‘½Ã3J$f8462429-ae3d-41ce-84ad-f00c9b59a6f9
+k
+java:S1481W"(Remove this unused "res" local variable.(æ®¤á8¬‘‘½Ã3J$59edee4d-939a-46c0-b4ea-807c87393d13

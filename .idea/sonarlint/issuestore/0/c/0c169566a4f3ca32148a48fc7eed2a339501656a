@@ -1,0 +1,16 @@
+
+~
+java:S6813"BRemove this field injection and use constructor injection instead.(êæÄÞJ$691889db-5543-4159-99ba-25bca51299c0
+z
+java:S18544">Remove this useless assignment to local variable "userMapper".(€ø˜ïJ$f8624a61-116e-4dd3-bb9d-29352ed7d9c7
+€
+java:S18543"?Remove this useless assignment to local variable "userService".(ÀòëéüÿÿÿÿJ$16d1652f-a57a-4037-913b-bf3ab5400b37
+q
+java:S14813"0Remove this unused "userService" local variable.(ÀòëéüÿÿÿÿJ$854ec251-7b14-4386-acd4-249eac048fa3
+z
+java:S11174">Rename "userMapper" which hides the field declared at line 29.(€ø˜ïJ$97d69e41-55a8-43e4-a4ad-4605d51ab0df
+k
+java:S14814"/Remove this unused "userMapper" local variable.(€ø˜ïJ$574b8e76-97b6-4d51-b001-d21fd5c06a5d
+|	java:S125I"<This block of commented-out lines of code should be removed.(ü§ÍúùÿÿÿÿJ$e0df71c9-ca87-439c-b0b7-41fec87b38be
+n
+java:S1135H"2Complete the task associated to this TODO comment.(±·ÌJ$ff4e1dec-07d0-49a7-80ef-b424daf38d76

@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.wyq.serverwebsocket.mapper.FinanceMapper">
+
+    <select id="getFinanceSummary" resultType="cn.wyq.serverwebsocket.pojo.vo.FinanceSummaryVO">
+        SELECT
+            -- 期间总入账：从资金流水表 (u_account_log) 统计充值类型 (type=1) 的金额
+            (SELECT IFNULL(SUM(amount), 0)
+             FROM u_account_log
+             WHERE type = 1 AND DATE(create_time) BETWEEN #{startDate} AND #{endDate}) AS totalRevenue,
+
+            -- 今日新增充值：限制日期为 CURDATE()
+            (SELECT IFNULL(SUM(amount), 0)
+             FROM u_account_log
+             WHERE type = 1 AND DATE(create_time) = CURDATE()) AS todayRevenue,
+
+            -- 红包流水总额：直接统计红包主表 (u_red_packet) 中发出的红包总额
+            (SELECT IFNULL(SUM(total_amount), 0)
+             FROM u_red_packet
+             WHERE DATE(create_time) BETWEEN #{startDate} AND #{endDate}) AS redPacketTotal,
+
+            -- AI算力消耗预估：假设未来你在流水表中加入 type=4 代表AI算力扣除
+            -- 注意：由于扣费金额是负数，这里使用 ABS() 取绝对值以便在前端展示正数
+            (SELECT IFNULL(SUM(ABS(amount)), 0)
+             FROM u_account_log
+             WHERE type = 4 AND DATE(create_time) BETWEEN #{startDate} AND #{endDate}) AS aiCostTotal,
+
+            -- 平台沉淀资金池：所有用户钱包余额之和 + 正在进行中(未被抢完)的红包剩余总金额
+            (
+                (SELECT IFNULL(SUM(balance), 0) FROM u_account) +
+                (SELECT IFNULL(SUM(remaining_amount), 0) FROM u_red_packet WHERE status = 0)
+            ) AS retainedFunds
+    </select>
+
+    <select id="getRevenueTrend" resultType="cn.wyq.serverwebsocket.pojo.vo.TrendVO">
+        SELECT
+            DATE_FORMAT(create_time, '%Y-%m-%d') AS date,
+            SUM(amount) AS amount
+        FROM u_account_log
+        WHERE type = 1 -- 只统计 type=1 (充值)
+          AND DATE(create_time) BETWEEN #{startDate} AND #{endDate}
+        GROUP BY DATE_FORMAT(create_time, '%Y-%m-%d')
+        ORDER BY date ASC
+    </select>
+
+    <select id="getRevenueBreakdown" resultType="cn.wyq.serverwebsocket.pojo.vo.BreakdownVO">
+        SELECT
+            CASE type
+                WHEN 2 THEN '发出红包'
+                WHEN 4 THEN 'AI大模型算力'
+                ELSE '其他支出'
+                END AS type,
+            -- Echarts 饼图需要正数值，而表里的支出是负数（如发红包的 -10.00），所以用 ABS 取绝对值
+            SUM(ABS(amount)) AS amount
+        FROM u_account_log
+        WHERE amount &lt; 0 -- 重点：只统计出账流水（金额小于0的记录）
+          AND DATE(create_time) BETWEEN #{startDate} AND #{endDate}
+        GROUP BY type
+    </select>
+
+    <select id="getOrderHealth" resultType="cn.wyq.serverwebsocket.pojo.vo.OrderHealthVO">
+        SELECT
+            status,
+            COUNT(*) AS count
+        FROM recharge_order
+        WHERE DATE(create_time) BETWEEN #{startDate} AND #{endDate}
+        GROUP BY status
+    </select>
+
+    <select id="getRedPacketFlow" resultType="cn.wyq.serverwebsocket.pojo.vo.RedPacketFlowVO">
+        WITH dates AS (
+            SELECT DATE_FORMAT(create_time, '%Y-%m-%d') AS date FROM u_red_packet
+            WHERE DATE(create_time) BETWEEN #{startDate} AND #{endDate}
+            UNION
+            SELECT DATE_FORMAT(create_time, '%Y-%m-%d') AS date FROM u_red_packet_record
+            WHERE DATE(create_time) BETWEEN #{startDate} AND #{endDate}
+        )
+        SELECT
+            d.date,
+            IFNULL(s.sentAmount, 0) AS sentAmount,
+            IFNULL(r.receivedAmount, 0) AS receivedAmount
+        FROM dates d
+                 LEFT JOIN (
+            SELECT DATE_FORMAT(create_time, '%Y-%m-%d') AS date, SUM(total_amount) AS sentAmount
+            FROM u_red_packet
+            GROUP BY date
+        ) s ON d.date = s.date
+                 LEFT JOIN (
+            SELECT DATE_FORMAT(create_time, '%Y-%m-%d') AS date, SUM(amount) AS receivedAmount
+            FROM u_red_packet_record
+            GROUP BY date
+        ) r ON d.date = r.date
+        ORDER BY d.date ASC
+    </select>
+
+    <select id="getWealthRank" resultType="cn.wyq.serverwebsocket.pojo.vo.WealthRankVO">
+        SELECT
+            u.user_name AS userName,
+            a.balance
+        FROM u_account a
+                 LEFT JOIN user u ON a.user_id = u.id
+        ORDER BY a.balance DESC
+        LIMIT 10
+    </select>
+
+</mapper>

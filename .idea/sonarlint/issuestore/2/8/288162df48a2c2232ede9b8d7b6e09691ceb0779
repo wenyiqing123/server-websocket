@@ -1,0 +1,19 @@
+
+Š
+java:S2259Œ"AA "NullPointerException" could be thrown; "add" is nullable here.(Ä™‹ûÿÿÿÿ8ôŞÃ¸Ã3J$f85e6e73-09d2-421d-a436-9ea3fe907481
+
+java:S2259/"GA "NullPointerException" could be thrown; "getExpire" is nullable here.(¿âÖìşÿÿÿÿ8ôŞÃ¸Ã3J$ac0e8e3b-8a71-47fa-8511-b474583f8d62
+†
+java:S2259:"DA "NullPointerException" could be thrown; "hasKey" is nullable here.(òè8óŞÃ¸Ã3J$ff17b601-7ae7-4219-b3d8-a5fe6dddd1ab
+‹
+java:S2259§"GA "NullPointerException" could be thrown; "increment" is nullable here.(”ÈÊå8ôŞÃ¸Ã3J$af769e1d-a9d4-4ecb-a992-bd0f0303f61d
+‹
+java:S2259µ"GA "NullPointerException" could be thrown; "increment" is nullable here.(—È…î8ôŞÃ¸Ã3J$4a6465c7-f746-4752-a5ab-d5ef356256f1
+ˆ	java:S112¥"FDefine and throw a dedicated exception instead of using a generic one.(ÄÊĞ88÷ŞÃ¸Ã3J$b3329579-f4cf-4e8a-ad0b-06bd2552a5b3
+‰	java:S112³"FDefine and throw a dedicated exception instead of using a generic one.(Ÿ½”8øŞÃ¸Ã3J$64112c97-f76d-4959-9d11-621548cf4459
+…
+java:S6813"BRemove this field injection and use constructor injection instead.(êæÄŞ8ûŞÃ¸Ã3J$7fb7671a-3431-465e-802b-5c6dec3c9a85
+o
+java:S1168ÿ"+Return an empty collection instead of null.(¥¹ï8—ßÃ¸Ã3J$461add46-3286-4c99-953a-c78107b5b136
+o
+java:S1168¢"+Return an empty collection instead of null.(¥¹ï8›ßÃ¸Ã3J$a23250d2-dd15-4bbe-ab14-7f2258699ef0

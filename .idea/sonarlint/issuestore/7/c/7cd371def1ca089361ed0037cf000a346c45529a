@@ -1,0 +1,14 @@
+
+¤
+java:S1488k"\Immediately return this expression instead of assigning it to the temporary variable "path".(öù‰îúÿÿÿÿ8Ëî —Ê3J$895ece64-64e1-415b-810d-dc05446527ef
+…
+java:S6813!"BRemove this field injection and use constructor injection instead.(êæÄŞ8Ïî —Ê3J$39d5f1d1-c6bf-45a4-8ce4-aca4740464dc
+…
+java:S6813#"BRemove this field injection and use constructor injection instead.(êæÄŞ8Ïî —Ê3J$494f08fd-21d4-4802-9534-d8d4165d09f4
+…
+java:S6813%"BRemove this field injection and use constructor injection instead.(êæÄŞ8Ïî —Ê3J$f96ae1e1-a7ae-4774-a91d-ab0c9b74dec2
+ƒ	java:S125("<This block of commented-out lines of code should be removed.(»Ô¢üÿÿÿÿ8Ñî —Ê3J$f02edc28-0d90-4efc-a473-fae2364a25ad
+—
+java:S32528"OUse static access with "com.github.pagehelper.page.PageMethod" for "startPage".(‹£Ê–ÿÿÿÿÿ8Òî —Ê3J$82038af9-6549-437a-9ff7-767df9bc7605
+x
+java:S2209w"5Change this instance-reference to a static reference.(ü©ã«8Øî —Ê3J$d679c765-f1b3-48e0-b98f-9ad64a3f56bf

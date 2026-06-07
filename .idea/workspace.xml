@@ -1,0 +1,1018 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="68dfcc89-984c-4e29-8ce5-b393bae2b8b7" name="Changes" comment="2026-5-15">
+      <change beforePath="$PROJECT_DIR$/web/src/main/java/cn/wyq/serverwebsocket/controller/UploadController.java" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/main/java/cn/wyq/serverwebsocket/controller/UploadController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/main/java/cn/wyq/serverwebsocket/socket/WebSocket.java" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/main/java/cn/wyq/serverwebsocket/socket/WebSocket.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/main/resources/application.yaml" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="CodeInsightWorkspaceSettings">
+    <option name="optimizeImportsOnTheFly" value="true" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="spring-beans.schema" />
+        <option value="XML File" />
+        <option value="application" />
+        <option value="Ymal File" />
+        <option value="Interface" />
+        <option value="Mybatis Mapper" />
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;wenyiqing123&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/wenyiqing123/server-websocket.git&quot;,
+    &quot;accountId&quot;: &quot;f6008405-0017-4661-a21e-311a975f1a74&quot;
+  }
+}</component>
+  <component name="KubernetesApiPersistence">{}</component>
+  <component name="KubernetesApiProvider">{
+  &quot;isMigrated&quot;: true
+}</component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="MavenImportPreferences">
+    <option name="generalSettings">
+      <MavenGeneralSettings>
+        <option name="customMavenHome" value="$PROJECT_DIR$/../../../../develop/maven/apache-maven-3.9.14" />
+        <option name="localRepository" value="D:\develop\maven\apache-maven-3.9.14\mvn_resp" />
+        <option name="mavenHomeTypeForPersistence" value="CUSTOM" />
+        <option name="userSettingsFile" value="D:\develop\maven\apache-maven-3.9.14\conf\settings.xml" />
+      </MavenGeneralSettings>
+    </option>
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 2
+}</component>
+  <component name="ProjectId" id="2ayXxL0dZRA9ysfgOszUMFPpk9A" />
+  <component name="ProjectViewState">
+    <option name="showLibraryContents" value="true" />
+    <option name="showVisibilityIcons" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Application.GitHubModelsDemo.executor&quot;: &quot;Run&quot;,
+    &quot;Maven.server-websocket [clean,install,-U].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.server-websocket [clean].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.server-websocket [dependency:purge-local-repository...].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.server-websocket [install:install-file,\\...].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.server-websocket [install:install-file,^...].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.server-websocket [install].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.server-websocket [package].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.server-websocket [validate].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.web [clean].executor&quot;: &quot;Run&quot;,
+    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
+    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
+    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
+    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;SONARLINT_PRECOMMIT_ANALYSIS&quot;: &quot;false&quot;,
+    &quot;Spring Boot.ServerWebsocketApplication.executor&quot;: &quot;Run&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;jdk.selected.JAVA_MODULE&quot;: &quot;17&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/javawork/websocket/server-websocket&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;onboarding.tips.debug.path&quot;: &quot;D:/javawork/websocket/software-engineering/server-websocket/web/src/main/java/com/wyq/Main.java&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15234375&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;MavenSettings&quot;,
+    &quot;spring.configuration.checksum&quot;: &quot;59ad1f6589c2e54f1b44520c01eb7d76&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  },
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;redis&quot;,
+      &quot;mysql&quot;
+    ]
+  }
+}</component>
+  <component name="ReactorSettings">
+    <option name="notificationShown" value="true" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CreateClassDialog.RecentsKey">
+      <recent name="cn.wyq.serverwebsocket.service" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\javawork\websocket\software-engineering\server-websocket\web\src\main\resources\static\dataset" />
+      <recent name="D:\javawork\websocket\software-engineering\server-websocket\web\src\main\resources" />
+      <recent name="D:\javawork\websocket\software-engineering\server-websocket\web\src\main\java\com\wyq" />
+      <recent name="D:\javawork\websocket\software-engineering\server-websocket\service\src\main\resources" />
+      <recent name="D:\javawork\websocket\software-engineering\server-websocket\service\src\main\java" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\javawork\websocket\software-engineering\server-websocket\service\src\main\resources\mapper" />
+      <recent name="D:\javawork\websocket\software-engineering\server-websocket\web\src\main\resources\static\dataset" />
+      <recent name="D:\javawork\websocket\software-engineering\server-websocket\service\src\main\resources\mapper\service" />
+      <recent name="D:\javawork\websocket\software-engineering\server-websocket\service\src\main\resources\mapper\chat" />
+      <recent name="D:\javawork\websocket\software-engineering\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\socket" />
+    </key>
+    <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="cn.wyq.serverwebsocket.pojo.entity" />
+      <recent name="cn.wyq.serverwebsocket.pojo.dto" />
+      <recent name="util" />
+      <recent name="cn.wyq.serverwebsocket.framework.constant" />
+      <recent name="cn.wqk.serverwebsocket.mapper" />
+    </key>
+  </component>
+  <component name="RunAnythingCache">
+    <option name="myCommands">
+      <command value="mvn package" />
+      <command value="mvn mvn clean install -U" />
+      <command value="mvn clean install -DskipTests -U" />
+      <command value="mvn dependency:purge-local-repository -DreResolve=true" />
+      <command value="mvn install:install-file \   -Dfile=/path/to/alipay-sdk-java-4.37.114.ALL.jar \   -DgroupId=com.alipay.sdk \   -DartifactId=alipay-sdk-java \   -Dversion=4.37.114 \   -Dpackaging=jar" />
+      <command value="mvn install:install-file ^   -Dfile=D:\develop\maven\apache-maven-3.9.14\jaralipay-sdk-java-4.37.114.ALL.jar ^   -DgroupId=com.alipay.sdk ^   -DartifactId=alipay-sdk-java ^   -Dversion=4.37.114 ^   -Dpackaging=jar" />
+      <command value="mvn install:install-file ^   -Dfile=D:\develop\maven\apache-maven-3.9.14\jar\alipay-sdk-java-4.37.114.ALL.jar ^   -DgroupId=com.alipay.sdk ^   -DartifactId=alipay-sdk-java ^   -Dversion=4.37.114 ^   -Dpackaging=jar" />
+      <command value="mvn clean install -U" />
+    </option>
+  </component>
+  <component name="RunDashboard">
+    <option name="configurationTypes">
+      <set>
+        <option value="SpringBootApplicationConfigurationType" />
+      </set>
+    </option>
+    <option name="hiddenConfigurations">
+      <map>
+        <entry key="SpringBootApplicationConfigurationType">
+          <value>
+            <set>
+              <option value="ServerWebsocketApplication" />
+            </set>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="RunManager">
+    <configuration default="true" type="Application" factoryName="Application">
+      <shortenClasspath name="ARGS_FILE" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
+      <module name="server-websocket" />
+      <option name="filePath" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ServerWebsocketApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" temporary="true" nameIsGenerated="true">
+      <module name="web" />
+      <option name="SHORTEN_COMMAND_LINE" value="ARGS_FILE" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="cn.wyq.serverwebsocket.ServerWebsocketApplication" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="cn.wyq.serverwebsocket.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+      <option name="SHORTEN_COMMAND_LINE" value="ARGS_FILE" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Spring Boot.ServerWebsocketApplication" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-fbdcb00ec9e3-intellij.indexing.shared.core-IU-251.25410.129" />
+        <option value="bundled-js-predefined-d6986cc7102b-6a121458b545-JavaScript-IU-251.25410.129" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="StructureViewState">
+    <option name="selectedTab" value="Logical" />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="68dfcc89-984c-4e29-8ce5-b393bae2b8b7" name="Changes" comment="" />
+      <created>1704195144267</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1704195144267</updated>
+      <workItem from="1705292039769" duration="13904000" />
+      <workItem from="1705370587303" duration="4107000" />
+      <workItem from="1705396735157" duration="5186000" />
+      <workItem from="1705460653462" duration="9029000" />
+      <workItem from="1705543978067" duration="16803000" />
+      <workItem from="1705630125383" duration="6728000" />
+      <workItem from="1705801191378" duration="14506000" />
+      <workItem from="1705843490656" duration="173000" />
+      <workItem from="1705894576145" duration="2833000" />
+      <workItem from="1705941781319" duration="969000" />
+      <workItem from="1705987335622" duration="1024000" />
+      <workItem from="1705991917836" duration="3939000" />
+      <workItem from="1706058440089" duration="1217000" />
+      <workItem from="1706152133852" duration="6676000" />
+      <workItem from="1706322859522" duration="6805000" />
+      <workItem from="1706409859368" duration="7635000" />
+      <workItem from="1706436484816" duration="78000" />
+      <workItem from="1706436575388" duration="3745000" />
+      <workItem from="1706496829859" duration="1562000" />
+      <workItem from="1706511472336" duration="296000" />
+      <workItem from="1706512047924" duration="96000" />
+      <workItem from="1706512427588" duration="1329000" />
+      <workItem from="1706528980725" duration="2810000" />
+      <workItem from="1706535501866" duration="622000" />
+      <workItem from="1706577240021" duration="1899000" />
+      <workItem from="1707642244712" duration="853000" />
+      <workItem from="1707967256820" duration="2043000" />
+      <workItem from="1708062877997" duration="630000" />
+      <workItem from="1708658673547" duration="2423000" />
+      <workItem from="1708698086900" duration="28000" />
+      <workItem from="1708698133585" duration="504000" />
+      <workItem from="1708698661665" duration="991000" />
+      <workItem from="1708700136655" duration="1014000" />
+      <workItem from="1708871891372" duration="630000" />
+      <workItem from="1709021762115" duration="39000" />
+      <workItem from="1711028856633" duration="729000" />
+      <workItem from="1718372299205" duration="1359000" />
+      <workItem from="1718586352555" duration="1773000" />
+      <workItem from="1718589061887" duration="599000" />
+      <workItem from="1718673647245" duration="3746000" />
+      <workItem from="1720514830896" duration="670000" />
+      <workItem from="1720769584946" duration="67000" />
+      <workItem from="1745896684975" duration="3924000" />
+      <workItem from="1746020132210" duration="2503000" />
+      <workItem from="1746706569849" duration="759000" />
+      <workItem from="1746707410343" duration="372000" />
+      <workItem from="1757389196253" duration="165000" />
+      <workItem from="1757389381545" duration="4282000" />
+      <workItem from="1757410017777" duration="2000000" />
+      <workItem from="1757514285364" duration="2702000" />
+      <workItem from="1757568247105" duration="1463000" />
+      <workItem from="1757584747369" duration="5832000" />
+      <workItem from="1757650806407" duration="6261000" />
+      <workItem from="1757723901611" duration="5482000" />
+      <workItem from="1757730673545" duration="7132000" />
+      <workItem from="1758113812696" duration="606000" />
+      <workItem from="1758192936630" duration="1643000" />
+      <workItem from="1758452178188" duration="2996000" />
+      <workItem from="1758537334312" duration="3821000" />
+      <workItem from="1758690232449" duration="301000" />
+      <workItem from="1758782156081" duration="2504000" />
+      <workItem from="1758797377243" duration="1925000" />
+      <workItem from="1758862794123" duration="7854000" />
+      <workItem from="1758880358703" duration="12713000" />
+      <workItem from="1759048500170" duration="3584000" />
+      <workItem from="1759063582560" duration="10542000" />
+      <workItem from="1759151722857" duration="4799000" />
+      <workItem from="1759989622362" duration="4458000" />
+      <workItem from="1760012156863" duration="4119000" />
+      <workItem from="1760092408712" duration="7499000" />
+      <workItem from="1760147560859" duration="2649000" />
+      <workItem from="1760189419710" duration="2577000" />
+      <workItem from="1760244811161" duration="339000" />
+      <workItem from="1760245163367" duration="599000" />
+      <workItem from="1760688717922" duration="250000" />
+      <workItem from="1760785432292" duration="3502000" />
+      <workItem from="1760855578179" duration="14611000" />
+      <workItem from="1760935159427" duration="2552000" />
+      <workItem from="1760956965092" duration="3334000" />
+      <workItem from="1761020292489" duration="2789000" />
+      <workItem from="1761033614217" duration="1744000" />
+      <workItem from="1761097610688" duration="3358000" />
+      <workItem from="1761108780522" duration="604000" />
+      <workItem from="1761198889332" duration="4112000" />
+      <workItem from="1761212993276" duration="150000" />
+      <workItem from="1761214244347" duration="6640000" />
+      <workItem from="1761231040543" duration="6540000" />
+      <workItem from="1761280435781" duration="3086000" />
+      <workItem from="1761379715056" duration="11560000" />
+      <workItem from="1761472143044" duration="618000" />
+      <workItem from="1761621298055" duration="424000" />
+      <workItem from="1761621730312" duration="1917000" />
+      <workItem from="1761625998377" duration="2708000" />
+      <workItem from="1761638011982" duration="171000" />
+      <workItem from="1761638193978" duration="1715000" />
+      <workItem from="1761640420543" duration="88000" />
+      <workItem from="1761640716964" duration="2765000" />
+      <workItem from="1761651598634" duration="12554000" />
+      <workItem from="1761714864527" duration="357000" />
+      <workItem from="1761715233584" duration="5360000" />
+      <workItem from="1761803990549" duration="1725000" />
+      <workItem from="1761975496954" duration="8605000" />
+      <workItem from="1762076070538" duration="1807000" />
+      <workItem from="1762168451229" duration="774000" />
+      <workItem from="1762244810085" duration="806000" />
+      <workItem from="1762847836265" duration="2083000" />
+      <workItem from="1763454382712" duration="110000" />
+      <workItem from="1763454506128" duration="829000" />
+      <workItem from="1763807028945" duration="2046000" />
+      <workItem from="1764057502414" duration="4190000" />
+      <workItem from="1764081515070" duration="4194000" />
+      <workItem from="1764235121546" duration="10551000" />
+      <workItem from="1764260803322" duration="2962000" />
+      <workItem from="1764328697250" duration="230000" />
+      <workItem from="1764583398418" duration="161000" />
+      <workItem from="1764583606624" duration="1029000" />
+      <workItem from="1764728978319" duration="1275000" />
+      <workItem from="1765348887106" duration="6210000" />
+      <workItem from="1765795818882" duration="3924000" />
+      <workItem from="1765894686729" duration="2397000" />
+      <workItem from="1765960881315" duration="4032000" />
+      <workItem from="1765971801080" duration="40000" />
+      <workItem from="1765971990656" duration="1456000" />
+      <workItem from="1765978664821" duration="46000" />
+      <workItem from="1765978718190" duration="1813000" />
+      <workItem from="1766225742898" duration="2088000" />
+      <workItem from="1766227945507" duration="10919000" />
+      <workItem from="1766304792290" duration="4746000" />
+      <workItem from="1766371903783" duration="2131000" />
+      <workItem from="1766398105490" duration="714000" />
+      <workItem from="1766477787492" duration="2727000" />
+      <workItem from="1766498815800" duration="3231000" />
+      <workItem from="1766574050987" duration="1562000" />
+      <workItem from="1766576381021" duration="2359000" />
+      <workItem from="1766923148930" duration="281000" />
+      <workItem from="1766923453946" duration="1181000" />
+      <workItem from="1767054707943" duration="2429000" />
+      <workItem from="1767949764453" duration="1077000" />
+      <workItem from="1767950850807" duration="163000" />
+      <workItem from="1767951023620" duration="3837000" />
+      <workItem from="1767957491385" duration="598000" />
+      <workItem from="1768066553750" duration="163000" />
+      <workItem from="1768066730703" duration="1216000" />
+      <workItem from="1768111867628" duration="31000" />
+      <workItem from="1768111924687" duration="1309000" />
+      <workItem from="1768235864030" duration="122000" />
+      <workItem from="1768236003979" duration="847000" />
+      <workItem from="1768285537059" duration="122000" />
+      <workItem from="1768285678197" duration="207000" />
+      <workItem from="1768285895287" duration="1984000" />
+      <workItem from="1768621503051" duration="621000" />
+      <workItem from="1768730446317" duration="1238000" />
+      <workItem from="1768921665015" duration="1535000" />
+      <workItem from="1768932618136" duration="657000" />
+      <workItem from="1768974539442" duration="4842000" />
+      <workItem from="1769139097210" duration="5204000" />
+      <workItem from="1769227745166" duration="15058000" />
+      <workItem from="1769315821953" duration="8511000" />
+      <workItem from="1769350058259" duration="428000" />
+      <workItem from="1769409114153" duration="333000" />
+      <workItem from="1769409463369" duration="3339000" />
+      <workItem from="1769414675159" duration="1357000" />
+      <workItem from="1769593347542" duration="792000" />
+      <workItem from="1769595694245" duration="623000" />
+      <workItem from="1769690564384" duration="916000" />
+      <workItem from="1769757877448" duration="25000" />
+      <workItem from="1769766389322" duration="4915000" />
+      <workItem from="1769842849613" duration="7149000" />
+      <workItem from="1769864800945" duration="598000" />
+      <workItem from="1769931504054" duration="3000" />
+      <workItem from="1769933321624" duration="27000" />
+      <workItem from="1769937951503" duration="699000" />
+      <workItem from="1770285370023" duration="34000" />
+      <workItem from="1770286599945" duration="2553000" />
+      <workItem from="1770359756535" duration="2000" />
+      <workItem from="1770372072320" duration="2002000" />
+      <workItem from="1770450361232" duration="28000" />
+      <workItem from="1770451156317" duration="2140000" />
+      <workItem from="1770457251415" duration="5074000" />
+      <workItem from="1770621878276" duration="1391000" />
+      <workItem from="1772020516388" duration="3472000" />
+      <workItem from="1772025876241" duration="562000" />
+      <workItem from="1772090700126" duration="4220000" />
+      <workItem from="1772111227666" duration="530000" />
+      <workItem from="1772112569943" duration="257000" />
+      <workItem from="1772183351302" duration="11986000" />
+      <workItem from="1772258297914" duration="2310000" />
+      <workItem from="1772280105378" duration="409000" />
+      <workItem from="1772332165057" duration="1197000" />
+      <workItem from="1772519654191" duration="146000" />
+      <workItem from="1773045477028" duration="5919000" />
+      <workItem from="1773052050359" duration="6074000" />
+      <workItem from="1773068992747" duration="3000" />
+      <workItem from="1773069382429" duration="803000" />
+      <workItem from="1773131123274" duration="1357000" />
+      <workItem from="1773191442922" duration="1334000" />
+      <workItem from="1773192817016" duration="447000" />
+      <workItem from="1773219741884" duration="8393000" />
+      <workItem from="1773500656867" duration="3464000" />
+      <workItem from="1773585445492" duration="2849000" />
+      <workItem from="1773619487140" duration="8084000" />
+      <workItem from="1773628514740" duration="174000" />
+      <workItem from="1773629181921" duration="2452000" />
+      <workItem from="1773635118015" duration="2390000" />
+      <workItem from="1773640733889" duration="4611000" />
+      <workItem from="1773653672039" duration="9242000" />
+      <workItem from="1773712994965" duration="1316000" />
+      <workItem from="1773794919361" duration="2824000" />
+      <workItem from="1773885255857" duration="3392000" />
+      <workItem from="1773902519294" duration="6517000" />
+      <workItem from="1773915867771" duration="12169000" />
+      <workItem from="1773964870700" duration="548000" />
+      <workItem from="1773975755934" duration="1400000" />
+      <workItem from="1774017536437" duration="394000" />
+      <workItem from="1774232545931" duration="1589000" />
+      <workItem from="1774244750273" duration="5767000" />
+      <workItem from="1774252647227" duration="28000" />
+      <workItem from="1774253182528" duration="9636000" />
+      <workItem from="1774267281985" duration="6696000" />
+      <workItem from="1774320209589" duration="683000" />
+      <workItem from="1774361572537" duration="141000" />
+      <workItem from="1774361726405" duration="6735000" />
+      <workItem from="1774404830230" duration="2970000" />
+      <workItem from="1774416294272" duration="13207000" />
+      <workItem from="1774431188522" duration="31000" />
+      <workItem from="1774431228849" duration="211000" />
+      <workItem from="1774442986128" duration="4622000" />
+      <workItem from="1774490071290" duration="943000" />
+      <workItem from="1774491848155" duration="4147000" />
+      <workItem from="1774512499850" duration="14180000" />
+      <workItem from="1774580678306" duration="1233000" />
+      <workItem from="1774828947259" duration="9449000" />
+      <workItem from="1774850267992" duration="4646000" />
+      <workItem from="1774854928467" duration="2040000" />
+      <workItem from="1774858595575" duration="284000" />
+      <workItem from="1774858890280" duration="1317000" />
+      <workItem from="1774860216535" duration="768000" />
+      <workItem from="1774860993734" duration="216000" />
+      <workItem from="1774861217363" duration="1578000" />
+      <workItem from="1774922057192" duration="6071000" />
+      <workItem from="1774931852690" duration="3512000" />
+      <workItem from="1774936811868" duration="3204000" />
+      <workItem from="1774940368428" duration="1094000" />
+      <workItem from="1774941482452" duration="71000" />
+      <workItem from="1774941803072" duration="268000" />
+      <workItem from="1774942511224" duration="75000" />
+      <workItem from="1774954871541" duration="11412000" />
+      <workItem from="1775002053670" duration="4023000" />
+      <workItem from="1775012931437" duration="1669000" />
+      <workItem from="1775094725270" duration="2268000" />
+      <workItem from="1775119249694" duration="4274000" />
+      <workItem from="1775527105350" duration="3693000" />
+      <workItem from="1775654779499" duration="5722000" />
+      <workItem from="1775743542613" duration="426000" />
+      <workItem from="1775744869268" duration="1911000" />
+      <workItem from="1775781820336" duration="8366000" />
+      <workItem from="1775795729554" duration="3783000" />
+      <workItem from="1775800382630" duration="4928000" />
+      <workItem from="1775805995324" duration="412000" />
+      <workItem from="1776038818530" duration="4886000" />
+      <workItem from="1776044820577" duration="2591000" />
+      <workItem from="1776060079689" duration="5031000" />
+      <workItem from="1776066503068" duration="4287000" />
+      <workItem from="1776075144649" duration="7766000" />
+      <workItem from="1776132664904" duration="5085000" />
+      <workItem from="1776146704907" duration="2063000" />
+      <workItem from="1776149080108" duration="1566000" />
+      <workItem from="1776153596544" duration="7293000" />
+      <workItem from="1776211522732" duration="11165000" />
+      <workItem from="1776257179425" duration="6531000" />
+      <workItem from="1776304204806" duration="6050000" />
+      <workItem from="1776319136671" duration="3022000" />
+      <workItem from="1776322933126" duration="12000" />
+      <workItem from="1776326836397" duration="5154000" />
+      <workItem from="1776332789612" duration="9462000" />
+      <workItem from="1776385160015" duration="10776000" />
+      <workItem from="1776405403596" duration="3099000" />
+      <workItem from="1776501648191" duration="2870000" />
+      <workItem from="1776514045161" duration="4901000" />
+      <workItem from="1776587932910" duration="12937000" />
+      <workItem from="1776654104989" duration="4220000" />
+      <workItem from="1776664594777" duration="8282000" />
+      <workItem from="1776815996375" duration="3986000" />
+      <workItem from="1776835719484" duration="5063000" />
+      <workItem from="1776843138366" duration="1093000" />
+      <workItem from="1776911017635" duration="2170000" />
+      <workItem from="1776924279664" duration="5000" />
+      <workItem from="1776928459738" duration="1377000" />
+      <workItem from="1777000229423" duration="35000" />
+      <workItem from="1777000292044" duration="1561000" />
+      <workItem from="1777014873284" duration="1160000" />
+      <workItem from="1777042417297" duration="640000" />
+      <workItem from="1777343387105" duration="1066000" />
+      <workItem from="1777356906516" duration="4518000" />
+      <workItem from="1777427471424" duration="4621000" />
+      <workItem from="1777467985543" duration="7211000" />
+      <workItem from="1777513816294" duration="5834000" />
+      <workItem from="1777522273466" duration="4942000" />
+      <workItem from="1777528921116" duration="1505000" />
+      <workItem from="1777550769102" duration="3195000" />
+      <workItem from="1777602206238" duration="8266000" />
+      <workItem from="1778210518453" duration="775000" />
+      <workItem from="1778475153174" duration="7194000" />
+      <workItem from="1778495746684" duration="6777000" />
+      <workItem from="1778552054529" duration="4183000" />
+      <workItem from="1778569296681" duration="3383000" />
+      <workItem from="1778574895469" duration="560000" />
+      <workItem from="1778590183476" duration="1558000" />
+      <workItem from="1778630469465" duration="2554000" />
+      <workItem from="1778763682653" duration="2332000" />
+      <workItem from="1778807738031" duration="787000" />
+      <workItem from="1778813768042" duration="7670000" />
+      <workItem from="1778827396366" duration="2000" />
+      <workItem from="1779269752219" duration="2732000" />
+      <workItem from="1779503047307" duration="16000" />
+      <workItem from="1779504397653" duration="1506000" />
+      <workItem from="1779509075190" duration="753000" />
+      <workItem from="1779667127122" duration="21000" />
+      <workItem from="1780037481896" duration="1926000" />
+      <workItem from="1780451949562" duration="1243000" />
+      <workItem from="1780641509561" duration="154000" />
+      <workItem from="1780723638564" duration="1530000" />
+    </task>
+    <task id="LOCAL-00012" summary="2025-12-21&#10;1.持久化存储ai对话记录&#10;2.用户管理完成&#10;3.数据展示页面优化">
+      <option name="closed" value="true" />
+      <created>1766248332096</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1766248332096</updated>
+    </task>
+    <task id="LOCAL-00013" summary="2025-12-28&#10;暂时完结">
+      <option name="closed" value="true" />
+      <created>1766925542287</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1766925542287</updated>
+    </task>
+    <task id="LOCAL-00014" summary="2025-12-28&#10;使用mapstruct">
+      <option name="closed" value="true" />
+      <created>1767952433150</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1767952433150</updated>
+    </task>
+    <task id="LOCAL-00015" summary="2026-1-9&#10;删除老旧swagger配置信息">
+      <option name="closed" value="true" />
+      <created>1767954823603</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1767954823603</updated>
+    </task>
+    <task id="LOCAL-00016" summary="2026-2-7&#10;上传git，导入gemini">
+      <option name="closed" value="true" />
+      <created>1770458279799</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1770458279799</updated>
+    </task>
+    <task id="LOCAL-00017" summary="2026-2-28">
+      <option name="closed" value="true" />
+      <created>1772280142749</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1772280142749</updated>
+    </task>
+    <task id="LOCAL-00018" summary="2026-3-11">
+      <option name="closed" value="true" />
+      <created>1773191795318</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1773191795318</updated>
+    </task>
+    <task id="LOCAL-00019" summary="2026-3-15">
+      <option name="closed" value="true" />
+      <created>1773512949829</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1773512949829</updated>
+    </task>
+    <task id="LOCAL-00020" summary="2026-3-16">
+      <option name="closed" value="true" />
+      <created>1773641001648</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1773641001648</updated>
+    </task>
+    <task id="LOCAL-00021" summary="2026-3-16-17：57">
+      <option name="closed" value="true" />
+      <created>1773655038788</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1773655038788</updated>
+    </task>
+    <task id="LOCAL-00022" summary="2026-3-16&#10;时间区间查询新增和修复">
+      <option name="closed" value="true" />
+      <created>1773656511530</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1773656511530</updated>
+    </task>
+    <task id="LOCAL-00023" summary="2026-3-16&#10;新增导出">
+      <option name="closed" value="true" />
+      <created>1773663996750</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1773663996750</updated>
+    </task>
+    <task id="LOCAL-00024" summary="2026-3-19&#10;缓存空值，需修改为手动操作缓存，添加缓存空值和布隆过滤器">
+      <option name="closed" value="true" />
+      <created>1773890357253</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1773890357253</updated>
+    </task>
+    <task id="LOCAL-00025" summary="2026-3-19&#10;修改为缓存空值">
+      <option name="closed" value="true" />
+      <created>1773904302097</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1773904302097</updated>
+    </task>
+    <task id="LOCAL-00026" summary="2026-3-19&#10;优化日志">
+      <option name="closed" value="true" />
+      <created>1773905414015</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1773905414015</updated>
+    </task>
+    <task id="LOCAL-00027" summary="2026-3-19&#10;新增防止缓存穿透和缓存击穿和缓存雪崩，sentinel熔断服务">
+      <option name="closed" value="true" />
+      <created>1773928868009</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1773928868009</updated>
+    </task>
+    <task id="LOCAL-00028" summary="2026-3-23&#10;新增个人中心页面和信息修改">
+      <option name="closed" value="true" />
+      <created>1774250851962</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1774250851962</updated>
+    </task>
+    <task id="LOCAL-00029" summary="2026-3-25&#10;修复个人主页样式bug，新增chat页面多会话功能，删除会话功能，后端规范化">
+      <option name="closed" value="true" />
+      <created>1774369381260</created>
+      <option name="number" value="00029" />
+      <option name="presentableId" value="LOCAL-00029" />
+      <option name="project" value="LOCAL" />
+      <updated>1774369381260</updated>
+    </task>
+    <task id="LOCAL-00030" summary="2026-3-25&#10;完善女友页面">
+      <option name="closed" value="true" />
+      <created>1774430148744</created>
+      <option name="number" value="00030" />
+      <option name="presentableId" value="LOCAL-00030" />
+      <option name="project" value="LOCAL" />
+      <updated>1774430148744</updated>
+    </task>
+    <task id="LOCAL-00031" summary="2026-3-25&#10;完善女友页面，优化">
+      <option name="closed" value="true" />
+      <created>1774430892480</created>
+      <option name="number" value="00031" />
+      <option name="presentableId" value="LOCAL-00031" />
+      <option name="project" value="LOCAL" />
+      <updated>1774430892480</updated>
+    </task>
+    <task id="LOCAL-00032" summary="2026-3-25&#10;调整项目依赖及其结构">
+      <option name="closed" value="true" />
+      <created>1774449004881</created>
+      <option name="number" value="00032" />
+      <option name="presentableId" value="LOCAL-00032" />
+      <option name="project" value="LOCAL" />
+      <updated>1774449004881</updated>
+    </task>
+    <task id="LOCAL-00033" summary="2026-3-25&#10;新增智能客服，优化优化再优化">
+      <option name="closed" value="true" />
+      <created>1774530145654</created>
+      <option name="number" value="00033" />
+      <option name="presentableId" value="LOCAL-00033" />
+      <option name="project" value="LOCAL" />
+      <updated>1774530145654</updated>
+    </task>
+    <task id="LOCAL-00034" summary="2026-3-30&#10;即将引入向量模型">
+      <option name="closed" value="true" />
+      <created>1774841322504</created>
+      <option name="number" value="00034" />
+      <option name="presentableId" value="LOCAL-00034" />
+      <option name="project" value="LOCAL" />
+      <updated>1774841322504</updated>
+    </task>
+    <task id="LOCAL-00035" summary="2026-3-30&#10;即将引入向量模型111">
+      <option name="closed" value="true" />
+      <created>1774841337524</created>
+      <option name="number" value="00035" />
+      <option name="presentableId" value="LOCAL-00035" />
+      <option name="project" value="LOCAL" />
+      <updated>1774841337524</updated>
+    </task>
+    <task id="LOCAL-00036" summary="2026-3-31 添加新功能">
+      <option name="closed" value="true" />
+      <created>1774971635905</created>
+      <option name="number" value="00036" />
+      <option name="presentableId" value="LOCAL-00036" />
+      <option name="project" value="LOCAL" />
+      <updated>1774971635905</updated>
+    </task>
+    <task id="LOCAL-00037" summary="2026-4-1 文件处理模型修改前">
+      <option name="closed" value="true" />
+      <created>1775013532326</created>
+      <option name="number" value="00037" />
+      <option name="presentableId" value="LOCAL-00037" />
+      <option name="project" value="LOCAL" />
+      <updated>1775013532326</updated>
+    </task>
+    <task id="LOCAL-00038" summary="2026-4-2 完善智能客服功能和文件分析功能">
+      <option name="closed" value="true" />
+      <created>1775123394293</created>
+      <option name="number" value="00038" />
+      <option name="presentableId" value="LOCAL-00038" />
+      <option name="project" value="LOCAL" />
+      <updated>1775123394293</updated>
+    </task>
+    <task id="LOCAL-00039" summary="2026-4-10">
+      <option name="closed" value="true" />
+      <created>1775806035808</created>
+      <option name="number" value="00039" />
+      <option name="presentableId" value="LOCAL-00039" />
+      <option name="project" value="LOCAL" />
+      <updated>1775806035808</updated>
+    </task>
+    <task id="LOCAL-00040" summary="2026-4-10">
+      <option name="closed" value="true" />
+      <created>1775806190491</created>
+      <option name="number" value="00040" />
+      <option name="presentableId" value="LOCAL-00040" />
+      <option name="project" value="LOCAL" />
+      <updated>1775806190491</updated>
+    </task>
+    <task id="LOCAL-00041" summary="2026-4-13">
+      <option name="closed" value="true" />
+      <created>1776061724804</created>
+      <option name="number" value="00041" />
+      <option name="presentableId" value="LOCAL-00041" />
+      <option name="project" value="LOCAL" />
+      <updated>1776061724805</updated>
+    </task>
+    <task id="LOCAL-00042" summary="2026-4-13">
+      <option name="closed" value="true" />
+      <created>1776089217173</created>
+      <option name="number" value="00042" />
+      <option name="presentableId" value="LOCAL-00042" />
+      <option name="project" value="LOCAL" />
+      <updated>1776089217173</updated>
+    </task>
+    <task id="LOCAL-00043" summary="2026-4-13">
+      <option name="closed" value="true" />
+      <created>1776137739487</created>
+      <option name="number" value="00043" />
+      <option name="presentableId" value="LOCAL-00043" />
+      <option name="project" value="LOCAL" />
+      <updated>1776137739487</updated>
+    </task>
+    <task id="LOCAL-00044" summary="2026-4-14">
+      <option name="closed" value="true" />
+      <created>1776151648396</created>
+      <option name="number" value="00044" />
+      <option name="presentableId" value="LOCAL-00044" />
+      <option name="project" value="LOCAL" />
+      <updated>1776151648396</updated>
+    </task>
+    <task id="LOCAL-00045" summary="2026-4-15">
+      <option name="closed" value="true" />
+      <created>1776263840955</created>
+      <option name="number" value="00045" />
+      <option name="presentableId" value="LOCAL-00045" />
+      <option name="project" value="LOCAL" />
+      <updated>1776263840955</updated>
+    </task>
+    <task id="LOCAL-00046" summary="2026-4-15">
+      <option name="closed" value="true" />
+      <created>1776306204611</created>
+      <option name="number" value="00046" />
+      <option name="presentableId" value="LOCAL-00046" />
+      <option name="project" value="LOCAL" />
+      <updated>1776306204611</updated>
+    </task>
+    <task id="LOCAL-00047" summary="2026-4-15">
+      <option name="closed" value="true" />
+      <created>1776310316239</created>
+      <option name="number" value="00047" />
+      <option name="presentableId" value="LOCAL-00047" />
+      <option name="project" value="LOCAL" />
+      <updated>1776310316239</updated>
+    </task>
+    <task id="LOCAL-00048" summary="2026-4-16">
+      <option name="closed" value="true" />
+      <created>1776345227333</created>
+      <option name="number" value="00048" />
+      <option name="presentableId" value="LOCAL-00048" />
+      <option name="project" value="LOCAL" />
+      <updated>1776345227333</updated>
+    </task>
+    <task id="LOCAL-00049" summary="2026-4-17">
+      <option name="closed" value="true" />
+      <created>1776392948667</created>
+      <option name="number" value="00049" />
+      <option name="presentableId" value="LOCAL-00049" />
+      <option name="project" value="LOCAL" />
+      <updated>1776392948667</updated>
+    </task>
+    <task id="LOCAL-00050" summary="2026-4-18">
+      <option name="closed" value="true" />
+      <created>1776518911409</created>
+      <option name="number" value="00050" />
+      <option name="presentableId" value="LOCAL-00050" />
+      <option name="project" value="LOCAL" />
+      <updated>1776518911409</updated>
+    </task>
+    <task id="LOCAL-00051" summary="2026-4-19">
+      <option name="closed" value="true" />
+      <created>1776603306038</created>
+      <option name="number" value="00051" />
+      <option name="presentableId" value="LOCAL-00051" />
+      <option name="project" value="LOCAL" />
+      <updated>1776603306038</updated>
+    </task>
+    <task id="LOCAL-00052" summary="2026-4-20">
+      <option name="closed" value="true" />
+      <created>1776657245159</created>
+      <option name="number" value="00052" />
+      <option name="presentableId" value="LOCAL-00052" />
+      <option name="project" value="LOCAL" />
+      <updated>1776657245159</updated>
+    </task>
+    <task id="LOCAL-00053" summary="2026-4-20">
+      <option name="closed" value="true" />
+      <created>1776670204178</created>
+      <option name="number" value="00053" />
+      <option name="presentableId" value="LOCAL-00053" />
+      <option name="project" value="LOCAL" />
+      <updated>1776670204178</updated>
+    </task>
+    <task id="LOCAL-00054" summary="2026-4-28">
+      <option name="closed" value="true" />
+      <created>1777358535285</created>
+      <option name="number" value="00054" />
+      <option name="presentableId" value="LOCAL-00054" />
+      <option name="project" value="LOCAL" />
+      <updated>1777358535286</updated>
+    </task>
+    <task id="LOCAL-00055" summary="2026-5-1&#10;支付宝支付">
+      <option name="closed" value="true" />
+      <created>1777612741935</created>
+      <option name="number" value="00055" />
+      <option name="presentableId" value="LOCAL-00055" />
+      <option name="project" value="LOCAL" />
+      <updated>1777612741936</updated>
+    </task>
+    <task id="LOCAL-00056" summary="2026-5-11">
+      <option name="closed" value="true" />
+      <created>1778503260185</created>
+      <option name="number" value="00056" />
+      <option name="presentableId" value="LOCAL-00056" />
+      <option name="project" value="LOCAL" />
+      <updated>1778503260186</updated>
+    </task>
+    <task id="LOCAL-00057" summary="2026-5-11">
+      <option name="closed" value="true" />
+      <created>1778505870652</created>
+      <option name="number" value="00057" />
+      <option name="presentableId" value="LOCAL-00057" />
+      <option name="project" value="LOCAL" />
+      <updated>1778505870652</updated>
+    </task>
+    <task id="LOCAL-00058" summary="2026-5-12">
+      <option name="closed" value="true" />
+      <created>1778556649635</created>
+      <option name="number" value="00058" />
+      <option name="presentableId" value="LOCAL-00058" />
+      <option name="project" value="LOCAL" />
+      <updated>1778556649635</updated>
+    </task>
+    <task id="LOCAL-00059" summary="2026-5-12">
+      <option name="closed" value="true" />
+      <created>1778575331502</created>
+      <option name="number" value="00059" />
+      <option name="presentableId" value="LOCAL-00059" />
+      <option name="project" value="LOCAL" />
+      <updated>1778575331502</updated>
+    </task>
+    <task id="LOCAL-00060" summary="2026-5-15">
+      <option name="closed" value="true" />
+      <created>1778814067550</created>
+      <option name="number" value="00060" />
+      <option name="presentableId" value="LOCAL-00060" />
+      <option name="project" value="LOCAL" />
+      <updated>1778814067551</updated>
+    </task>
+    <option name="localTasksCounter" value="61" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="2026-3-23&#10;新增个人中心页面和信息修改" />
+    <MESSAGE value="2026-3-25&#10;修复个人主页样式bug，新增chat页面多会话功能，删除会话功能，后端规范化" />
+    <MESSAGE value="2026-3-25&#10;完善女友页面" />
+    <MESSAGE value="2026-3-25&#10;完善女友页面，优化" />
+    <MESSAGE value="2026-3-25&#10;调整项目依赖及其结构" />
+    <MESSAGE value="2026-3-25&#10;新增智能客服，优化优化再优化" />
+    <MESSAGE value="2026-3-30&#10;即将引入向量模型" />
+    <MESSAGE value="2026-3-30&#10;即将引入向量模型111" />
+    <MESSAGE value="2026-3-31 添加新功能" />
+    <MESSAGE value="2026-4-1 文件处理模型修改前" />
+    <MESSAGE value="2026-4-2 完善智能客服功能和文件分析功能" />
+    <MESSAGE value="2026-4-10" />
+    <MESSAGE value="2026-4-13" />
+    <MESSAGE value="2026-4-14" />
+    <MESSAGE value="2026-4-15" />
+    <MESSAGE value="2026-4-16" />
+    <MESSAGE value="2026-4-17" />
+    <MESSAGE value="2026-4-18" />
+    <MESSAGE value="2026-4-19" />
+    <MESSAGE value="2026-4-20" />
+    <MESSAGE value="2026-4-28" />
+    <MESSAGE value="2026-5-1&#10;支付宝支付" />
+    <MESSAGE value="2026-5-11" />
+    <MESSAGE value="2026-5-12" />
+    <MESSAGE value="2026-5-15" />
+    <option name="LAST_COMMIT_MESSAGE" value="2026-5-15" />
+    <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
+  </component>
+  <component name="XDebuggerManager">
+    <watches-manager>
+      <configuration name="SpringBootApplicationConfigurationType">
+        <watch expression="messageInfo" />
+        <watch expression="messageInfo" language="JAVA" />
+        <watch expression="messageInfo" language="JAVA" />
+      </configuration>
+    </watches-manager>
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/server_websocket$ServerWebsocketApplication.ic" NAME="ServerWebsocketApplication Coverage Results" MODIFIED="1764261040679" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false">
+      <FILTER>cn.wqk.serverwebsocket.*</FILTER>
+    </SUITE>
+  </component>
+</project>

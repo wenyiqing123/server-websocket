@@ -10,4 +10,5 @@ public class FinanceSummaryVO {
     private BigDecimal todayRevenue;   // 今日新增充值
     private BigDecimal redPacketTotal; // 红包流水
     private BigDecimal aiCostTotal;    // AI算力消耗
+    private BigDecimal retainedFunds;  // 平台沉淀资金池
 }

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.wyq.serverwebsocket.mapper.ChatGroupMapper">
+    <select id="selectGroupList" resultType="cn.wyq.serverwebsocket.pojo.entity.ChatGroup">
+        SELECT g.* FROM chat_group g
+        <where>
+            <if test="groupId != null">
+                AND g.id = #{groupId}
+            </if>
+
+            <if test="groupName != null and groupName != ''">
+                AND g.group_name LIKE CONCAT('%', #{groupName}, '%')
+            </if>
+            <if test="ownerName != null and ownerName != ''">
+                AND g.owner_name LIKE CONCAT('%', #{ownerName}, '%')
+            </if>
+
+            <if test="startTime != null and startTime != ''">
+                AND g.create_time &gt;= #{startTime}
+            </if>
+            <if test="endTime != null and endTime != ''">
+                AND g.create_time &lt;= #{endTime}
+            </if>
+
+            <if test="memberName != null and memberName != ''">
+                AND EXISTS (
+                SELECT 1 FROM group_member m
+                WHERE m.group_id = g.id
+                AND m.user_name LIKE CONCAT('%', #{memberName}, '%')
+                )
+            </if>
+        </where>
+        ORDER BY g.create_time DESC
+    </select>
+</mapper>

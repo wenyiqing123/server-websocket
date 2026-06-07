@@ -1,0 +1,27 @@
+
+l
+java:S3740­"/Provide the parametrized type for this generic.(¸Þ°ÉJ$02ae4d85-41b3-47e1-9a72-c44fe1f68f6c
+Ã
+java:S1186©"€Add a nested comment explaining why this method is empty, throw an UnsupportedOperationException or complete the implementation.(ëñÿ¹þÿÿÿÿJ$67b8fd15-02bc-429b-9d59-9e5199b69ba6
+›
+java:S1450?"ZRemove the "httpSession" field and declare it as a local variable in the relevant methods.(Ž·ÛýþÿÿÿÿJ$6099f785-65ad-49b1-929e-95d14a92c7c0
+u
+java:S1144©"3Remove this unused private "sendOneMessage" method.(ëñÿ¹þÿÿÿÿJ$7415c426-12a0-4bd1-9af5-39a0a336c5be
+w	java:S1254"<This block of commented-out lines of code should be removed.(Òï†J$028a9514-3773-4300-af61-cd0f827b79e3
+
+java:S1854O"9Remove this useless assignment to local variable "token".(³–ÍÛûÿÿÿÿ8§òÞù½3J$079d5b9a-8409-4efe-806c-32f7dd3a3405
+r
+java:S1481O"*Remove this unused "token" local variable.(³–ÍÛûÿÿÿÿ8§òÞù½3J$1fce3ee1-395f-44dd-bab8-10613b385707
+q
+java:S1874]"6Remove this use of "toLocaleString"; it is deprecated.(æ÷²J$17cd047b-9f38-446c-9dc6-a3f7b0b5fc43
+|	java:S125m"<This block of commented-out lines of code should be removed.(ü™–ÕøÿÿÿÿJ$b99c73d0-cd66-4bdb-bb91-491b439345bc
+w
+java:S1874t"6Remove this use of "toLocaleString"; it is deprecated.(ÊÓó¥øÿÿÿÿJ$f4ccc0b7-d1cc-43cd-8c7d-1b8ddbad7213
+x
+java:S1874š"6Remove this use of "toLocaleString"; it is deprecated.(ÞÕÙìýÿÿÿÿJ$de9b02a5-7e29-4e87-b39a-4d120e5766c2
+p
+java:S1172©".Remove this unused method parameter "message".(ëñÿ¹þÿÿÿÿJ$b15e508a-4bb7-4e23-b5a9-66c7f79bf7c0
+r
+java:S2209²"5Change this instance-reference to a static reference.(¥ÕîŸJ$2c45b0bd-6b0b-414b-a33c-694a6c36c0fd
+p
+java:S1068?"/Remove this unused "httpSession" private field.(Ž·ÛýþÿÿÿÿJ$5b674cce-a9d7-4934-be39-99358f63febf

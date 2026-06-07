@@ -1,0 +1,579 @@
+15:15:01.231 [background-preinit] INFO  org.hibernate.validator.internal.util.Version.<clinit>(Version.java:21) - HV000001: Hibernate Validator 8.0.1.Final
+15:15:01.324 [restartedMain] INFO  org.springframework.boot.StartupInfoLogger.logStarting(StartupInfoLogger.java:50) - Starting ServerWebsocketApplication using Java 17.0.8 with PID 1608 (D:\javawork\websocket\software-engineering\server-websocket\web\target\classes started by 24023 in D:\javawork\websocket\software-engineering\server-websocket)
+15:15:01.325 [restartedMain] INFO  org.springframework.boot.SpringApplication.logStartupProfileInfo(SpringApplication.java:654) - No active profile set, falling back to 1 default profile: "default"
+15:15:01.717 [restartedMain] INFO  org.springframework.boot.logging.DeferredLog.logTo(DeferredLog.java:252) - Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+15:15:01.718 [restartedMain] INFO  org.springframework.boot.logging.DeferredLog.logTo(DeferredLog.java:252) - For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+15:15:06.580 [restartedMain] INFO  org.springframework.data.repository.config.RepositoryConfigurationDelegate.multipleStoresDetected(RepositoryConfigurationDelegate.java:295) - Multiple Spring Data modules found, entering strict repository configuration mode
+15:15:06.594 [restartedMain] INFO  org.springframework.data.repository.config.RepositoryConfigurationDelegate.registerRepositoriesIn(RepositoryConfigurationDelegate.java:143) - Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+15:15:06.741 [restartedMain] INFO  org.springframework.data.repository.config.RepositoryConfigurationDelegate.registerRepositoriesIn(RepositoryConfigurationDelegate.java:211) - Finished Spring Data repository scanning in 77 ms. Found 0 Redis repository interfaces.
+15:15:08.553 [restartedMain] WARN  org.springframework.context.support.PostProcessorRegistrationDelegate$BeanPostProcessorChecker.postProcessAfterInitialization(PostProcessorRegistrationDelegate.java:437) - Bean 'redisConfig' of type [cn.wyq.serverwebsocket.config.RedisConfig$$SpringCGLIB$$0] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [meterRegistryPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.
+15:15:09.482 [restartedMain] INFO  org.springframework.boot.web.embedded.tomcat.TomcatWebServer.initialize(TomcatWebServer.java:111) - Tomcat initialized with port 8000 (http)
+15:15:09.490 [restartedMain] INFO  org.apache.juli.logging.DirectJDKLog.log(DirectJDKLog.java:173) - An older version [1.3.5] of the Apache Tomcat Native library is installed, while Tomcat recommends a minimum version of [2.0.5]
+15:15:09.492 [restartedMain] INFO  org.apache.juli.logging.DirectJDKLog.log(DirectJDKLog.java:173) - Loaded Apache Tomcat Native library [1.3.5] using APR version [1.7.6].
+15:15:09.500 [restartedMain] INFO  org.apache.juli.logging.DirectJDKLog.log(DirectJDKLog.java:173) - OpenSSL successfully initialized [OpenSSL 3.0.18 30 Sep 2025]
+15:15:09.522 [restartedMain] INFO  org.apache.juli.logging.DirectJDKLog.log(DirectJDKLog.java:173) - Initializing ProtocolHandler ["http-nio-8000"]
+15:15:09.530 [restartedMain] INFO  org.apache.juli.logging.DirectJDKLog.log(DirectJDKLog.java:173) - Starting service [Tomcat]
+15:15:09.530 [restartedMain] INFO  org.apache.juli.logging.DirectJDKLog.log(DirectJDKLog.java:173) - Starting Servlet engine: [Apache Tomcat/10.1.30]
+15:15:09.798 [restartedMain] INFO  org.apache.juli.logging.DirectJDKLog.log(DirectJDKLog.java:173) - Initializing Spring embedded WebApplicationContext
+15:15:09.799 [restartedMain] INFO  org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.prepareWebApplicationContext(ServletWebServerApplicationContext.java:296) - Root WebApplicationContext: initialization completed in 8080 ms
+15:15:10.780 [restartedMain] WARN  com.baomidou.mybatisplus.core.metadata.TableInfoHelper.initTableIdWithoutAnnotation(TableInfoHelper.java:544) - This primary key of "id" is primitive !不建议如此请使用包装类 in Class: "cn.wyq.serverwebsocket.pojo.User"
+15:15:10.788 [restartedMain] WARN  com.baomidou.mybatisplus.core.injector.AbstractMethod.addMappedStatement(AbstractMethod.java:407) - [cn.wyq.serverwebsocket.mapper.UserMapper.deleteById] Has been loaded by XML or SqlProvider or Mybatis's Annotation, so ignoring this injection for [class com.baomidou.mybatisplus.core.injector.methods.DeleteById]
+15:15:11.289 [restartedMain] INFO  org.redisson.Version.logVersion(Version.java:41) - Redisson 3.23.0
+15:15:11.805 [redisson-netty-2-5] INFO  org.redisson.connection.pool.ConnectionPool.lambda$createConnection$0(ConnectionPool.java:140) - 1 connections initialized for localhost/127.0.0.1:6379
+15:15:11.879 [redisson-netty-2-20] INFO  org.redisson.connection.pool.ConnectionPool.lambda$createConnection$0(ConnectionPool.java:140) - 24 connections initialized for localhost/127.0.0.1:6379
+15:15:13.032 [restartedMain] INFO  cn.wyq.serverwebsocket.config.KnowledgeDataLoader.init(KnowledgeDataLoader.java:33) - 🔍 准备操作缓存文件，它的真实物理路径是: D:\javawork\websocket\software-engineering\server-websocket\web\src\main\resources\static\dataset\mecha_vector_cache.json
+15:15:13.033 [restartedMain] INFO  cn.wyq.serverwebsocket.config.KnowledgeDataLoader.init(KnowledgeDataLoader.java:45) - ⚡ 发现本地机甲知识库缓存文件，正在从 web/src/main/resources/static/dataset/mecha_vector_cache.json 光速加载...
+15:15:13.990 [restartedMain] INFO  cn.wyq.serverwebsocket.config.KnowledgeDataLoader.init(KnowledgeDataLoader.java:47) - ✅ 缓存加载完毕！启动耗时缩短 99%！
+15:15:14.163 [restartedMain] INFO  cn.wyq.serverwebsocket.config.CommonConfiguration.customChatMemory(CommonConfiguration.java:36) - 【系统加载】启动 Spring AI M8 官方正式版 JDBC 记忆引擎 (自定义窗口版)！
+15:15:14.169 [restartedMain] INFO  cn.wyq.serverwebsocket.config.CommonConfiguration.girlfriendChatClient(CommonConfiguration.java:55) - 【系统加载】启动仿真女友（Azure GPT-4o 驱动版）装载完毕！
+15:15:14.177 [restartedMain] INFO  cn.wyq.serverwebsocket.config.CommonConfiguration.serviceChatClient(CommonConfiguration.java:71) - 【系统加载】启动全能数据管家（Azure GPT-4o 驱动版），装载数据库查询工具！
+15:15:15.215 [restartedMain] INFO  cn.wyq.serverwebsocket.config.WebConfig.extendMessageConverters(WebConfig.java:118) - 扩展消息转换器：应用 JacksonObjectMapper 统一日期格式
+15:15:17.468 [restartedMain] INFO  org.springframework.boot.devtools.autoconfigure.OptionalLiveReloadServer.startServer(OptionalLiveReloadServer.java:59) - LiveReload server is running on port 35729
+15:15:17.489 [restartedMain] INFO  org.springframework.boot.actuate.endpoint.web.EndpointLinksResolver.<init>(EndpointLinksResolver.java:60) - Exposing 1 endpoint beneath base path '/actuator'
+15:15:17.647 [restartedMain] INFO  org.apache.juli.logging.DirectJDKLog.log(DirectJDKLog.java:173) - Starting ProtocolHandler ["http-nio-8000"]
+15:15:17.664 [restartedMain] INFO  org.springframework.boot.web.embedded.tomcat.TomcatWebServer.start(TomcatWebServer.java:243) - Tomcat started on port 8000 (http) with context path '/'
+15:15:17.688 [restartedMain] INFO  org.springframework.boot.StartupInfoLogger.logStarted(StartupInfoLogger.java:56) - Started ServerWebsocketApplication in 17.56 seconds (process running for 19.96)
+15:15:17.700 [restartedMain] INFO  cn.wyq.serverwebsocket.config.CacheInitRunner.initCache(CacheInitRunner.java:47) - 项目启动成功，开始执行全局缓存预热
+15:15:17.700 [restartedMain] INFO  cn.wyq.serverwebsocket.config.CacheInitRunner.initCache(CacheInitRunner.java:53) - 1. 开始缓存管理页面用户信息和消息记录信息...
+15:15:17.851 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource.getConnection(HikariDataSource.java:109) - HikariPool-1 - Starting...
+15:15:18.008 [RMI TCP Connection(2)-198.18.0.1] INFO  org.springframework.amqp.rabbit.connection.AbstractConnectionFactory.connectAddresses(AbstractConnectionFactory.java:666) - Attempting to connect to: [localhost:5672]
+15:15:18.019 [RMI TCP Connection(1)-198.18.0.1] INFO  org.apache.juli.logging.DirectJDKLog.log(DirectJDKLog.java:173) - Initializing Spring DispatcherServlet 'dispatcherServlet'
+15:15:18.020 [RMI TCP Connection(1)-198.18.0.1] INFO  org.springframework.web.servlet.FrameworkServlet.initServletBean(FrameworkServlet.java:532) - Initializing Servlet 'dispatcherServlet'
+15:15:18.024 [RMI TCP Connection(1)-198.18.0.1] INFO  org.springframework.web.servlet.FrameworkServlet.initServletBean(FrameworkServlet.java:554) - Completed initialization in 4 ms
+15:15:18.271 [restartedMain] INFO  com.zaxxer.hikari.pool.HikariPool.checkFailFast(HikariPool.java:554) - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@16deec05
+15:15:18.288 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource.getConnection(HikariDataSource.java:122) - HikariPool-1 - Start completed.
+15:15:18.301 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: SELECT count(0) FROM message
+15:15:18.335 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: 
+15:15:18.406 [RMI TCP Connection(2)-198.18.0.1] INFO  org.springframework.amqp.rabbit.connection.AbstractConnectionFactory.createBareConnection(AbstractConnectionFactory.java:608) - Created new connection: rabbitConnectionFactory#49c81100:0/SimpleConnection@914b58c [delegate=amqp://guest@127.0.0.1:5672/, localPort=61363]
+15:15:18.457 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 1
+15:15:18.522 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: select id, message, from_name, to_name, send_at from message LIMIT ?
+15:15:18.524 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: 9(Integer)
+15:15:18.540 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 9
+15:15:18.580 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: SELECT count(0) FROM user WHERE status = '1'
+15:15:18.581 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: 
+15:15:18.659 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 1
+15:15:18.661 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: SELECT id, user_name, password,email, path, role FROM user WHERE status='1' ORDER BY id DESC LIMIT ?
+15:15:18.662 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: 9(Integer)
+15:15:18.667 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 5
+15:15:18.667 [restartedMain] INFO  cn.wyq.serverwebsocket.config.CacheInitRunner.initCache(CacheInitRunner.java:58) - 基础业务数据缓存成功
+15:15:18.667 [restartedMain] INFO  cn.wyq.serverwebsocket.config.CacheInitRunner.initCache(CacheInitRunner.java:67) - 2. 开始缓存 AI 对话页面矩阵消息信息...
+15:15:18.668 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: select * from message_intention ORDER BY create_time ASC;
+15:15:18.668 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: 
+15:15:18.712 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 22
+15:15:18.788 [restartedMain] INFO  cn.wyq.serverwebsocket.service.RealTimeRecommendService.rebuildCacheIfEmpty(RealTimeRecommendService.java:115) - ✅ 内容推荐题库预热完毕！成功加载 22 条历史数据。
+15:15:18.789 [restartedMain] INFO  cn.wyq.serverwebsocket.config.CacheInitRunner.initCache(CacheInitRunner.java:69) - 矩阵消息信息缓存成功
+15:15:18.789 [restartedMain] INFO  cn.wyq.serverwebsocket.config.CacheInitRunner.initCache(CacheInitRunner.java:78) - 3. 开始初始化并预热【布隆过滤器】...
+15:15:18.823 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: select id from user;
+15:15:18.824 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: 
+15:15:18.827 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 5
+15:15:18.922 [restartedMain] INFO  cn.wyq.serverwebsocket.config.CacheInitRunner.initCache(CacheInitRunner.java:92) - 布隆过滤器预热完成，共加载了 5 个安全用户 ID
+15:15:18.922 [restartedMain] INFO  cn.wyq.serverwebsocket.config.CacheInitRunner.initCache(CacheInitRunner.java:100) - 全局缓存预热流程执行结束
+15:15:18.923 [restartedMain] INFO  cn.wyq.serverwebsocket.ServerWebsocketApplication.main(ServerWebsocketApplication.java:25) - 当前时间：2026-04-24 15:15:18
+15:15:18.923 [restartedMain] INFO  cn.wyq.serverwebsocket.ServerWebsocketApplication.main(ServerWebsocketApplication.java:26) - server started
+15:20:34.921 [File Watcher] INFO  org.springframework.boot.devtools.autoconfigure.LocalDevToolsAutoConfiguration$RestartingClassPathChangeChangedEventListener.onApplicationEvent(LocalDevToolsAutoConfiguration.java:211) - Restarting due to 24 class path changes (0 additions, 0 deletions, 24 modifications)
+15:20:34.928 [Thread-12] INFO  org.apache.juli.logging.DirectJDKLog.log(DirectJDKLog.java:173) - Stopping ProtocolHandler ["http-nio-8000"]
+15:20:35.112 [Thread-12] INFO  com.zaxxer.hikari.HikariDataSource.close(HikariDataSource.java:349) - HikariPool-1 - Shutdown initiated...
+15:20:35.120 [Thread-12] INFO  com.zaxxer.hikari.HikariDataSource.close(HikariDataSource.java:351) - HikariPool-1 - Shutdown completed.
+15:20:35.230 [restartedMain] INFO  org.springframework.boot.StartupInfoLogger.logStarting(StartupInfoLogger.java:50) - Starting ServerWebsocketApplication using Java 17.0.8 with PID 1608 (D:\javawork\websocket\software-engineering\server-websocket\web\target\classes started by 24023 in D:\javawork\websocket\software-engineering\server-websocket)
+15:20:35.231 [restartedMain] INFO  org.springframework.boot.SpringApplication.logStartupProfileInfo(SpringApplication.java:654) - No active profile set, falling back to 1 default profile: "default"
+15:20:36.126 [restartedMain] INFO  org.springframework.data.repository.config.RepositoryConfigurationDelegate.multipleStoresDetected(RepositoryConfigurationDelegate.java:295) - Multiple Spring Data modules found, entering strict repository configuration mode
+15:20:36.126 [restartedMain] INFO  org.springframework.data.repository.config.RepositoryConfigurationDelegate.registerRepositoriesIn(RepositoryConfigurationDelegate.java:143) - Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+15:20:36.150 [restartedMain] INFO  org.springframework.data.repository.config.RepositoryConfigurationDelegate.registerRepositoriesIn(RepositoryConfigurationDelegate.java:211) - Finished Spring Data repository scanning in 24 ms. Found 0 Redis repository interfaces.
+15:20:36.334 [restartedMain] WARN  org.springframework.context.support.PostProcessorRegistrationDelegate$BeanPostProcessorChecker.postProcessAfterInitialization(PostProcessorRegistrationDelegate.java:437) - Bean 'redisConfig' of type [cn.wyq.serverwebsocket.config.RedisConfig$$SpringCGLIB$$0] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [meterRegistryPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.
+15:20:36.527 [restartedMain] INFO  org.springframework.boot.web.embedded.tomcat.TomcatWebServer.initialize(TomcatWebServer.java:111) - Tomcat initialized with port 8000 (http)
+15:20:36.528 [restartedMain] INFO  org.apache.juli.logging.DirectJDKLog.log(DirectJDKLog.java:173) - An older version [1.3.5] of the Apache Tomcat Native library is installed, while Tomcat recommends a minimum version of [2.0.5]
+15:20:36.528 [restartedMain] INFO  org.apache.juli.logging.DirectJDKLog.log(DirectJDKLog.java:173) - Loaded Apache Tomcat Native library [1.3.5] using APR version [1.7.6].
+15:20:36.529 [restartedMain] INFO  org.apache.juli.logging.DirectJDKLog.log(DirectJDKLog.java:173) - OpenSSL successfully initialized [OpenSSL 3.0.18 30 Sep 2025]
+15:20:36.529 [restartedMain] INFO  org.apache.juli.logging.DirectJDKLog.log(DirectJDKLog.java:173) - Initializing ProtocolHandler ["http-nio-8000"]
+15:20:36.529 [restartedMain] INFO  org.apache.juli.logging.DirectJDKLog.log(DirectJDKLog.java:173) - Starting service [Tomcat]
+15:20:36.529 [restartedMain] INFO  org.apache.juli.logging.DirectJDKLog.log(DirectJDKLog.java:173) - Starting Servlet engine: [Apache Tomcat/10.1.30]
+15:20:36.611 [restartedMain] INFO  org.apache.juli.logging.DirectJDKLog.log(DirectJDKLog.java:173) - Initializing Spring embedded WebApplicationContext
+15:20:36.611 [restartedMain] INFO  org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.prepareWebApplicationContext(ServletWebServerApplicationContext.java:296) - Root WebApplicationContext: initialization completed in 1377 ms
+15:20:37.015 [restartedMain] WARN  com.baomidou.mybatisplus.core.metadata.TableInfoHelper.initTableIdWithoutAnnotation(TableInfoHelper.java:544) - This primary key of "id" is primitive !不建议如此请使用包装类 in Class: "cn.wyq.serverwebsocket.pojo.User"
+15:20:37.028 [restartedMain] WARN  com.baomidou.mybatisplus.core.injector.AbstractMethod.addMappedStatement(AbstractMethod.java:407) - [cn.wyq.serverwebsocket.mapper.UserMapper.deleteById] Has been loaded by XML or SqlProvider or Mybatis's Annotation, so ignoring this injection for [class com.baomidou.mybatisplus.core.injector.methods.DeleteById]
+15:20:37.401 [restartedMain] INFO  org.redisson.Version.logVersion(Version.java:41) - Redisson 3.23.0
+15:20:37.446 [redisson-netty-7-6] INFO  org.redisson.connection.pool.ConnectionPool.lambda$createConnection$0(ConnectionPool.java:140) - 1 connections initialized for localhost/127.0.0.1:6379
+15:20:37.490 [redisson-netty-7-20] INFO  org.redisson.connection.pool.ConnectionPool.lambda$createConnection$0(ConnectionPool.java:140) - 24 connections initialized for localhost/127.0.0.1:6379
+15:20:37.966 [restartedMain] INFO  cn.wyq.serverwebsocket.config.KnowledgeDataLoader.init(KnowledgeDataLoader.java:33) - 🔍 准备操作缓存文件，它的真实物理路径是: D:\javawork\websocket\software-engineering\server-websocket\web\src\main\resources\static\dataset\mecha_vector_cache.json
+15:20:37.967 [restartedMain] INFO  cn.wyq.serverwebsocket.config.KnowledgeDataLoader.init(KnowledgeDataLoader.java:45) - ⚡ 发现本地机甲知识库缓存文件，正在从 web/src/main/resources/static/dataset/mecha_vector_cache.json 光速加载...
+15:20:38.587 [restartedMain] INFO  cn.wyq.serverwebsocket.config.KnowledgeDataLoader.init(KnowledgeDataLoader.java:47) - ✅ 缓存加载完毕！启动耗时缩短 99%！
+15:20:38.684 [restartedMain] INFO  cn.wyq.serverwebsocket.config.CommonConfiguration.customChatMemory(CommonConfiguration.java:36) - 【系统加载】启动 Spring AI M8 官方正式版 JDBC 记忆引擎 (自定义窗口版)！
+15:20:38.687 [restartedMain] INFO  cn.wyq.serverwebsocket.config.CommonConfiguration.girlfriendChatClient(CommonConfiguration.java:55) - 【系统加载】启动仿真女友（Azure GPT-4o 驱动版）装载完毕！
+15:20:38.690 [restartedMain] INFO  cn.wyq.serverwebsocket.config.CommonConfiguration.serviceChatClient(CommonConfiguration.java:71) - 【系统加载】启动全能数据管家（Azure GPT-4o 驱动版），装载数据库查询工具！
+15:20:39.131 [restartedMain] INFO  cn.wyq.serverwebsocket.config.WebConfig.extendMessageConverters(WebConfig.java:118) - 扩展消息转换器：应用 JacksonObjectMapper 统一日期格式
+15:20:39.949 [restartedMain] INFO  org.springframework.boot.devtools.autoconfigure.OptionalLiveReloadServer.startServer(OptionalLiveReloadServer.java:59) - LiveReload server is running on port 35729
+15:20:39.959 [restartedMain] INFO  org.springframework.boot.actuate.endpoint.web.EndpointLinksResolver.<init>(EndpointLinksResolver.java:60) - Exposing 1 endpoint beneath base path '/actuator'
+15:20:40.009 [restartedMain] INFO  org.apache.juli.logging.DirectJDKLog.log(DirectJDKLog.java:173) - Starting ProtocolHandler ["http-nio-8000"]
+15:20:40.012 [restartedMain] INFO  org.springframework.boot.web.embedded.tomcat.TomcatWebServer.start(TomcatWebServer.java:243) - Tomcat started on port 8000 (http) with context path '/'
+15:20:40.021 [restartedMain] INFO  org.springframework.boot.StartupInfoLogger.logStarted(StartupInfoLogger.java:56) - Started ServerWebsocketApplication in 4.837 seconds (process running for 342.293)
+15:20:40.024 [restartedMain] INFO  org.springframework.boot.devtools.autoconfigure.ConditionEvaluationDeltaLoggingListener.onApplicationEvent(ConditionEvaluationDeltaLoggingListener.java:63) - Condition evaluation unchanged
+15:20:40.024 [restartedMain] INFO  cn.wyq.serverwebsocket.config.CacheInitRunner.initCache(CacheInitRunner.java:47) - 项目启动成功，开始执行全局缓存预热
+15:20:40.024 [restartedMain] INFO  cn.wyq.serverwebsocket.config.CacheInitRunner.initCache(CacheInitRunner.java:53) - 1. 开始缓存管理页面用户信息和消息记录信息...
+15:20:40.026 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource.getConnection(HikariDataSource.java:109) - HikariPool-2 - Starting...
+15:20:40.033 [restartedMain] INFO  com.zaxxer.hikari.pool.HikariPool.checkFailFast(HikariPool.java:554) - HikariPool-2 - Added connection com.mysql.cj.jdbc.ConnectionImpl@60301486
+15:20:40.034 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource.getConnection(HikariDataSource.java:122) - HikariPool-2 - Start completed.
+15:20:40.034 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: SELECT count(0) FROM message
+15:20:40.034 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: 
+15:20:40.036 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 1
+15:20:40.037 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: select id, message, from_name, to_name, send_at from message LIMIT ?
+15:20:40.037 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: 9(Integer)
+15:20:40.038 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 9
+15:20:40.041 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: SELECT count(0) FROM user WHERE status = '1'
+15:20:40.041 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: 
+15:20:40.042 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 1
+15:20:40.042 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: SELECT id, user_name, password,email, path, role FROM user WHERE status='1' ORDER BY id DESC LIMIT ?
+15:20:40.043 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: 9(Integer)
+15:20:40.043 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 5
+15:20:40.044 [restartedMain] INFO  cn.wyq.serverwebsocket.config.CacheInitRunner.initCache(CacheInitRunner.java:58) - 基础业务数据缓存成功
+15:20:40.044 [restartedMain] INFO  cn.wyq.serverwebsocket.config.CacheInitRunner.initCache(CacheInitRunner.java:67) - 2. 开始缓存 AI 对话页面矩阵消息信息...
+15:20:40.044 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: select * from message_intention ORDER BY create_time ASC;
+15:20:40.044 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: 
+15:20:40.048 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 22
+15:20:40.053 [restartedMain] INFO  cn.wyq.serverwebsocket.service.RealTimeRecommendService.rebuildCacheIfEmpty(RealTimeRecommendService.java:115) - ✅ 内容推荐题库预热完毕！成功加载 22 条历史数据。
+15:20:40.053 [restartedMain] INFO  cn.wyq.serverwebsocket.config.CacheInitRunner.initCache(CacheInitRunner.java:69) - 矩阵消息信息缓存成功
+15:20:40.053 [restartedMain] INFO  cn.wyq.serverwebsocket.config.CacheInitRunner.initCache(CacheInitRunner.java:78) - 3. 开始初始化并预热【布隆过滤器】...
+15:20:40.056 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: select id from user;
+15:20:40.056 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: 
+15:20:40.057 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 5
+15:20:40.060 [restartedMain] INFO  cn.wyq.serverwebsocket.config.CacheInitRunner.initCache(CacheInitRunner.java:92) - 布隆过滤器预热完成，共加载了 5 个安全用户 ID
+15:20:40.060 [restartedMain] INFO  cn.wyq.serverwebsocket.config.CacheInitRunner.initCache(CacheInitRunner.java:100) - 全局缓存预热流程执行结束
+15:20:40.061 [restartedMain] INFO  cn.wyq.serverwebsocket.ServerWebsocketApplication.main(ServerWebsocketApplication.java:25) - 当前时间：2026-04-24 15:20:40
+15:20:40.061 [restartedMain] INFO  cn.wyq.serverwebsocket.ServerWebsocketApplication.main(ServerWebsocketApplication.java:26) - server started
+15:20:41.566 [File Watcher] INFO  org.springframework.boot.devtools.autoconfigure.LocalDevToolsAutoConfiguration$RestartingClassPathChangeChangedEventListener.onApplicationEvent(LocalDevToolsAutoConfiguration.java:211) - Restarting due to 71 class path changes (0 additions, 0 deletions, 71 modifications)
+15:20:41.568 [Thread-14] INFO  org.apache.juli.logging.DirectJDKLog.log(DirectJDKLog.java:173) - Stopping ProtocolHandler ["http-nio-8000"]
+15:20:41.674 [Thread-14] INFO  com.zaxxer.hikari.HikariDataSource.close(HikariDataSource.java:349) - HikariPool-2 - Shutdown initiated...
+15:20:41.677 [Thread-14] INFO  com.zaxxer.hikari.HikariDataSource.close(HikariDataSource.java:351) - HikariPool-2 - Shutdown completed.
+15:20:41.786 [restartedMain] INFO  org.springframework.boot.StartupInfoLogger.logStarting(StartupInfoLogger.java:50) - Starting ServerWebsocketApplication using Java 17.0.8 with PID 1608 (D:\javawork\websocket\software-engineering\server-websocket\web\target\classes started by 24023 in D:\javawork\websocket\software-engineering\server-websocket)
+15:20:41.787 [restartedMain] INFO  org.springframework.boot.SpringApplication.logStartupProfileInfo(SpringApplication.java:654) - No active profile set, falling back to 1 default profile: "default"
+15:20:42.704 [restartedMain] INFO  org.springframework.data.repository.config.RepositoryConfigurationDelegate.multipleStoresDetected(RepositoryConfigurationDelegate.java:295) - Multiple Spring Data modules found, entering strict repository configuration mode
+15:20:42.705 [restartedMain] INFO  org.springframework.data.repository.config.RepositoryConfigurationDelegate.registerRepositoriesIn(RepositoryConfigurationDelegate.java:143) - Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+15:20:42.728 [restartedMain] INFO  org.springframework.data.repository.config.RepositoryConfigurationDelegate.registerRepositoriesIn(RepositoryConfigurationDelegate.java:211) - Finished Spring Data repository scanning in 23 ms. Found 0 Redis repository interfaces.
+15:20:42.860 [restartedMain] WARN  org.springframework.context.support.PostProcessorRegistrationDelegate$BeanPostProcessorChecker.postProcessAfterInitialization(PostProcessorRegistrationDelegate.java:437) - Bean 'redisConfig' of type [cn.wyq.serverwebsocket.config.RedisConfig$$SpringCGLIB$$0] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [meterRegistryPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.
+15:20:43.055 [restartedMain] INFO  org.springframework.boot.web.embedded.tomcat.TomcatWebServer.initialize(TomcatWebServer.java:111) - Tomcat initialized with port 8000 (http)
+15:20:43.056 [restartedMain] INFO  org.apache.juli.logging.DirectJDKLog.log(DirectJDKLog.java:173) - An older version [1.3.5] of the Apache Tomcat Native library is installed, while Tomcat recommends a minimum version of [2.0.5]
+15:20:43.056 [restartedMain] INFO  org.apache.juli.logging.DirectJDKLog.log(DirectJDKLog.java:173) - Loaded Apache Tomcat Native library [1.3.5] using APR version [1.7.6].
+15:20:43.056 [restartedMain] INFO  org.apache.juli.logging.DirectJDKLog.log(DirectJDKLog.java:173) - OpenSSL successfully initialized [OpenSSL 3.0.18 30 Sep 2025]
+15:20:43.056 [restartedMain] INFO  org.apache.juli.logging.DirectJDKLog.log(DirectJDKLog.java:173) - Initializing ProtocolHandler ["http-nio-8000"]
+15:20:43.057 [restartedMain] INFO  org.apache.juli.logging.DirectJDKLog.log(DirectJDKLog.java:173) - Starting service [Tomcat]
+15:20:43.057 [restartedMain] INFO  org.apache.juli.logging.DirectJDKLog.log(DirectJDKLog.java:173) - Starting Servlet engine: [Apache Tomcat/10.1.30]
+15:20:43.125 [restartedMain] INFO  org.apache.juli.logging.DirectJDKLog.log(DirectJDKLog.java:173) - Initializing Spring embedded WebApplicationContext
+15:20:43.125 [restartedMain] INFO  org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.prepareWebApplicationContext(ServletWebServerApplicationContext.java:296) - Root WebApplicationContext: initialization completed in 1336 ms
+15:20:43.525 [restartedMain] WARN  com.baomidou.mybatisplus.core.metadata.TableInfoHelper.initTableIdWithoutAnnotation(TableInfoHelper.java:544) - This primary key of "id" is primitive !不建议如此请使用包装类 in Class: "cn.wyq.serverwebsocket.pojo.User"
+15:20:43.541 [restartedMain] WARN  com.baomidou.mybatisplus.core.injector.AbstractMethod.addMappedStatement(AbstractMethod.java:407) - [cn.wyq.serverwebsocket.mapper.UserMapper.deleteById] Has been loaded by XML or SqlProvider or Mybatis's Annotation, so ignoring this injection for [class com.baomidou.mybatisplus.core.injector.methods.DeleteById]
+15:20:43.918 [restartedMain] INFO  org.redisson.Version.logVersion(Version.java:41) - Redisson 3.23.0
+15:20:43.970 [redisson-netty-12-6] INFO  org.redisson.connection.pool.ConnectionPool.lambda$createConnection$0(ConnectionPool.java:140) - 1 connections initialized for localhost/127.0.0.1:6379
+15:20:44.013 [redisson-netty-12-20] INFO  org.redisson.connection.pool.ConnectionPool.lambda$createConnection$0(ConnectionPool.java:140) - 24 connections initialized for localhost/127.0.0.1:6379
+15:20:44.528 [restartedMain] INFO  cn.wyq.serverwebsocket.config.KnowledgeDataLoader.init(KnowledgeDataLoader.java:33) - 🔍 准备操作缓存文件，它的真实物理路径是: D:\javawork\websocket\software-engineering\server-websocket\web\src\main\resources\static\dataset\mecha_vector_cache.json
+15:20:44.529 [restartedMain] INFO  cn.wyq.serverwebsocket.config.KnowledgeDataLoader.init(KnowledgeDataLoader.java:45) - ⚡ 发现本地机甲知识库缓存文件，正在从 web/src/main/resources/static/dataset/mecha_vector_cache.json 光速加载...
+15:20:45.186 [restartedMain] INFO  cn.wyq.serverwebsocket.config.KnowledgeDataLoader.init(KnowledgeDataLoader.java:47) - ✅ 缓存加载完毕！启动耗时缩短 99%！
+15:20:45.282 [restartedMain] INFO  cn.wyq.serverwebsocket.config.CommonConfiguration.customChatMemory(CommonConfiguration.java:36) - 【系统加载】启动 Spring AI M8 官方正式版 JDBC 记忆引擎 (自定义窗口版)！
+15:20:45.284 [restartedMain] INFO  cn.wyq.serverwebsocket.config.CommonConfiguration.girlfriendChatClient(CommonConfiguration.java:55) - 【系统加载】启动仿真女友（Azure GPT-4o 驱动版）装载完毕！
+15:20:45.287 [restartedMain] INFO  cn.wyq.serverwebsocket.config.CommonConfiguration.serviceChatClient(CommonConfiguration.java:71) - 【系统加载】启动全能数据管家（Azure GPT-4o 驱动版），装载数据库查询工具！
+15:20:45.816 [restartedMain] INFO  cn.wyq.serverwebsocket.config.WebConfig.extendMessageConverters(WebConfig.java:118) - 扩展消息转换器：应用 JacksonObjectMapper 统一日期格式
+15:20:47.137 [restartedMain] INFO  org.springframework.boot.devtools.autoconfigure.OptionalLiveReloadServer.startServer(OptionalLiveReloadServer.java:59) - LiveReload server is running on port 35729
+15:20:47.144 [restartedMain] INFO  org.springframework.boot.actuate.endpoint.web.EndpointLinksResolver.<init>(EndpointLinksResolver.java:60) - Exposing 1 endpoint beneath base path '/actuator'
+15:20:47.197 [restartedMain] INFO  org.apache.juli.logging.DirectJDKLog.log(DirectJDKLog.java:173) - Starting ProtocolHandler ["http-nio-8000"]
+15:20:47.199 [restartedMain] INFO  org.springframework.boot.web.embedded.tomcat.TomcatWebServer.start(TomcatWebServer.java:243) - Tomcat started on port 8000 (http) with context path '/'
+15:20:47.209 [restartedMain] INFO  org.springframework.boot.StartupInfoLogger.logStarted(StartupInfoLogger.java:56) - Started ServerWebsocketApplication in 5.466 seconds (process running for 349.48)
+15:20:47.211 [restartedMain] INFO  org.springframework.boot.devtools.autoconfigure.ConditionEvaluationDeltaLoggingListener.onApplicationEvent(ConditionEvaluationDeltaLoggingListener.java:63) - Condition evaluation unchanged
+15:20:47.211 [restartedMain] INFO  cn.wyq.serverwebsocket.config.CacheInitRunner.initCache(CacheInitRunner.java:47) - 项目启动成功，开始执行全局缓存预热
+15:20:47.211 [restartedMain] INFO  cn.wyq.serverwebsocket.config.CacheInitRunner.initCache(CacheInitRunner.java:53) - 1. 开始缓存管理页面用户信息和消息记录信息...
+15:20:47.214 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource.getConnection(HikariDataSource.java:109) - HikariPool-3 - Starting...
+15:20:47.217 [restartedMain] INFO  com.zaxxer.hikari.pool.HikariPool.checkFailFast(HikariPool.java:554) - HikariPool-3 - Added connection com.mysql.cj.jdbc.ConnectionImpl@30909d35
+15:20:47.218 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource.getConnection(HikariDataSource.java:122) - HikariPool-3 - Start completed.
+15:20:47.218 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: SELECT count(0) FROM message
+15:20:47.218 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: 
+15:20:47.220 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 1
+15:20:47.220 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: select id, message, from_name, to_name, send_at from message LIMIT ?
+15:20:47.221 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: 9(Integer)
+15:20:47.222 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 9
+15:20:47.225 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: SELECT count(0) FROM user WHERE status = '1'
+15:20:47.225 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: 
+15:20:47.226 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 1
+15:20:47.227 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: SELECT id, user_name, password,email, path, role FROM user WHERE status='1' ORDER BY id DESC LIMIT ?
+15:20:47.228 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: 9(Integer)
+15:20:47.229 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 5
+15:20:47.229 [restartedMain] INFO  cn.wyq.serverwebsocket.config.CacheInitRunner.initCache(CacheInitRunner.java:58) - 基础业务数据缓存成功
+15:20:47.230 [restartedMain] INFO  cn.wyq.serverwebsocket.config.CacheInitRunner.initCache(CacheInitRunner.java:67) - 2. 开始缓存 AI 对话页面矩阵消息信息...
+15:20:47.230 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: select * from message_intention ORDER BY create_time ASC;
+15:20:47.230 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: 
+15:20:47.233 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 22
+15:20:47.238 [restartedMain] INFO  cn.wyq.serverwebsocket.service.RealTimeRecommendService.rebuildCacheIfEmpty(RealTimeRecommendService.java:115) - ✅ 内容推荐题库预热完毕！成功加载 22 条历史数据。
+15:20:47.238 [restartedMain] INFO  cn.wyq.serverwebsocket.config.CacheInitRunner.initCache(CacheInitRunner.java:69) - 矩阵消息信息缓存成功
+15:20:47.238 [restartedMain] INFO  cn.wyq.serverwebsocket.config.CacheInitRunner.initCache(CacheInitRunner.java:78) - 3. 开始初始化并预热【布隆过滤器】...
+15:20:47.239 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: select id from user;
+15:20:47.239 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: 
+15:20:47.240 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 5
+15:20:47.244 [restartedMain] INFO  cn.wyq.serverwebsocket.config.CacheInitRunner.initCache(CacheInitRunner.java:92) - 布隆过滤器预热完成，共加载了 5 个安全用户 ID
+15:20:47.244 [restartedMain] INFO  cn.wyq.serverwebsocket.config.CacheInitRunner.initCache(CacheInitRunner.java:100) - 全局缓存预热流程执行结束
+15:20:47.244 [restartedMain] INFO  cn.wyq.serverwebsocket.ServerWebsocketApplication.main(ServerWebsocketApplication.java:25) - 当前时间：2026-04-24 15:20:47
+15:20:47.245 [restartedMain] INFO  cn.wyq.serverwebsocket.ServerWebsocketApplication.main(ServerWebsocketApplication.java:26) - server started
+15:20:48.672 [File Watcher] INFO  org.springframework.boot.devtools.autoconfigure.LocalDevToolsAutoConfiguration$RestartingClassPathChangeChangedEventListener.onApplicationEvent(LocalDevToolsAutoConfiguration.java:211) - Restarting due to 78 class path changes (0 additions, 0 deletions, 78 modifications)
+15:20:48.674 [Thread-24] INFO  org.apache.juli.logging.DirectJDKLog.log(DirectJDKLog.java:173) - Stopping ProtocolHandler ["http-nio-8000"]
+15:20:48.780 [Thread-24] INFO  com.zaxxer.hikari.HikariDataSource.close(HikariDataSource.java:349) - HikariPool-3 - Shutdown initiated...
+15:20:48.784 [Thread-24] INFO  com.zaxxer.hikari.HikariDataSource.close(HikariDataSource.java:351) - HikariPool-3 - Shutdown completed.
+15:20:48.883 [restartedMain] INFO  org.springframework.boot.StartupInfoLogger.logStarting(StartupInfoLogger.java:50) - Starting ServerWebsocketApplication using Java 17.0.8 with PID 1608 (D:\javawork\websocket\software-engineering\server-websocket\web\target\classes started by 24023 in D:\javawork\websocket\software-engineering\server-websocket)
+15:20:48.884 [restartedMain] INFO  org.springframework.boot.SpringApplication.logStartupProfileInfo(SpringApplication.java:654) - No active profile set, falling back to 1 default profile: "default"
+15:20:49.557 [restartedMain] INFO  org.springframework.data.repository.config.RepositoryConfigurationDelegate.multipleStoresDetected(RepositoryConfigurationDelegate.java:295) - Multiple Spring Data modules found, entering strict repository configuration mode
+15:20:49.557 [restartedMain] INFO  org.springframework.data.repository.config.RepositoryConfigurationDelegate.registerRepositoriesIn(RepositoryConfigurationDelegate.java:143) - Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+15:20:49.576 [restartedMain] INFO  org.springframework.data.repository.config.RepositoryConfigurationDelegate.registerRepositoriesIn(RepositoryConfigurationDelegate.java:211) - Finished Spring Data repository scanning in 18 ms. Found 0 Redis repository interfaces.
+15:20:49.697 [restartedMain] WARN  org.springframework.context.support.PostProcessorRegistrationDelegate$BeanPostProcessorChecker.postProcessAfterInitialization(PostProcessorRegistrationDelegate.java:437) - Bean 'redisConfig' of type [cn.wyq.serverwebsocket.config.RedisConfig$$SpringCGLIB$$0] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [meterRegistryPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.
+15:20:49.987 [restartedMain] INFO  org.springframework.boot.web.embedded.tomcat.TomcatWebServer.initialize(TomcatWebServer.java:111) - Tomcat initialized with port 8000 (http)
+15:20:49.988 [restartedMain] INFO  org.apache.juli.logging.DirectJDKLog.log(DirectJDKLog.java:173) - An older version [1.3.5] of the Apache Tomcat Native library is installed, while Tomcat recommends a minimum version of [2.0.5]
+15:20:49.988 [restartedMain] INFO  org.apache.juli.logging.DirectJDKLog.log(DirectJDKLog.java:173) - Loaded Apache Tomcat Native library [1.3.5] using APR version [1.7.6].
+15:20:49.988 [restartedMain] INFO  org.apache.juli.logging.DirectJDKLog.log(DirectJDKLog.java:173) - OpenSSL successfully initialized [OpenSSL 3.0.18 30 Sep 2025]
+15:20:49.988 [restartedMain] INFO  org.apache.juli.logging.DirectJDKLog.log(DirectJDKLog.java:173) - Initializing ProtocolHandler ["http-nio-8000"]
+15:20:49.989 [restartedMain] INFO  org.apache.juli.logging.DirectJDKLog.log(DirectJDKLog.java:173) - Starting service [Tomcat]
+15:20:49.989 [restartedMain] INFO  org.apache.juli.logging.DirectJDKLog.log(DirectJDKLog.java:173) - Starting Servlet engine: [Apache Tomcat/10.1.30]
+15:20:50.078 [restartedMain] INFO  org.apache.juli.logging.DirectJDKLog.log(DirectJDKLog.java:173) - Initializing Spring embedded WebApplicationContext
+15:20:50.078 [restartedMain] INFO  org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.prepareWebApplicationContext(ServletWebServerApplicationContext.java:296) - Root WebApplicationContext: initialization completed in 1192 ms
+15:20:50.446 [restartedMain] WARN  com.baomidou.mybatisplus.core.metadata.TableInfoHelper.initTableIdWithoutAnnotation(TableInfoHelper.java:544) - This primary key of "id" is primitive !不建议如此请使用包装类 in Class: "cn.wyq.serverwebsocket.pojo.User"
+15:20:50.454 [restartedMain] WARN  com.baomidou.mybatisplus.core.injector.AbstractMethod.addMappedStatement(AbstractMethod.java:407) - [cn.wyq.serverwebsocket.mapper.UserMapper.deleteById] Has been loaded by XML or SqlProvider or Mybatis's Annotation, so ignoring this injection for [class com.baomidou.mybatisplus.core.injector.methods.DeleteById]
+15:20:50.793 [restartedMain] INFO  org.redisson.Version.logVersion(Version.java:41) - Redisson 3.23.0
+15:20:50.830 [redisson-netty-17-6] INFO  org.redisson.connection.pool.ConnectionPool.lambda$createConnection$0(ConnectionPool.java:140) - 1 connections initialized for localhost/127.0.0.1:6379
+15:20:50.887 [redisson-netty-17-20] INFO  org.redisson.connection.pool.ConnectionPool.lambda$createConnection$0(ConnectionPool.java:140) - 24 connections initialized for localhost/127.0.0.1:6379
+15:20:51.407 [restartedMain] INFO  cn.wyq.serverwebsocket.config.KnowledgeDataLoader.init(KnowledgeDataLoader.java:33) - 🔍 准备操作缓存文件，它的真实物理路径是: D:\javawork\websocket\software-engineering\server-websocket\web\src\main\resources\static\dataset\mecha_vector_cache.json
+15:20:51.407 [restartedMain] INFO  cn.wyq.serverwebsocket.config.KnowledgeDataLoader.init(KnowledgeDataLoader.java:45) - ⚡ 发现本地机甲知识库缓存文件，正在从 web/src/main/resources/static/dataset/mecha_vector_cache.json 光速加载...
+15:20:53.145 [restartedMain] INFO  cn.wyq.serverwebsocket.config.KnowledgeDataLoader.init(KnowledgeDataLoader.java:47) - ✅ 缓存加载完毕！启动耗时缩短 99%！
+15:20:53.488 [restartedMain] INFO  cn.wyq.serverwebsocket.config.CommonConfiguration.customChatMemory(CommonConfiguration.java:36) - 【系统加载】启动 Spring AI M8 官方正式版 JDBC 记忆引擎 (自定义窗口版)！
+15:20:53.496 [restartedMain] INFO  cn.wyq.serverwebsocket.config.CommonConfiguration.girlfriendChatClient(CommonConfiguration.java:55) - 【系统加载】启动仿真女友（Azure GPT-4o 驱动版）装载完毕！
+15:20:53.504 [restartedMain] INFO  cn.wyq.serverwebsocket.config.CommonConfiguration.serviceChatClient(CommonConfiguration.java:71) - 【系统加载】启动全能数据管家（Azure GPT-4o 驱动版），装载数据库查询工具！
+15:20:54.686 [restartedMain] INFO  cn.wyq.serverwebsocket.config.WebConfig.extendMessageConverters(WebConfig.java:118) - 扩展消息转换器：应用 JacksonObjectMapper 统一日期格式
+15:20:55.753 [restartedMain] INFO  org.springframework.boot.devtools.autoconfigure.OptionalLiveReloadServer.startServer(OptionalLiveReloadServer.java:59) - LiveReload server is running on port 35729
+15:20:55.762 [restartedMain] INFO  org.springframework.boot.actuate.endpoint.web.EndpointLinksResolver.<init>(EndpointLinksResolver.java:60) - Exposing 1 endpoint beneath base path '/actuator'
+15:20:55.808 [restartedMain] INFO  org.apache.juli.logging.DirectJDKLog.log(DirectJDKLog.java:173) - Starting ProtocolHandler ["http-nio-8000"]
+15:20:55.810 [restartedMain] INFO  org.springframework.boot.web.embedded.tomcat.TomcatWebServer.start(TomcatWebServer.java:243) - Tomcat started on port 8000 (http) with context path '/'
+15:20:55.820 [restartedMain] INFO  org.springframework.boot.StartupInfoLogger.logStarted(StartupInfoLogger.java:56) - Started ServerWebsocketApplication in 6.976 seconds (process running for 358.091)
+15:20:55.822 [restartedMain] INFO  org.springframework.boot.devtools.autoconfigure.ConditionEvaluationDeltaLoggingListener.onApplicationEvent(ConditionEvaluationDeltaLoggingListener.java:63) - Condition evaluation unchanged
+15:20:55.822 [restartedMain] INFO  cn.wyq.serverwebsocket.config.CacheInitRunner.initCache(CacheInitRunner.java:47) - 项目启动成功，开始执行全局缓存预热
+15:20:55.822 [restartedMain] INFO  cn.wyq.serverwebsocket.config.CacheInitRunner.initCache(CacheInitRunner.java:53) - 1. 开始缓存管理页面用户信息和消息记录信息...
+15:20:55.826 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource.getConnection(HikariDataSource.java:109) - HikariPool-4 - Starting...
+15:20:55.829 [restartedMain] INFO  com.zaxxer.hikari.pool.HikariPool.checkFailFast(HikariPool.java:554) - HikariPool-4 - Added connection com.mysql.cj.jdbc.ConnectionImpl@15fbfa81
+15:20:55.830 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource.getConnection(HikariDataSource.java:122) - HikariPool-4 - Start completed.
+15:20:55.830 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: SELECT count(0) FROM message
+15:20:55.830 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: 
+15:20:55.831 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 1
+15:20:55.832 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: select id, message, from_name, to_name, send_at from message LIMIT ?
+15:20:55.832 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: 9(Integer)
+15:20:55.833 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 9
+15:20:55.836 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: SELECT count(0) FROM user WHERE status = '1'
+15:20:55.836 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: 
+15:20:55.837 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 1
+15:20:55.837 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: SELECT id, user_name, password,email, path, role FROM user WHERE status='1' ORDER BY id DESC LIMIT ?
+15:20:55.837 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: 9(Integer)
+15:20:55.838 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 5
+15:20:55.838 [restartedMain] INFO  cn.wyq.serverwebsocket.config.CacheInitRunner.initCache(CacheInitRunner.java:58) - 基础业务数据缓存成功
+15:20:55.839 [restartedMain] INFO  cn.wyq.serverwebsocket.config.CacheInitRunner.initCache(CacheInitRunner.java:67) - 2. 开始缓存 AI 对话页面矩阵消息信息...
+15:20:55.839 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: select * from message_intention ORDER BY create_time ASC;
+15:20:55.839 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: 
+15:20:55.841 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 22
+15:20:55.846 [restartedMain] INFO  cn.wyq.serverwebsocket.service.RealTimeRecommendService.rebuildCacheIfEmpty(RealTimeRecommendService.java:115) - ✅ 内容推荐题库预热完毕！成功加载 22 条历史数据。
+15:20:55.846 [restartedMain] INFO  cn.wyq.serverwebsocket.config.CacheInitRunner.initCache(CacheInitRunner.java:69) - 矩阵消息信息缓存成功
+15:20:55.846 [restartedMain] INFO  cn.wyq.serverwebsocket.config.CacheInitRunner.initCache(CacheInitRunner.java:78) - 3. 开始初始化并预热【布隆过滤器】...
+15:20:55.847 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: select id from user;
+15:20:55.847 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: 
+15:20:55.848 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 5
+15:20:55.852 [restartedMain] INFO  cn.wyq.serverwebsocket.config.CacheInitRunner.initCache(CacheInitRunner.java:92) - 布隆过滤器预热完成，共加载了 5 个安全用户 ID
+15:20:55.852 [restartedMain] INFO  cn.wyq.serverwebsocket.config.CacheInitRunner.initCache(CacheInitRunner.java:100) - 全局缓存预热流程执行结束
+15:20:55.853 [restartedMain] INFO  cn.wyq.serverwebsocket.ServerWebsocketApplication.main(ServerWebsocketApplication.java:25) - 当前时间：2026-04-24 15:20:55
+15:20:55.853 [restartedMain] INFO  cn.wyq.serverwebsocket.ServerWebsocketApplication.main(ServerWebsocketApplication.java:26) - server started
+15:22:15.131 [http-nio-8000-exec-1] INFO  org.apache.juli.logging.DirectJDKLog.log(DirectJDKLog.java:173) - Initializing Spring DispatcherServlet 'dispatcherServlet'
+15:22:15.131 [http-nio-8000-exec-1] INFO  org.springframework.web.servlet.FrameworkServlet.initServletBean(FrameworkServlet.java:532) - Initializing Servlet 'dispatcherServlet'
+15:22:15.133 [http-nio-8000-exec-1] INFO  org.springframework.web.servlet.FrameworkServlet.initServletBean(FrameworkServlet.java:554) - Completed initialization in 2 ms
+15:22:15.226 [http-nio-8000-exec-1] INFO  cn.wyq.serverwebsocket.controller.UserController.getPath(UserController.java:155) - 请求获取指定用户的头像路径，目标用户名: admin
+15:22:15.228 [http-nio-8000-exec-1] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: select path from user where user_name = ?
+15:22:15.228 [http-nio-8000-exec-1] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: admin(String)
+15:22:15.231 [http-nio-8000-exec-1] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 1
+15:22:16.181 [http-nio-8000-exec-2] INFO  cn.wyq.serverwebsocket.controller.UserController.login(UserController.java:96) - 请求用户登录，尝试登录账号信息: User(id=0, userName=admin, password=123456, path=http://localhost:8000/file/3fc5c48acd804d3291513e1db10b1172.png, role=0, token=null)
+15:22:16.184 [http-nio-8000-exec-2] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: select * from user where user_name = ?
+15:22:16.184 [http-nio-8000-exec-2] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: admin(String)
+15:22:16.185 [http-nio-8000-exec-2] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 1
+15:22:16.267 [http-nio-8000-exec-2] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: select email from user where user_name = ?;
+15:22:16.268 [http-nio-8000-exec-2] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: admin(String)
+15:22:16.268 [http-nio-8000-exec-2] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 1
+15:22:16.288 [http-nio-8000-exec-2] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: select friend_name from friend where user_name=?;
+15:22:16.288 [http-nio-8000-exec-2] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: admin(String)
+15:22:16.294 [http-nio-8000-exec-2] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 0
+15:22:16.395 [http-nio-8000-exec-3] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: SELECT * FROM user WHERE status = 0
+15:22:16.395 [http-nio-8000-exec-3] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: 
+15:22:16.396 [http-nio-8000-exec-3] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 0
+15:22:16.400 [http-nio-8000-exec-10] INFO  cn.wyq.serverwebsocket.controller.MessageStatsController.getTodayActiveUsersAndMessageCount(MessageStatsController.java:39) - 请求统计活跃用户：时间范围 [2026-01-24 ~ 2026-04-24]
+15:22:16.400 [http-nio-8000-exec-1] INFO  cn.wyq.serverwebsocket.controller.MessageStatsController.getRencetSevenDayUsersAndMessageCount(MessageStatsController.java:55) - 请求统计近段时间发送趋势：时间范围 [2026-01-24 ~ 2026-04-24]
+15:22:16.400 [http-nio-8000-exec-4] INFO  cn.wyq.serverwebsocket.controller.MessageStatsController.getActiveUsersAndMessages(MessageStatsController.java:71) - 请求查询活跃用户及消息详情：时间范围 [2026-01-24 ~ 2026-04-24]
+15:22:16.402 [http-nio-8000-exec-1] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: SELECT DATE (m.send_at) AS sendAt, m.from_name AS userName, COUNT(m.id) AS messageCount FROM message m WHERE m.send_at BETWEEN ? AND ? GROUP BY DATE (m.send_at), m.from_name ORDER BY sendAt ASC, messageCount DESC;
+15:22:16.403 [http-nio-8000-exec-4] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: SELECT DATE (send_at) AS sendAt, COUNT(*) AS messageCount, COUNT(DISTINCT from_name) AS userCount FROM message WHERE send_at BETWEEN ? AND ? GROUP BY DATE (send_at) ORDER BY DATE (send_at);
+15:22:16.403 [http-nio-8000-exec-10] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: SELECT m.from_name AS userName, COUNT(m.id) AS messageCount, u.path AS path FROM user u Inner JOIN message m ON m.from_name = u.user_name AND m.send_at BETWEEN ? AND ? GROUP BY m.from_name, u.path ORDER BY messageCount DESC;
+15:22:16.403 [http-nio-8000-exec-1] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: 2026-01-25(LocalDate), 2026-04-25(LocalDate)
+15:22:16.403 [http-nio-8000-exec-4] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: 2026-01-25(LocalDate), 2026-04-25(LocalDate)
+15:22:16.403 [http-nio-8000-exec-10] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: 2026-01-25(LocalDate), 2026-04-25(LocalDate)
+15:22:16.415 [http-nio-8000-exec-10] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 2
+15:22:16.419 [http-nio-8000-exec-4] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 82
+15:22:16.419 [http-nio-8000-exec-1] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 84
+15:22:16.426 [http-nio-8000-exec-2] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: SELECT id,config_key,config_value,config_name,remark,create_time,update_time FROM sys_config
+15:22:16.427 [http-nio-8000-exec-2] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: 
+15:22:16.437 [http-nio-8000-exec-2] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 6
+15:22:24.315 [http-nio-8000-exec-5] INFO  cn.wyq.serverwebsocket.controller.MessageController.list(MessageController.java:95) - 请求分页查询消息，分页条件 payload: MessageQueryDTO(page=1, pageSize=7, id=null, message=, fromName=, toName=, sendAtStart=null, sendAtEnd=null)
+15:22:24.319 [http-nio-8000-exec-5] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: SELECT count(0) FROM message
+15:22:24.320 [http-nio-8000-exec-5] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: 
+15:22:24.321 [http-nio-8000-exec-5] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 1
+15:22:24.322 [http-nio-8000-exec-5] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: select id, message, from_name, to_name, send_at from message LIMIT ?
+15:22:24.322 [http-nio-8000-exec-5] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: 7(Integer)
+15:22:24.324 [http-nio-8000-exec-5] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 7
+15:22:46.312 [http-nio-8000-exec-7] INFO  cn.wyq.serverwebsocket.controller.UserController.getPath(UserController.java:155) - 请求获取指定用户的头像路径，目标用户名: wyq
+15:22:46.313 [http-nio-8000-exec-7] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: select path from user where user_name = ?
+15:22:46.313 [http-nio-8000-exec-7] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: wyq(String)
+15:22:46.313 [http-nio-8000-exec-7] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 1
+15:22:46.798 [http-nio-8000-exec-9] INFO  cn.wyq.serverwebsocket.controller.UserController.login(UserController.java:96) - 请求用户登录，尝试登录账号信息: User(id=0, userName=wyq, password=123, path=http://localhost:8000/file/78f767885fc44f79a2f55679bf497df4.png, role=0, token=null)
+15:22:46.799 [http-nio-8000-exec-9] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: select * from user where user_name = ?
+15:22:46.799 [http-nio-8000-exec-9] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: wyq(String)
+15:22:46.800 [http-nio-8000-exec-9] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 1
+15:22:48.824 [http-nio-8000-exec-3] INFO  cn.wyq.serverwebsocket.controller.UserController.login(UserController.java:96) - 请求用户登录，尝试登录账号信息: User(id=0, userName=wyq, password=123456, path=http://localhost:8000/file/78f767885fc44f79a2f55679bf497df4.png, role=0, token=null)
+15:22:48.825 [http-nio-8000-exec-3] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: select * from user where user_name = ?
+15:22:48.825 [http-nio-8000-exec-3] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: wyq(String)
+15:22:48.826 [http-nio-8000-exec-3] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 1
+15:22:48.896 [http-nio-8000-exec-3] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: select email from user where user_name = ?;
+15:22:48.896 [http-nio-8000-exec-3] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: wyq(String)
+15:22:48.897 [http-nio-8000-exec-3] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 1
+15:22:48.898 [http-nio-8000-exec-3] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: select friend_name from friend where user_name=?;
+15:22:48.899 [http-nio-8000-exec-3] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: wyq(String)
+15:22:48.900 [http-nio-8000-exec-3] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 2
+15:22:48.969 [http-nio-8000-exec-3] INFO  cn.wyq.serverwebsocket.socket.WebSocket.sendSystemBroadcast(WebSocket.java:136) - 用户 [lhy] 离线，广播已存入 Redis 离线信箱
+15:22:48.970 [http-nio-8000-exec-3] INFO  cn.wyq.serverwebsocket.socket.WebSocket.sendSystemBroadcast(WebSocket.java:136) - 用户 [lzs] 离线，广播已存入 Redis 离线信箱
+15:22:49.021 [http-nio-8000-exec-7] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: SELECT id,user_name,friend_name,status,create_time FROM friend WHERE (user_name = ? AND status = ?)
+15:22:49.021 [http-nio-8000-exec-5] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: SELECT id,group_id,user_name,role,join_time FROM group_member WHERE (user_name = ?)
+15:22:49.021 [http-nio-8000-exec-6] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: SELECT id,user_name,friend_name,status,create_time FROM friend WHERE (friend_name = ? AND status = ?) ORDER BY create_time DESC
+15:22:49.021 [http-nio-8000-exec-5] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: wyq(String)
+15:22:49.021 [http-nio-8000-exec-7] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: wyq(String), 1(Integer)
+15:22:49.021 [http-nio-8000-exec-6] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: wyq(String), 0(Integer)
+15:22:49.033 [http-nio-8000-exec-6] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 0
+15:22:49.033 [http-nio-8000-exec-7] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 2
+15:22:49.035 [http-nio-8000-exec-7] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: SELECT user_name AS userName,path FROM user WHERE (user_name IN (?,?))
+15:22:49.035 [http-nio-8000-exec-7] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: lhy(String), lzs(String)
+15:22:49.038 [http-nio-8000-exec-7] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 2
+15:22:49.041 [http-nio-8000-exec-10] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: select path from user where user_name = ?
+15:22:49.042 [http-nio-8000-exec-10] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: wyq(String)
+15:22:49.042 [http-nio-8000-exec-10] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 1
+15:22:49.045 [http-nio-8000-exec-5] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 2
+15:22:49.046 [http-nio-8000-exec-5] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: SELECT id,group_name,path,owner_name,create_time FROM chat_group WHERE (id IN (?,?))
+15:22:49.047 [http-nio-8000-exec-5] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: GROUP_1776669432875(String), GROUP_1776911972861(String)
+15:22:49.054 [http-nio-8000-exec-5] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 1
+15:22:49.060 [http-nio-8000-exec-10] INFO  cn.wyq.serverwebsocket.socket.WebSocket.onOpen(WebSocket.java:85) - 时间[2026-04-24 15:22:49]：用户[wyq]连接成功，在线总数:[1]
+15:22:50.306 [http-nio-8000-exec-2] INFO  cn.wyq.serverwebsocket.controller.MessageController.findAll(MessageController.java:63) - 请求查询所有消息，查询参数 payload: MessageInfo(id=null, message=null, fromName=wyq, toName=GROUP_1776911972861, time=null)
+15:22:50.310 [http-nio-8000-exec-2] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: SELECT id,message,from_name,to_name,send_at FROM message WHERE (to_name = ?) ORDER BY send_at ASC
+15:22:50.310 [http-nio-8000-exec-2] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: GROUP_1776911972861(String)
+15:22:50.311 [http-nio-8000-exec-2] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 1
+15:22:50.312 [http-nio-8000-exec-2] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: select path from user where user_name = ?
+15:22:50.312 [http-nio-8000-exec-2] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: wyq(String)
+15:22:50.312 [http-nio-8000-exec-2] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 1
+15:23:07.046 [http-nio-8000-exec-6] INFO  cn.wyq.serverwebsocket.socket.WebSocket.onClose(WebSocket.java:99) - 时间[2026-04-24 15:23:07]：用户[wyq]连接关闭，在线总数:[0]
+15:23:07.628 [http-nio-8000-exec-7] INFO  cn.wyq.serverwebsocket.controller.UserController.getPath(UserController.java:155) - 请求获取指定用户的头像路径，目标用户名: a
+15:23:07.628 [http-nio-8000-exec-7] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: select path from user where user_name = ?
+15:23:07.629 [http-nio-8000-exec-7] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: a(String)
+15:23:07.629 [http-nio-8000-exec-7] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 0
+15:23:07.849 [http-nio-8000-exec-8] INFO  cn.wyq.serverwebsocket.controller.UserController.getPath(UserController.java:155) - 请求获取指定用户的头像路径，目标用户名: ad
+15:23:07.850 [http-nio-8000-exec-8] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: select path from user where user_name = ?
+15:23:07.850 [http-nio-8000-exec-8] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: ad(String)
+15:23:07.851 [http-nio-8000-exec-8] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 0
+15:23:08.000 [http-nio-8000-exec-9] INFO  cn.wyq.serverwebsocket.controller.UserController.getPath(UserController.java:155) - 请求获取指定用户的头像路径，目标用户名: adm
+15:23:08.001 [http-nio-8000-exec-9] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: select path from user where user_name = ?
+15:23:08.001 [http-nio-8000-exec-9] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: adm(String)
+15:23:08.002 [http-nio-8000-exec-9] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 0
+15:23:08.080 [http-nio-8000-exec-5] INFO  cn.wyq.serverwebsocket.controller.UserController.getPath(UserController.java:155) - 请求获取指定用户的头像路径，目标用户名: admi
+15:23:08.080 [http-nio-8000-exec-5] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: select path from user where user_name = ?
+15:23:08.081 [http-nio-8000-exec-5] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: admi(String)
+15:23:08.082 [http-nio-8000-exec-5] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 0
+15:23:08.155 [http-nio-8000-exec-3] INFO  cn.wyq.serverwebsocket.controller.UserController.getPath(UserController.java:155) - 请求获取指定用户的头像路径，目标用户名: admin
+15:23:08.156 [http-nio-8000-exec-3] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: select path from user where user_name = ?
+15:23:08.156 [http-nio-8000-exec-3] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: admin(String)
+15:23:08.157 [http-nio-8000-exec-3] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 1
+15:23:09.273 [http-nio-8000-exec-10] INFO  cn.wyq.serverwebsocket.controller.UserController.login(UserController.java:96) - 请求用户登录，尝试登录账号信息: User(id=0, userName=admin, password=123456, path=http://localhost:8000/file/3fc5c48acd804d3291513e1db10b1172.png, role=0, token=null)
+15:23:09.274 [http-nio-8000-exec-10] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: select * from user where user_name = ?
+15:23:09.274 [http-nio-8000-exec-10] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: admin(String)
+15:23:09.274 [http-nio-8000-exec-10] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 1
+15:23:09.344 [http-nio-8000-exec-10] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: select email from user where user_name = ?;
+15:23:09.344 [http-nio-8000-exec-10] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: admin(String)
+15:23:09.345 [http-nio-8000-exec-10] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 1
+15:23:09.346 [http-nio-8000-exec-10] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: select friend_name from friend where user_name=?;
+15:23:09.347 [http-nio-8000-exec-10] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: admin(String)
+15:23:09.348 [http-nio-8000-exec-10] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 0
+15:23:09.389 [http-nio-8000-exec-1] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: SELECT * FROM user WHERE status = 0
+15:23:09.389 [http-nio-8000-exec-4] INFO  cn.wyq.serverwebsocket.controller.MessageStatsController.getTodayActiveUsersAndMessageCount(MessageStatsController.java:39) - 请求统计活跃用户：时间范围 [2026-01-24 ~ 2026-04-24]
+15:23:09.390 [http-nio-8000-exec-1] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: 
+15:23:09.390 [http-nio-8000-exec-4] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: SELECT m.from_name AS userName, COUNT(m.id) AS messageCount, u.path AS path FROM user u Inner JOIN message m ON m.from_name = u.user_name AND m.send_at BETWEEN ? AND ? GROUP BY m.from_name, u.path ORDER BY messageCount DESC;
+15:23:09.390 [http-nio-8000-exec-4] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: 2026-01-25(LocalDate), 2026-04-25(LocalDate)
+15:23:09.390 [http-nio-8000-exec-1] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 0
+15:23:09.392 [http-nio-8000-exec-4] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 2
+15:23:09.392 [http-nio-8000-exec-2] INFO  cn.wyq.serverwebsocket.controller.MessageStatsController.getRencetSevenDayUsersAndMessageCount(MessageStatsController.java:55) - 请求统计近段时间发送趋势：时间范围 [2026-01-24 ~ 2026-04-24]
+15:23:09.392 [http-nio-8000-exec-7] INFO  cn.wyq.serverwebsocket.controller.MessageStatsController.getActiveUsersAndMessages(MessageStatsController.java:71) - 请求查询活跃用户及消息详情：时间范围 [2026-01-24 ~ 2026-04-24]
+15:23:09.393 [http-nio-8000-exec-6] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: SELECT id,config_key,config_value,config_name,remark,create_time,update_time FROM sys_config
+15:23:09.393 [http-nio-8000-exec-2] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: SELECT DATE (m.send_at) AS sendAt, m.from_name AS userName, COUNT(m.id) AS messageCount FROM message m WHERE m.send_at BETWEEN ? AND ? GROUP BY DATE (m.send_at), m.from_name ORDER BY sendAt ASC, messageCount DESC;
+15:23:09.393 [http-nio-8000-exec-7] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: SELECT DATE (send_at) AS sendAt, COUNT(*) AS messageCount, COUNT(DISTINCT from_name) AS userCount FROM message WHERE send_at BETWEEN ? AND ? GROUP BY DATE (send_at) ORDER BY DATE (send_at);
+15:23:09.393 [http-nio-8000-exec-6] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: 
+15:23:09.393 [http-nio-8000-exec-7] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: 2026-01-25(LocalDate), 2026-04-25(LocalDate)
+15:23:09.393 [http-nio-8000-exec-2] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: 2026-01-25(LocalDate), 2026-04-25(LocalDate)
+15:23:09.395 [http-nio-8000-exec-6] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 6
+15:23:09.404 [http-nio-8000-exec-7] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 82
+15:23:09.405 [http-nio-8000-exec-2] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 84
+15:24:06.655 [http-nio-8000-exec-5] INFO  cn.wyq.serverwebsocket.controller.MessageController.list(MessageController.java:95) - 请求分页查询消息，分页条件 payload: MessageQueryDTO(page=1, pageSize=7, id=null, message=, fromName=, toName=, sendAtStart=null, sendAtEnd=null)
+15:24:06.658 [http-nio-8000-exec-5] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: SELECT count(0) FROM message
+15:24:06.659 [http-nio-8000-exec-5] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: 
+15:24:06.665 [http-nio-8000-exec-5] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 1
+15:24:06.665 [http-nio-8000-exec-5] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: select id, message, from_name, to_name, send_at from message LIMIT ?
+15:24:06.666 [http-nio-8000-exec-5] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: 7(Integer)
+15:24:06.667 [http-nio-8000-exec-5] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 7
+15:24:07.776 [http-nio-8000-exec-10] INFO  cn.wyq.serverwebsocket.controller.MessageStatsController.getRencetSevenDayUsersAndMessageCount(MessageStatsController.java:55) - 请求统计近段时间发送趋势：时间范围 [2026-01-24 ~ 2026-04-24]
+15:24:07.776 [http-nio-8000-exec-3] INFO  cn.wyq.serverwebsocket.controller.MessageStatsController.getTodayActiveUsersAndMessageCount(MessageStatsController.java:39) - 请求统计活跃用户：时间范围 [2026-01-24 ~ 2026-04-24]
+15:24:07.776 [http-nio-8000-exec-1] INFO  cn.wyq.serverwebsocket.controller.MessageStatsController.getActiveUsersAndMessages(MessageStatsController.java:71) - 请求查询活跃用户及消息详情：时间范围 [2026-01-24 ~ 2026-04-24]
+15:24:07.777 [http-nio-8000-exec-1] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: SELECT DATE (send_at) AS sendAt, COUNT(*) AS messageCount, COUNT(DISTINCT from_name) AS userCount FROM message WHERE send_at BETWEEN ? AND ? GROUP BY DATE (send_at) ORDER BY DATE (send_at);
+15:24:07.777 [http-nio-8000-exec-10] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: SELECT DATE (m.send_at) AS sendAt, m.from_name AS userName, COUNT(m.id) AS messageCount FROM message m WHERE m.send_at BETWEEN ? AND ? GROUP BY DATE (m.send_at), m.from_name ORDER BY sendAt ASC, messageCount DESC;
+15:24:07.777 [http-nio-8000-exec-3] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: SELECT m.from_name AS userName, COUNT(m.id) AS messageCount, u.path AS path FROM user u Inner JOIN message m ON m.from_name = u.user_name AND m.send_at BETWEEN ? AND ? GROUP BY m.from_name, u.path ORDER BY messageCount DESC;
+15:24:07.777 [http-nio-8000-exec-10] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: 2026-01-25(LocalDate), 2026-04-25(LocalDate)
+15:24:07.777 [http-nio-8000-exec-3] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: 2026-01-25(LocalDate), 2026-04-25(LocalDate)
+15:24:07.777 [http-nio-8000-exec-1] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: 2026-01-25(LocalDate), 2026-04-25(LocalDate)
+15:24:07.779 [http-nio-8000-exec-3] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 2
+15:24:07.780 [http-nio-8000-exec-10] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 84
+15:24:07.780 [http-nio-8000-exec-1] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 82
+15:26:02.029 [http-nio-8000-exec-9] INFO  cn.wyq.serverwebsocket.controller.MessageController.list(MessageController.java:95) - 请求分页查询消息，分页条件 payload: MessageQueryDTO(page=1, pageSize=7, id=null, message=, fromName=, toName=, sendAtStart=null, sendAtEnd=null)
+15:26:02.031 [http-nio-8000-exec-9] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: SELECT count(0) FROM message
+15:26:02.031 [http-nio-8000-exec-9] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: 
+15:26:02.034 [http-nio-8000-exec-9] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 1
+15:26:02.035 [http-nio-8000-exec-9] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: select id, message, from_name, to_name, send_at from message LIMIT ?
+15:26:02.035 [http-nio-8000-exec-9] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: 7(Integer)
+15:26:02.036 [http-nio-8000-exec-9] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 7
+15:26:05.999 [http-nio-8000-exec-3] INFO  cn.wyq.serverwebsocket.controller.UserController.Userlist(UserController.java:213) - 请求分页查询用户列表，查询条件 payload: UserQueryDTO(page=1, pageSize=7, id=null, userName=, role=null, email=)
+15:26:06.005 [http-nio-8000-exec-3] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: SELECT count(0) FROM user WHERE status = '1'
+15:26:06.005 [http-nio-8000-exec-3] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: 
+15:26:06.007 [http-nio-8000-exec-3] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 1
+15:26:06.007 [http-nio-8000-exec-3] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: SELECT id, user_name, password,email, path, role FROM user WHERE status='1' ORDER BY id DESC LIMIT ?
+15:26:06.008 [http-nio-8000-exec-3] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: 7(Integer)
+15:26:06.009 [http-nio-8000-exec-3] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 5
+15:26:09.543 [http-nio-8000-exec-6] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: SELECT count(0) FROM chat_group g
+15:26:09.543 [http-nio-8000-exec-6] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: 
+15:26:09.545 [http-nio-8000-exec-6] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 1
+15:26:09.545 [http-nio-8000-exec-6] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: SELECT g.* FROM chat_group g ORDER BY g.create_time DESC LIMIT ?
+15:26:09.545 [http-nio-8000-exec-6] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: 10(Integer)
+15:26:09.546 [http-nio-8000-exec-6] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 1
+15:26:15.293 [http-nio-8000-exec-7] INFO  cn.wyq.serverwebsocket.controller.AIcontroller.getHistory(AIcontroller.java:46) - 请求获取AI历史对话列表，用户名 userName: admin
+15:26:15.299 [http-nio-8000-exec-7] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: SELECT id, name, create_time, update_time, user_name FROM conversation where user_name=? ORDER BY update_time DESC
+15:26:15.299 [http-nio-8000-exec-7] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: admin(String)
+15:26:15.306 [http-nio-8000-exec-7] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 7
+15:26:16.579 [http-nio-8000-exec-2] INFO  cn.wyq.serverwebsocket.controller.AIcontroller.getMessages(AIcontroller.java:54) - 请求获取对话消息记录详情，对话ID conversationId: 150
+15:26:16.581 [http-nio-8000-exec-2] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: SELECT id, conversation_id, content, role FROM conversation_message WHERE conversation_id = ? ORDER BY id ASC
+15:26:16.581 [http-nio-8000-exec-2] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: 150(Integer)
+15:26:16.592 [http-nio-8000-exec-2] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 6
+15:26:24.603 [http-nio-8000-exec-9] INFO  cn.wyq.serverwebsocket.controller.UserController.getPath(UserController.java:155) - 请求获取指定用户的头像路径，目标用户名: a
+15:26:24.604 [http-nio-8000-exec-9] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: select path from user where user_name = ?
+15:26:24.604 [http-nio-8000-exec-9] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: a(String)
+15:26:24.605 [http-nio-8000-exec-9] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 0
+15:26:26.130 [http-nio-8000-exec-5] INFO  cn.wyq.serverwebsocket.controller.UserController.getPath(UserController.java:155) - 请求获取指定用户的头像路径，目标用户名: w
+15:26:26.131 [http-nio-8000-exec-5] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: select path from user where user_name = ?
+15:26:26.131 [http-nio-8000-exec-5] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: w(String)
+15:26:26.132 [http-nio-8000-exec-5] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 0
+15:26:26.251 [http-nio-8000-exec-3] INFO  cn.wyq.serverwebsocket.controller.UserController.getPath(UserController.java:155) - 请求获取指定用户的头像路径，目标用户名: wy
+15:26:26.251 [http-nio-8000-exec-3] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: select path from user where user_name = ?
+15:26:26.251 [http-nio-8000-exec-3] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: wy(String)
+15:26:26.252 [http-nio-8000-exec-3] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 0
+15:26:26.326 [http-nio-8000-exec-10] INFO  cn.wyq.serverwebsocket.controller.UserController.getPath(UserController.java:155) - 请求获取指定用户的头像路径，目标用户名: wyq
+15:26:26.326 [http-nio-8000-exec-10] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: select path from user where user_name = ?
+15:26:26.326 [http-nio-8000-exec-10] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: wyq(String)
+15:26:26.327 [http-nio-8000-exec-10] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 1
+15:26:26.551 [http-nio-8000-exec-1] INFO  cn.wyq.serverwebsocket.controller.UserController.login(UserController.java:96) - 请求用户登录，尝试登录账号信息: User(id=0, userName=wyq, password=, path=http://localhost:8000/file/78f767885fc44f79a2f55679bf497df4.png, role=0, token=null)
+15:26:26.551 [http-nio-8000-exec-1] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: select * from user where user_name = ?
+15:26:26.551 [http-nio-8000-exec-1] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: wyq(String)
+15:26:26.553 [http-nio-8000-exec-1] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 1
+15:26:28.043 [http-nio-8000-exec-6] INFO  cn.wyq.serverwebsocket.controller.UserController.login(UserController.java:96) - 请求用户登录，尝试登录账号信息: User(id=0, userName=wyq, password=123456, path=http://localhost:8000/file/78f767885fc44f79a2f55679bf497df4.png, role=0, token=null)
+15:26:28.043 [http-nio-8000-exec-6] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: select * from user where user_name = ?
+15:26:28.043 [http-nio-8000-exec-6] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: wyq(String)
+15:26:28.044 [http-nio-8000-exec-6] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 1
+15:26:28.115 [http-nio-8000-exec-6] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: select email from user where user_name = ?;
+15:26:28.115 [http-nio-8000-exec-6] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: wyq(String)
+15:26:28.116 [http-nio-8000-exec-6] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 1
+15:26:28.117 [http-nio-8000-exec-6] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: select friend_name from friend where user_name=?;
+15:26:28.117 [http-nio-8000-exec-6] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: wyq(String)
+15:26:28.118 [http-nio-8000-exec-6] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 2
+15:26:28.119 [http-nio-8000-exec-6] INFO  cn.wyq.serverwebsocket.socket.WebSocket.sendSystemBroadcast(WebSocket.java:136) - 用户 [lhy] 离线，广播已存入 Redis 离线信箱
+15:26:28.120 [http-nio-8000-exec-6] INFO  cn.wyq.serverwebsocket.socket.WebSocket.sendSystemBroadcast(WebSocket.java:136) - 用户 [lzs] 离线，广播已存入 Redis 离线信箱
+15:26:28.143 [http-nio-8000-exec-4] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: select path from user where user_name = ?
+15:26:28.143 [http-nio-8000-exec-4] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: wyq(String)
+15:26:28.144 [http-nio-8000-exec-4] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 1
+15:26:28.145 [http-nio-8000-exec-4] INFO  cn.wyq.serverwebsocket.socket.WebSocket.onOpen(WebSocket.java:85) - 时间[2026-04-24 15:26:28]：用户[wyq]连接成功，在线总数:[1]
+15:26:28.151 [http-nio-8000-exec-8] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: SELECT id,user_name,friend_name,status,create_time FROM friend WHERE (user_name = ? AND status = ?)
+15:26:28.151 [http-nio-8000-exec-8] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: wyq(String), 1(Integer)
+15:26:28.152 [http-nio-8000-exec-8] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 2
+15:26:28.153 [http-nio-8000-exec-8] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: SELECT user_name AS userName,path FROM user WHERE (user_name IN (?,?))
+15:26:28.154 [http-nio-8000-exec-8] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: lhy(String), lzs(String)
+15:26:28.155 [http-nio-8000-exec-2] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: SELECT id,group_id,user_name,role,join_time FROM group_member WHERE (user_name = ?)
+15:26:28.155 [http-nio-8000-exec-9] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: SELECT id,user_name,friend_name,status,create_time FROM friend WHERE (friend_name = ? AND status = ?) ORDER BY create_time DESC
+15:26:28.155 [http-nio-8000-exec-8] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 2
+15:26:28.155 [http-nio-8000-exec-2] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: wyq(String)
+15:26:28.155 [http-nio-8000-exec-9] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: wyq(String), 0(Integer)
+15:26:28.156 [http-nio-8000-exec-9] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 0
+15:26:28.156 [http-nio-8000-exec-2] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 2
+15:26:28.158 [http-nio-8000-exec-2] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: SELECT id,group_name,path,owner_name,create_time FROM chat_group WHERE (id IN (?,?))
+15:26:28.158 [http-nio-8000-exec-2] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: GROUP_1776669432875(String), GROUP_1776911972861(String)
+15:26:28.159 [http-nio-8000-exec-2] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 1
+15:26:29.091 [http-nio-8000-exec-5] INFO  cn.wyq.serverwebsocket.controller.MessageController.findAll(MessageController.java:63) - 请求查询所有消息，查询参数 payload: MessageInfo(id=null, message=null, fromName=wyq, toName=GROUP_1776911972861, time=null)
+15:26:29.092 [http-nio-8000-exec-5] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: SELECT id,message,from_name,to_name,send_at FROM message WHERE (to_name = ?) ORDER BY send_at ASC
+15:26:29.092 [http-nio-8000-exec-5] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: GROUP_1776911972861(String)
+15:26:29.093 [http-nio-8000-exec-5] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 1
+15:26:29.094 [http-nio-8000-exec-5] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: select path from user where user_name = ?
+15:26:29.094 [http-nio-8000-exec-5] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: wyq(String)
+15:26:29.094 [http-nio-8000-exec-5] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 1
+15:26:37.715 [http-nio-8000-exec-10] INFO  cn.wyq.serverwebsocket.controller.AIcontroller.getHistory(AIcontroller.java:46) - 请求获取AI历史对话列表，用户名 userName: wyq
+15:26:37.716 [http-nio-8000-exec-10] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: SELECT id, name, create_time, update_time, user_name FROM conversation where user_name=? ORDER BY update_time DESC
+15:26:37.716 [http-nio-8000-exec-10] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: wyq(String)
+15:26:37.717 [http-nio-8000-exec-10] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 5
+15:33:46.080 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource.close(HikariDataSource.java:349) - HikariPool-4 - Shutdown initiated...
+15:33:46.082 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource.close(HikariDataSource.java:351) - HikariPool-4 - Shutdown completed.
+15:33:46.086 [SpringApplicationShutdownHook] ERROR cn.wyq.serverwebsocket.socket.WebSocket.onError(WebSocket.java:106) - 用户[wyq]连接异常
+java.io.IOException: java.nio.channels.ClosedChannelException
+	at org.apache.tomcat.websocket.WsRemoteEndpointImplBase.sendMessageBlockInternal(WsRemoteEndpointImplBase.java:326) ~[tomcat-embed-websocket-10.1.30.jar:10.1.30]
+	at org.apache.tomcat.websocket.WsRemoteEndpointImplBase.sendMessageBlock(WsRemoteEndpointImplBase.java:266) ~[tomcat-embed-websocket-10.1.30.jar:10.1.30]
+	at org.apache.tomcat.websocket.WsSession.sendCloseMessage(WsSession.java:792) ~[tomcat-embed-websocket-10.1.30.jar:10.1.30]
+	at org.apache.tomcat.websocket.WsSession.doClose(WsSession.java:589) ~[tomcat-embed-websocket-10.1.30.jar:10.1.30]
+	at org.apache.tomcat.websocket.WsSession.doClose(WsSession.java:556) ~[tomcat-embed-websocket-10.1.30.jar:10.1.30]
+	at org.apache.tomcat.websocket.WsSession.close(WsSession.java:544) ~[tomcat-embed-websocket-10.1.30.jar:10.1.30]
+	at org.apache.tomcat.websocket.WsWebSocketContainer.destroy(WsWebSocketContainer.java:1024) ~[tomcat-embed-websocket-10.1.30.jar:10.1.30]
+	at org.apache.tomcat.websocket.server.WsContextListener.contextDestroyed(WsContextListener.java:46) ~[tomcat-embed-websocket-10.1.30.jar:10.1.30]
+	at org.apache.catalina.core.StandardContext.listenerStop(StandardContext.java:4039) ~[tomcat-embed-core-10.1.30.jar:10.1.30]
+	at org.apache.catalina.core.StandardContext.stopInternal(StandardContext.java:4648) ~[tomcat-embed-core-10.1.30.jar:10.1.30]
+	at org.apache.catalina.util.LifecycleBase.stop(LifecycleBase.java:231) ~[tomcat-embed-core-10.1.30.jar:10.1.30]
+	at org.apache.catalina.core.ContainerBase$StopChild.call(ContainerBase.java:1219) ~[tomcat-embed-core-10.1.30.jar:10.1.30]
+	at org.apache.catalina.core.ContainerBase$StopChild.call(ContainerBase.java:1208) ~[tomcat-embed-core-10.1.30.jar:10.1.30]
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264) ~[?:?]
+	at org.apache.tomcat.util.threads.InlineExecutorService.execute(InlineExecutorService.java:75) ~[tomcat-embed-core-10.1.30.jar:10.1.30]
+	at java.base/java.util.concurrent.AbstractExecutorService.submit(AbstractExecutorService.java:145) ~[?:?]
+	at org.apache.catalina.core.ContainerBase.stopInternal(ContainerBase.java:814) ~[tomcat-embed-core-10.1.30.jar:10.1.30]
+	at org.apache.catalina.util.LifecycleBase.stop(LifecycleBase.java:231) ~[tomcat-embed-core-10.1.30.jar:10.1.30]
+	at org.apache.catalina.core.ContainerBase$StopChild.call(ContainerBase.java:1219) ~[tomcat-embed-core-10.1.30.jar:10.1.30]
+	at org.apache.catalina.core.ContainerBase$StopChild.call(ContainerBase.java:1208) ~[tomcat-embed-core-10.1.30.jar:10.1.30]
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264) ~[?:?]
+	at org.apache.tomcat.util.threads.InlineExecutorService.execute(InlineExecutorService.java:75) ~[tomcat-embed-core-10.1.30.jar:10.1.30]
+	at java.base/java.util.concurrent.AbstractExecutorService.submit(AbstractExecutorService.java:145) ~[?:?]
+	at org.apache.catalina.core.ContainerBase.stopInternal(ContainerBase.java:814) ~[tomcat-embed-core-10.1.30.jar:10.1.30]
+	at org.apache.catalina.util.LifecycleBase.stop(LifecycleBase.java:231) ~[tomcat-embed-core-10.1.30.jar:10.1.30]
+	at org.apache.catalina.core.StandardService.stopInternal(StandardService.java:471) ~[tomcat-embed-core-10.1.30.jar:10.1.30]
+	at org.apache.catalina.util.LifecycleBase.stop(LifecycleBase.java:231) ~[tomcat-embed-core-10.1.30.jar:10.1.30]
+	at org.apache.catalina.core.StandardServer.stopInternal(StandardServer.java:915) ~[tomcat-embed-core-10.1.30.jar:10.1.30]
+	at org.apache.catalina.util.LifecycleBase.stop(LifecycleBase.java:231) ~[tomcat-embed-core-10.1.30.jar:10.1.30]
+	at org.apache.catalina.startup.Tomcat.stop(Tomcat.java:447) ~[tomcat-embed-core-10.1.30.jar:10.1.30]
+	at org.springframework.boot.web.embedded.tomcat.TomcatWebServer.stopTomcat(TomcatWebServer.java:301) ~[spring-boot-3.3.4.jar:3.3.4]
+	at org.springframework.boot.web.embedded.tomcat.TomcatWebServer.destroy(TomcatWebServer.java:374) ~[spring-boot-3.3.4.jar:3.3.4]
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.doClose(ServletWebServerApplicationContext.java:177) ~[spring-boot-3.3.4.jar:3.3.4]
+	at org.springframework.context.support.AbstractApplicationContext.close(AbstractApplicationContext.java:1102) ~[spring-context-6.1.13.jar:6.1.13]
+	at org.springframework.boot.SpringApplicationShutdownHook.closeAndWait(SpringApplicationShutdownHook.java:145) ~[spring-boot-3.3.4.jar:3.3.4]
+	at java.base/java.lang.Iterable.forEach(Iterable.java:75) [?:?]
+	at org.springframework.boot.SpringApplicationShutdownHook.run(SpringApplicationShutdownHook.java:114) [spring-boot-3.3.4.jar:3.3.4]
+	at java.base/java.lang.Thread.run(Thread.java:833) [?:?]
+Caused by: java.nio.channels.ClosedChannelException
+	at org.apache.tomcat.util.net.NioChannel$1.write(NioChannel.java:273) ~[tomcat-embed-core-10.1.30.jar:10.1.30]
+	at org.apache.tomcat.util.net.NioEndpoint$NioSocketWrapper$NioOperationState.run(NioEndpoint.java:1632) ~[tomcat-embed-core-10.1.30.jar:10.1.30]
+	at org.apache.tomcat.util.net.SocketWrapperBase$OperationState.start(SocketWrapperBase.java:1051) ~[tomcat-embed-core-10.1.30.jar:10.1.30]
+	at org.apache.tomcat.util.net.SocketWrapperBase.vectoredOperation(SocketWrapperBase.java:1440) ~[tomcat-embed-core-10.1.30.jar:10.1.30]
+	at org.apache.tomcat.util.net.SocketWrapperBase.write(SocketWrapperBase.java:1366) ~[tomcat-embed-core-10.1.30.jar:10.1.30]
+	at org.apache.tomcat.util.net.SocketWrapperBase.write(SocketWrapperBase.java:1337) ~[tomcat-embed-core-10.1.30.jar:10.1.30]
+	at org.apache.tomcat.websocket.server.WsRemoteEndpointImplServer.doWrite(WsRemoteEndpointImplServer.java:171) ~[tomcat-embed-websocket-10.1.30.jar:10.1.30]
+	at org.apache.tomcat.websocket.WsRemoteEndpointImplBase.writeMessagePart(WsRemoteEndpointImplBase.java:521) ~[tomcat-embed-websocket-10.1.30.jar:10.1.30]
+	at org.apache.tomcat.websocket.WsRemoteEndpointImplBase.sendMessageBlockInternal(WsRemoteEndpointImplBase.java:313) ~[tomcat-embed-websocket-10.1.30.jar:10.1.30]
+	... 37 more
+15:33:46.093 [SpringApplicationShutdownHook] INFO  cn.wyq.serverwebsocket.socket.WebSocket.onClose(WebSocket.java:99) - 时间[2026-04-24 15:33:46]：用户[wyq]连接关闭，在线总数:[0]

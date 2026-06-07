@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.wyq.serverwebsocket.mapper.RechargeOrderMapper">
+    <select id="selectOrderList" resultType="cn.wyq.serverwebsocket.pojo.entity.RechargeOrder">
+        SELECT * FROM recharge_order
+        <where>
+            <if test="outTradeNo != null and outTradeNo != ''">
+                AND out_trade_no = #{outTradeNo}
+            </if>
+            <if test="userId != null">
+                AND user_id = #{userId}
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+        </where>
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="selectOrderForUpdate" resultType="cn.wyq.serverwebsocket.pojo.entity.RechargeOrder">
+        SELECT * FROM recharge_order WHERE out_trade_no = #{outTradeNo} FOR UPDATE
+    </select>
+    <update id="updateOrderStatusToClosed">
+        UPDATE recharge_order
+        SET status = 2
+        WHERE out_trade_no = #{outTradeNo} AND status = 0
+    </update>
+    <update id="updateOrderStatusToSuccess">
+        UPDATE recharge_order
+        SET status = 1, pay_time = NOW()
+        WHERE out_trade_no = #{outTradeNo}
+    </update>
+
+    <update id="addAccountBalance">
+        UPDATE u_account
+        SET balance = balance + #{amount}
+        WHERE user_id = #{userId}
+    </update>
+
+    <select id="getUserBalance" resultType="java.math.BigDecimal">
+        SELECT balance FROM u_account WHERE user_id = #{userId}
+    </select>
+    <update id="closeExpiredOrders">
+        UPDATE recharge_order
+        SET status = 2
+        WHERE status = 0
+          AND create_time &lt;= DATE_SUB(NOW(), INTERVAL #{minutes} MINUTE)
+    </update>
+    <insert id="insertAccountLog">
+        INSERT INTO u_account_log
+            (user_id, type, amount, balance_after, order_no, remark, create_time)
+        VALUES
+            (#{userId}, #{type}, #{amount}, #{balanceAfter}, #{orderNo}, #{remark}, NOW())
+    </insert>
+</mapper>

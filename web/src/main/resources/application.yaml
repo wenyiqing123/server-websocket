@@ -1,3 +1,5 @@
+app:
+  domain: http://10.185.88.128:8000
 spring:
   application:
     name: server-websocket
@@ -43,7 +45,7 @@ spring:
 
   # 🌟 修复缩进：datasource 必须在 spring 下面，往左退 2 格
   datasource:
-    url: jdbc:mysql://localhost:3306/chat?useSSL=false&serverTimezone=UTC&sessionVariables=sql_mode='ANSI_QUOTES'&autoReconnect=true
+    url: jdbc:mysql://127.0.0.1:3306/chat?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&sessionVariables=sql_mode='ANSI_QUOTES'
     username: root
     password: yq040809
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -59,7 +61,7 @@ spring:
   data:
     redis:
       database: 1      # 💡 注意：你用的是 1 号数据库
-      host: localhost
+      host: 127.0.0.1
       port: 6379
       password:
       timeout: 6000ms
@@ -161,4 +163,4 @@ alipay:
   charset: "UTF-8"
   format: "json"
 # 后端url:只能在公网生效
-  notify-url: http://74bd1dee.r3.cpolar.top/alipay/notify
+  notify-url: https://49ae2e51.r3.cpolar.top/alipay/notify

@@ -64,6 +64,7 @@ public class UploadController {
 
             // 5. 拼接返回路径
             String fileUrl = "http://localhost:" + serverPort + mapping + fileNewName;
+//            String fileUrl = "https://6af2e2eb.r3.cpolar.top/" + fileNewName;
             log.info("文件上传成功，已保存至硬盘: {}, 生成访问路径: {}", targetFile.getAbsolutePath(), fileUrl);
 
             return Result.success(fileUrl);

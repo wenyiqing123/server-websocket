@@ -1,0 +1,64 @@
+/*
+ Navicat Premium Data Transfer
+
+ Source Server         : test
+ Source Server Type    : MySQL
+ Source Server Version : 80033 (8.0.33)
+ Source Host           : localhost:3306
+ Source Schema         : chat
+
+ Target Server Type    : MySQL
+ Target Server Version : 80033 (8.0.33)
+ File Encoding         : 65001
+
+ Date: 11/05/2026 20:57:44
+*/
+
+SET NAMES utf8mb4;
+SET FOREIGN_KEY_CHECKS = 0;
+
+-- ----------------------------
+-- Table structure for recharge_order
+-- ----------------------------
+DROP TABLE IF EXISTS `recharge_order`;
+CREATE TABLE `recharge_order`  (
+  `out_trade_no` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '系统内部订单号(传给支付宝的单号)',
+  `user_id` int NOT NULL COMMENT '充值用户ID',
+  `alipay_trade_no` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '支付宝官方流水号',
+  `amount` decimal(10, 2) NOT NULL COMMENT '充值金额',
+  `status` tinyint NOT NULL DEFAULT 0 COMMENT '状态: 0-待支付, 1-支付成功, 2-已关闭',
+  `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `pay_time` datetime NULL DEFAULT NULL COMMENT '支付成功时间',
+  PRIMARY KEY (`out_trade_no`) USING BTREE,
+  INDEX `idx_user_id`(`user_id` ASC) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '充值订单表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of recharge_order
+-- ----------------------------
+INSERT INTO `recharge_order` VALUES ('TEST1777525240277', 60, NULL, 10.00, 0, '2026-04-30 13:00:40', NULL);
+INSERT INTO `recharge_order` VALUES ('TEST1777525362876', 60, NULL, 10.00, 0, '2026-04-30 13:02:43', NULL);
+INSERT INTO `recharge_order` VALUES ('TEST1777525382964', 60, NULL, 10.00, 0, '2026-04-30 13:03:03', NULL);
+INSERT INTO `recharge_order` VALUES ('TEST1777527102076', 60, NULL, 10.00, 0, '2026-04-30 13:31:42', NULL);
+INSERT INTO `recharge_order` VALUES ('TEST1777527126179', 60, NULL, 10.00, 0, '2026-04-30 13:32:06', NULL);
+INSERT INTO `recharge_order` VALUES ('TEST1777527154500', 60, NULL, 10.00, 0, '2026-04-30 13:32:35', NULL);
+INSERT INTO `recharge_order` VALUES ('TEST1777527196980', 60, NULL, 10.00, 0, '2026-04-30 13:33:17', NULL);
+INSERT INTO `recharge_order` VALUES ('TEST1777527206724', 60, NULL, 10.00, 0, '2026-04-30 13:33:27', NULL);
+INSERT INTO `recharge_order` VALUES ('TEST1777527213531', 60, NULL, 10.00, 0, '2026-04-30 13:33:34', NULL);
+INSERT INTO `recharge_order` VALUES ('TEST1777607053935', 60, NULL, 10.00, 0, '2026-05-01 11:44:14', NULL);
+INSERT INTO `recharge_order` VALUES ('TEST1777607154855', 60, NULL, 10.00, 0, '2026-05-01 11:45:56', NULL);
+INSERT INTO `recharge_order` VALUES ('TEST1777607519711', 60, NULL, 10.00, 0, '2026-05-01 11:52:00', NULL);
+INSERT INTO `recharge_order` VALUES ('TEST1777608891747', 60, '2026050122001475130509467829', 10.00, 1, '2026-05-01 12:14:52', '2026-05-01 12:15:06');
+INSERT INTO `recharge_order` VALUES ('TEST1777609124086', 60, '2026050122001475130509472184', 10.00, 1, '2026-05-01 12:18:44', '2026-05-01 12:18:56');
+INSERT INTO `recharge_order` VALUES ('TEST1777609783151', 60, '2026050122001475130509470579', 10.00, 1, '2026-05-01 12:29:43', '2026-05-01 12:29:57');
+INSERT INTO `recharge_order` VALUES ('TEST1777610135310', 60, '2026050122001475130509468884', 10.00, 1, '2026-05-01 12:35:35', '2026-05-01 12:35:46');
+INSERT INTO `recharge_order` VALUES ('TEST1777610151958', 60, NULL, 10.00, 0, '2026-05-01 12:35:52', NULL);
+INSERT INTO `recharge_order` VALUES ('TEST1777610161759', 60, NULL, 10.00, 0, '2026-05-01 12:36:02', NULL);
+INSERT INTO `recharge_order` VALUES ('TEST1777612823415', 60, NULL, 50.00, 0, '2026-05-01 13:20:24', NULL);
+INSERT INTO `recharge_order` VALUES ('TEST1777612835767', 60, NULL, 50.00, 0, '2026-05-01 13:20:36', NULL);
+INSERT INTO `recharge_order` VALUES ('TEST1777612866256', 60, NULL, 50.00, 0, '2026-05-01 13:21:06', NULL);
+INSERT INTO `recharge_order` VALUES ('TEST1777613235416', 60, NULL, 50.00, 0, '2026-05-01 13:27:16', NULL);
+INSERT INTO `recharge_order` VALUES ('TEST1777613328232', 60, '2026050122001475130509467830', 10.00, 1, '2026-05-01 13:28:49', '2026-05-01 13:29:05');
+INSERT INTO `recharge_order` VALUES ('TEST1778211243123', 60, '2026050822001475130509504921', 10.00, 1, '2026-05-08 11:34:04', '2026-05-08 11:34:23');
+
+SET FOREIGN_KEY_CHECKS = 1;

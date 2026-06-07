@@ -23,7 +23,13 @@
             -- 注意：由于扣费金额是负数，这里使用 ABS() 取绝对值以便在前端展示正数
             (SELECT IFNULL(SUM(ABS(amount)), 0)
              FROM u_account_log
-             WHERE type = 4 AND DATE(create_time) BETWEEN #{startDate} AND #{endDate}) AS aiCostTotal
+             WHERE type = 4 AND DATE(create_time) BETWEEN #{startDate} AND #{endDate}) AS aiCostTotal,
+
+            -- 平台沉淀资金池：所有用户钱包余额之和 + 正在进行中(未被抢完)的红包剩余总金额
+            (
+                (SELECT IFNULL(SUM(balance), 0) FROM u_account) +
+                (SELECT IFNULL(SUM(remaining_amount), 0) FROM u_red_packet WHERE status = 0)
+            ) AS retainedFunds
     </select>
 
     <select id="getRevenueTrend" resultType="cn.wyq.serverwebsocket.pojo.vo.TrendVO">
