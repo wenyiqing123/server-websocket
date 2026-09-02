@@ -77,10 +77,11 @@ spring:
   ai:
     openai:
       # 🌟 填入你从百炼控制台获取的 API Key
-      api-key: ${DASHSCOPE_API_KEY:sk-5fe3023e1e5643469ba7f17b32efc864}
+      api-key: ${DASHSCOPE_API_KEY:sk-ws-H.PMHRDEP.5Dd1.MEUCIGzMuDXX0_RTprslF3gJPTyaIWOVXAGty09DtA-GKEfDAiEAzs6KQgdS17MQKlRSVobVCPzEyXj4Ijc0jqDbrkQKURU}
 
       # 🌟 关键：这里去掉末尾的 /v1，Spring AI 会自动补全
-      base-url: https://dashscope.aliyuncs.com/compatible-mode
+#      base-url: https://dashscope.aliyuncs.com/compatible-mode
+      base-url: https://llm-eomx7r9o91rwtdbj.cn-beijing.maas.aliyuncs.com/compatible-mode
 
       # 🧠 聊天模型配置 (建议使用 qwen-max 或 qwen-plus)
       chat:

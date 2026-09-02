@@ -24,6 +24,8 @@ import java.util.UUID;
 @Service
 public class DocumentServiceImpl extends ServiceImpl<SysDocumentMapper, SysDocument> implements DocumentService {
 
+    private static final String VECTOR_CACHE_PATH = "web/src/main/resources/static/dataset/mecha_vector_cache.json";
+
     @Autowired
     private VectorStore vectorStore;
 
@@ -104,18 +106,32 @@ public class DocumentServiceImpl extends ServiceImpl<SysDocumentMapper, SysDocum
             for (Document doc : splitDocuments) {
                 doc.getMetadata().put("docId", docId);
                 doc.getMetadata().put("fileName", originalFilename);
+                doc.getMetadata().put("knowledgeBase", "document");
                 // 也可以把 fileUrl 存进向量库，让 AI 在回答时能顺便附上文件下载链接
                 doc.getMetadata().put("fileUrl", fileUrl);
             }
 
-            // 8. 存入 Redis 向量库
+            // 8. 写入向量库，并持久化缓存，避免服务重启后丢失上传文档的向量
             vectorStore.accept(splitDocuments);
+            persistVectorStore();
 
             return docId;
 
         } catch (Exception e) {
             throw new RuntimeException("文档上传与解析失败: " + e.getMessage(), e);
         }
+    }
+
+    private void persistVectorStore() {
+        if (!(vectorStore instanceof org.springframework.ai.vectorstore.SimpleVectorStore simpleVectorStore)) {
+            return;
+        }
+        File cacheFile = new File(VECTOR_CACHE_PATH);
+        File parent = cacheFile.getParentFile();
+        if (parent != null && !parent.exists() && !parent.mkdirs()) {
+            throw new IllegalStateException("无法创建向量缓存目录: " + parent.getAbsolutePath());
+        }
+        simpleVectorStore.save(cacheFile);
     }
     @Override
     @Transactional(rollbackFor = Exception.class)

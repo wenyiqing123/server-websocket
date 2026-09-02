@@ -16,4 +16,5 @@ public class RedPacketConstant {
      */
     public static final String REDIS_KEY_COUNT_SUFFIX = ":count";
     public static final String REDIS_KEY_GRABBED_SET_SUFFIX = ":grabbed";
+    public static final String REDIS_KEY_RECEIVER_SUFFIX = ":receiver";
 }

@@ -24,7 +24,7 @@ DROP TABLE IF EXISTS `u_account_log`;
 CREATE TABLE `u_account_log`  (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `user_id` int NOT NULL COMMENT '所属用户ID',
-  `type` tinyint NOT NULL COMMENT '变动类型：1-转账、2-发红包、3-抢红包',
+  `type` tinyint NOT NULL COMMENT '变动类型：1-充值、2-发红包、3-抢红包、4-AI算力、5-人工调账、6-过期退回、7-转账',
   `amount` decimal(18, 2) NOT NULL COMMENT '变动金额（正数为进账，负数为出账）',
   `balance_after` decimal(18, 2) NOT NULL COMMENT '变动后的余额（用于后期对账）',
   `order_no` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '关联的业务单号（转账单号或红包单号）',

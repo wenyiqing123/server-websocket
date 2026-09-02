@@ -227,30 +227,88 @@ public class RedPacketService {
         // 弹出金额
         String amountStr = stringRedisTemplate.opsForList().leftPop(redisListKey);
         if (amountStr == null) {
+            stringRedisTemplate.opsForSet().remove(redisSetKey, String.valueOf(userId));
             throw new RuntimeException("手慢了，红包派完了！");
         }
 
-        // 加入已抢集合
-        stringRedisTemplate.opsForSet().add(redisSetKey, String.valueOf(userId));
-
         BigDecimal grabbedAmount = new BigDecimal(amountStr);
 
-        // =========================================================
-        // 🌟 核心修改：在这里【同步】插入红包领取记录，保证查详情一定能查到
-        // =========================================================
-        RedPacketRecord record = RedPacketRecord.builder()
-                .redPacketId(redPacketId)
-                .userId(userId)
-                .amount(grabbedAmount)
-                .createTime(LocalDateTime.now())
-                .build();
-        redPacketRecordMapper.insert(record); // 立刻入库
+        try {
+            RedPacketRecord record = RedPacketRecord.builder()
+                    .redPacketId(redPacketId)
+                    .userId(userId)
+                    .amount(grabbedAmount)
+                    .createTime(LocalDateTime.now())
+                    .build();
+            redPacketRecordMapper.insert(record);
 
-        // =========================================================
-        // 🌟 加钱、记录流水、扣减主表余额的耗时操作，交给底层去【异步】执行
-        // =========================================================
-        redPacketAsyncComponent.executeGrabDbUpdate(userId, redPacketId, grabbedAmount, groupId);
+            redPacketAsyncComponent.executeGrabDbUpdate(userId, redPacketId, grabbedAmount, groupId);
+        } catch (RuntimeException e) {
+            RedPacket current = redPacketMapper.selectById(redPacketId);
+            if (current != null && current.getStatus() != null && current.getStatus() == 0
+                    && current.getCreateTime() != null
+                    && current.getCreateTime().isAfter(LocalDateTime.now().minusDays(1))) {
+                stringRedisTemplate.opsForList().leftPush(redisListKey, amountStr);
+            }
+            stringRedisTemplate.opsForSet().remove(redisSetKey, String.valueOf(userId));
+            throw e;
+        }
 
         return grabbedAmount;
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public boolean refundExpiredRedPacket(Long redPacketId) {
+        RedPacket redPacket = redPacketMapper.selectByIdForUpdate(redPacketId);
+        if (redPacket == null || redPacket.getStatus() == null || redPacket.getStatus() != 0
+                || redPacket.getRemainingAmount() == null
+                || redPacket.getRemainingAmount().compareTo(BigDecimal.ZERO) <= 0
+                || redPacket.getCreateTime() == null
+                || redPacket.getCreateTime().isAfter(LocalDateTime.now().minusDays(1))) {
+            return false;
+        }
+
+        BigDecimal refundAmount = redPacket.getRemainingAmount();
+        if (redPacketMapper.markRedPacketExpired(redPacketId) != 1) {
+            return false;
+        }
+
+        Account account = accountMapper.selectByUserIdForUpdate(redPacket.getSenderId());
+        BigDecimal balanceAfter;
+        if (account == null) {
+            balanceAfter = refundAmount;
+            accountMapper.insert(Account.builder()
+                    .userId(redPacket.getSenderId())
+                    .balance(balanceAfter)
+                    .build());
+        } else {
+            balanceAfter = account.getBalance().add(refundAmount);
+            account.setBalance(balanceAfter);
+            accountMapper.updateById(account);
+        }
+
+        String orderNo = "RPR" + redPacketId + "_" + UUID.randomUUID().toString().substring(0, 8);
+        accountLogMapper.insert(AccountLog.builder()
+                .userId(redPacket.getSenderId())
+                .type(6)
+                .amount(refundAmount)
+                .balanceAfter(balanceAfter)
+                .orderNo(orderNo)
+                .remark("红包过期退回")
+                .createTime(LocalDateTime.now())
+                .build());
+
+        clearRedPacketCache(redPacketId);
+        log.info("红包 [{}] 过期退回发送者 [{}]，金额 {}", redPacketId, redPacket.getSenderId(), refundAmount);
+        return true;
+    }
+
+    private void clearRedPacketCache(Long redPacketId) {
+        String keyPrefix = RedPacketConstant.REDIS_KEY_PREFIX + redPacketId;
+        stringRedisTemplate.delete(List.of(
+                keyPrefix + RedPacketConstant.REDIS_KEY_LIST_SUFFIX,
+                keyPrefix + RedPacketConstant.REDIS_KEY_COUNT_SUFFIX,
+                keyPrefix + RedPacketConstant.REDIS_KEY_GRABBED_SET_SUFFIX,
+                keyPrefix + RedPacketConstant.REDIS_KEY_RECEIVER_SUFFIX));
     }
 }

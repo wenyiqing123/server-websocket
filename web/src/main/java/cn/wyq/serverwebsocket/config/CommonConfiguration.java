@@ -1,10 +1,7 @@
 package cn.wyq.serverwebsocket.config;
 
 import cn.wyq.serverwebsocket.constant.ModelConstant;
-import cn.wyq.serverwebsocket.tool.MessageAnalysisTool;
-import cn.wyq.serverwebsocket.tool.MessageTool;
-import cn.wyq.serverwebsocket.tool.SystemStatsTool;
-import cn.wyq.serverwebsocket.tool.UserTool;
+import cn.wyq.serverwebsocket.tool.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
@@ -27,6 +24,7 @@ public class CommonConfiguration {
     private final MessageTool messageTool;
     private final MessageAnalysisTool messageAnalysisTool;
     private final SystemStatsTool systemStatsTool;
+    private final ChatMessageTool chatMessageTool;
 
     /**
      * 💡 M8 记忆引擎：改名为 customChatMemory 避开官方默认 Bean
@@ -71,7 +69,7 @@ public class CommonConfiguration {
         log.info("【系统加载】启动全能数据管家（Azure GPT-4o 驱动版），装载数据库查询工具！");
         return builder
                 .defaultSystem(ModelConstant.SERVICE_SYSTEM_PROMPT)
-                .defaultTools(userTool, messageTool, messageAnalysisTool, systemStatsTool)
+                .defaultTools(userTool, messageTool, messageAnalysisTool, systemStatsTool, chatMessageTool)
                 .defaultAdvisors(
                         MessageChatMemoryAdvisor.builder(chatMemory).build(),
                         new SimpleLoggerAdvisor()

@@ -39,6 +39,7 @@ cn\wyq\serverwebsocket\pojo\dto\UserQueryExportDTO$UserQueryExportDTOBuilder.cla
 cn\wyq\serverwebsocket\pojo\socket\ResultMessage.class
 cn\wyq\serverwebsocket\pojo\vo\WealthRankVO.class
 cn\wyq\serverwebsocket\pojo\dto\AdjustBalanceDTO.class
+cn\wyq\serverwebsocket\pojo\dto\SendTransferDTO.class
 cn\wyq\serverwebsocket\pojo\dto\WsMessage.class
 cn\wyq\serverwebsocket\pojo\entity\ChatGroup.class
 cn\wyq\serverwebsocket\pojo\entity\Chat$ChatBuilder.class
@@ -49,6 +50,7 @@ cn\wyq\serverwebsocket\pojo\entity\RedPacketRecord.class
 cn\wyq\serverwebsocket\pojo\entity\AccountLog.class
 cn\wyq\serverwebsocket\pojo\dto\MessageQueryDTO$MessageQueryDTOBuilder.class
 cn\wyq\serverwebsocket\pojo\vo\GroupMemberQueryVo.class
+cn\wyq\serverwebsocket\pojo\entity\Transfer.class
 cn\wyq\serverwebsocket\pojo\socket\WsBroadcastEvent.class
 cn\wyq\serverwebsocket\pojo\dto\UserExportDTO$UserExportDTOBuilder.class
 cn\wyq\serverwebsocket\pojo\dto\UserQueryExportDTO.class
@@ -90,6 +92,8 @@ cn\wyq\serverwebsocket\pojo\vo\FriendPathVO$FriendPathVOBuilder.class
 cn\wyq\serverwebsocket\pojo\User.class
 cn\wyq\serverwebsocket\pojo\dto\GrabRedPacketDTO.class
 cn\wyq\serverwebsocket\pojo\entity\UserEntity$UserEntityBuilder.class
+cn\wyq\serverwebsocket\pojo\entity\Transfer$TransferBuilder.class
+cn\wyq\serverwebsocket\pojo\dto\AiReplyDto$MessageItem.class
 cn\wyq\serverwebsocket\pojo\dto\WalletQueryDTO.class
 cn\wyq\serverwebsocket\pojo\entity\RedPacket$RedPacketBuilder.class
 cn\wyq\serverwebsocket\pojo\entity\RedPacketRecord$RedPacketRecordBuilder.class
@@ -98,5 +102,6 @@ cn\wyq\serverwebsocket\pojo\entity\SysDocument.class
 cn\wyq\serverwebsocket\pojo\vo\TrendVO.class
 cn\wyq\serverwebsocket\pojo\dto\UserEmailApplyDTO.class
 cn\wyq\serverwebsocket\pojo\dto\UserUpdatePasswordDTO.class
+cn\wyq\serverwebsocket\pojo\dto\DocumentSessionDocumentsDTO.class
 cn\wyq\serverwebsocket\pojo\dto\MessageToolQueryDTO$MessageToolQueryDTOBuilder.class
 cn\wyq\serverwebsocket\pojo\dto\UpdateEmailDto.class

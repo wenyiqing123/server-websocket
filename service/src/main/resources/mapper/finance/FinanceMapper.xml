@@ -48,6 +48,7 @@
             CASE type
                 WHEN 2 THEN '发出红包'
                 WHEN 4 THEN 'AI大模型算力'
+                WHEN 7 THEN '转账'
                 ELSE '其他支出'
                 END AS type,
             -- Echarts 饼图需要正数值，而表里的支出是负数（如发红包的 -10.00），所以用 ABS 取绝对值

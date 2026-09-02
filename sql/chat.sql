@@ -1648,6 +1648,20 @@ CREATE TABLE `sys_document`  (
 INSERT INTO `sys_document` VALUES ('4d68ddd6bb', 'test.txt', 'http://localhost:8000/file/4d68ddd6bb.txt', 24, '2026-04-30 20:41:55');
 
 -- ----------------------------
+-- Table structure for ai_session_document
+-- ----------------------------
+DROP TABLE IF EXISTS `ai_session_document`;
+CREATE TABLE `ai_session_document`  (
+  `session_id` varchar(50) NOT NULL,
+  `document_id` varchar(36) NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`session_id`, `document_id`) USING BTREE,
+  INDEX `idx_session_document_document_id`(`document_id` ASC) USING BTREE,
+  CONSTRAINT `fk_session_document_session` FOREIGN KEY (`session_id`) REFERENCES `ai_chat_session` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_session_document_document` FOREIGN KEY (`document_id`) REFERENCES `sys_document` (`id`) ON DELETE CASCADE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
 -- Table structure for test
 -- ----------------------------
 DROP TABLE IF EXISTS `test`;
@@ -1693,7 +1707,7 @@ DROP TABLE IF EXISTS `u_account_log`;
 CREATE TABLE `u_account_log`  (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `user_id` int NOT NULL COMMENT '所属用户ID',
-  `type` tinyint NOT NULL COMMENT '变动类型：1-转账、2-发红包、3-抢红包',
+  `type` tinyint NOT NULL COMMENT '变动类型：1-充值、2-发红包、3-抢红包、4-AI算力、5-人工调账、6-过期退回、7-转账',
   `amount` decimal(18, 2) NOT NULL COMMENT '变动金额（正数为进账，负数为出账）',
   `balance_after` decimal(18, 2) NOT NULL COMMENT '变动后的余额（用于后期对账）',
   `order_no` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '关联的业务单号（转账单号或红包单号）',
@@ -1776,6 +1790,28 @@ INSERT INTO `u_red_packet_record` VALUES (2049501290446307329, 14, 62, 1.67, '20
 INSERT INTO `u_red_packet_record` VALUES (2049501324541804545, 14, 63, 3.27, '2026-04-29 22:49:28');
 INSERT INTO `u_red_packet_record` VALUES (2050045439306137602, 17, 62, 1.00, '2026-05-01 10:51:35');
 INSERT INTO `u_red_packet_record` VALUES (2050045654289383426, 15, 60, 0.32, '2026-05-01 10:52:27');
+
+-- ----------------------------
+-- Table structure for u_transfer
+-- ----------------------------
+DROP TABLE IF EXISTS `u_transfer`;
+CREATE TABLE `u_transfer`  (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `transfer_no` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '转账业务单号',
+  `sender_id` int NOT NULL COMMENT '付款用户ID',
+  `receiver_id` int NOT NULL COMMENT '收款用户ID',
+  `amount` decimal(18, 2) NOT NULL COMMENT '转账金额',
+  `status` tinyint NOT NULL DEFAULT 0 COMMENT '状态：0-待接收、1-已接收、2-已退回、3-已拒绝',
+  `remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '转账备注',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `accept_time` datetime NULL DEFAULT NULL,
+  `return_time` datetime NULL DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uk_transfer_no`(`transfer_no` ASC) USING BTREE,
+  INDEX `idx_transfer_sender`(`sender_id` ASC) USING BTREE,
+  INDEX `idx_transfer_receiver_status`(`receiver_id` ASC, `status` ASC) USING BTREE,
+  INDEX `idx_transfer_expire`(`status` ASC, `create_time` ASC) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户转账记录' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for user

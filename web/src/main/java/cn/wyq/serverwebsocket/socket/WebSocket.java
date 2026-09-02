@@ -162,6 +162,33 @@ public class WebSocket {
             }
         }
     }
+
+    public static void sendChatMessage(String fromName, String toName, String content) {
+        initServices();
+
+        MessageInfo messageInfo = new MessageInfo();
+        messageInfo.setFromName(fromName);
+        messageInfo.setToName(toName);
+        messageInfo.setMessage(content);
+        messageInfo.setTime(LocalDateTime.now());
+        messageService.addMessage(messageInfo);
+
+        MessageFull messageFull = new MessageFull();
+        messageFull.setId(messageInfo.getId());
+        messageFull.setFromName(fromName);
+        messageFull.setFromPath(userService.getPath(fromName));
+        messageFull.setToName(toName);
+        messageFull.setToPath(userService.getPath(toName));
+        messageFull.setMessage(content);
+        messageFull.setTime(messageInfo.getTime());
+        String jsonMessage = JSON.toJSONString(messageFull);
+
+        sendMessageSafe(onlineUsers.get(fromName), jsonMessage);
+        if (!fromName.equals(toName)) {
+            sendMessageSafe(onlineUsers.get(toName), jsonMessage);
+        }
+        log.info("AI客服代发消息成功 | {} -> {} | 消息ID: {}", fromName, toName, messageInfo.getId());
+    }
     @OnMessage
     public void onMsg(Session session, String message, @PathParam("username") String username) throws IOException {
         initServices();
@@ -265,7 +292,7 @@ public class WebSocket {
     /**
      * 🌟 线程安全的发送消息方法（解决 TEXT_FULL_WRITING 报错）
      */
-    private void sendMessageSafe(Session session, String message) {
+    private static void sendMessageSafe(Session session, String message) {
         if (session != null && session.isOpen()) {
             // 对当前 Session 加锁，确保同一时刻只有一个线程在通过该 Session 发消息
             synchronized (session) {

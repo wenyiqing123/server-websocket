@@ -47,11 +47,11 @@
 
         <dependencies>
             <!-- 微软 Playwright 浏览器自动化库 -->
-            <dependency>
-                <groupId>com.microsoft.playwright</groupId>
-                <artifactId>playwright</artifactId>
-                <version>${playwright-version}</version> <!-- 请使用较新的版本 -->
-            </dependency>
+<!--            <dependency>-->
+<!--                <groupId>com.microsoft.playwright</groupId>-->
+<!--                <artifactId>playwright</artifactId>-->
+<!--                <version>${playwright-version}</version> &lt;!&ndash; 请使用较新的版本 &ndash;&gt;-->
+<!--            </dependency>-->
             <!-- 引入 Fastjson2 -->
             <dependency>
                 <groupId>com.alibaba.fastjson2</groupId>

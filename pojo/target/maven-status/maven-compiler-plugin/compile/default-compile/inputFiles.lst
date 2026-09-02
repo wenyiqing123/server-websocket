@@ -22,7 +22,9 @@ D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\dto\UserUpdatePasswordDTO.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\dto\WalletQueryDTO.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\entity\ChatGroup.java
+D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\entity\Transfer.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\enumeration\OperationType.java
+D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\dto\SendTransferDTO.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\vo\RedPacketFlowVO.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\dto\AiReplyDto.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\entity\MessageIntention.java
@@ -62,6 +64,7 @@ D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\dto\UpdateConversationNameDTO.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\socket\WsBroadcastEvent.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\dto\GroupQueryDTO.java
+D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\dto\DocumentSessionDocumentsDTO.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\vo\ChatMessageVo.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\vo\FinanceSummaryVO.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\vo\ActiveUsersAndMessageCount.java

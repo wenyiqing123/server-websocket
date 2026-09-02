@@ -19,7 +19,7 @@ public class AccountLog {
 
     private Integer userId;       // 改为 Integer
     /**
-     * 变动类型：1-转账、2-发红包、3-抢红包
+     * 变动类型：1-充值、2-发红包、3-抢红包、4-AI算力、5-人工调账、6-过期退回、7-转账
      */
     private Integer type;
 
