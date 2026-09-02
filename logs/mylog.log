@@ -151946,3 +151946,21 @@ ZL104的牌号是ZAlSi9Mg
 20:43:30.010 [scheduling-1] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: UPDATE recharge_order SET status = 2 WHERE status = 0 AND create_time <= DATE_SUB(NOW(), INTERVAL ? MINUTE)
 20:43:30.010 [scheduling-1] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: 5(Integer)
 20:43:30.011 [scheduling-1] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==    Updates: 0
+20:43:40.010 [scheduling-1] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: UPDATE recharge_order SET status = 2 WHERE status = 0 AND create_time <= DATE_SUB(NOW(), INTERVAL ? MINUTE)
+20:43:40.010 [scheduling-1] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: 5(Integer)
+20:43:40.011 [scheduling-1] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==    Updates: 0
+20:43:47.974 [scheduling-1] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: SELECT id FROM u_red_packet WHERE status = 0 AND remaining_amount > 0 AND create_time <= DATE_SUB(NOW(), INTERVAL 1 DAY)
+20:43:47.974 [scheduling-1] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: 
+20:43:47.975 [scheduling-1] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 0
+20:43:47.976 [scheduling-1] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: SELECT id FROM u_transfer WHERE status = 0 AND create_time <= DATE_SUB(NOW(), INTERVAL 1 DAY)
+20:43:47.976 [scheduling-1] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: 
+20:43:47.978 [scheduling-1] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 0
+20:43:50.004 [scheduling-1] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: UPDATE recharge_order SET status = 2 WHERE status = 0 AND create_time <= DATE_SUB(NOW(), INTERVAL ? MINUTE)
+20:43:50.004 [scheduling-1] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: 5(Integer)
+20:43:50.005 [scheduling-1] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==    Updates: 0
+20:44:00.006 [scheduling-1] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: UPDATE recharge_order SET status = 2 WHERE status = 0 AND create_time <= DATE_SUB(NOW(), INTERVAL ? MINUTE)
+20:44:00.006 [scheduling-1] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: 5(Integer)
+20:44:00.007 [scheduling-1] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==    Updates: 0
+20:44:10.004 [scheduling-1] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: UPDATE recharge_order SET status = 2 WHERE status = 0 AND create_time <= DATE_SUB(NOW(), INTERVAL ? MINUTE)
+20:44:10.004 [scheduling-1] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: 5(Integer)
+20:44:10.005 [scheduling-1] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==    Updates: 0
