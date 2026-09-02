@@ -41,10 +41,17 @@
         <azure-version>1.0.0-beta.1</azure-version>
         <alipay-version>4.38.221.ALL</alipay-version>
         <fastjson2-version>2.0.47</fastjson2-version>
+        <playwright-version>1.41.0</playwright-version>
     </properties>
     <dependencyManagement>
 
         <dependencies>
+            <!-- 微软 Playwright 浏览器自动化库 -->
+            <dependency>
+                <groupId>com.microsoft.playwright</groupId>
+                <artifactId>playwright</artifactId>
+                <version>${playwright-version}</version> <!-- 请使用较新的版本 -->
+            </dependency>
             <!-- 引入 Fastjson2 -->
             <dependency>
                 <groupId>com.alibaba.fastjson2</groupId>
