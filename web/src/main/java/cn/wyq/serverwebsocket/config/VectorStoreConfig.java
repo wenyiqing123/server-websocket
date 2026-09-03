@@ -6,6 +6,9 @@ import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * VectorStoreConfig：Spring 配置类，负责注册和配置应用组件。
+ */
 @Configuration
 public class VectorStoreConfig {
 

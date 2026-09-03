@@ -7,6 +7,9 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 
+/**
+ * GroupMember：业务实体对象，用于映射和传递持久化数据。
+ */
 @Data
 @TableName("group_member")
 public class GroupMember {

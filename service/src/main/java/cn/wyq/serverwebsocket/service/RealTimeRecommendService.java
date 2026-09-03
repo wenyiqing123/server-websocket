@@ -14,6 +14,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * RealTimeRecommendService：业务服务组件，提供可复用的领域处理能力。
+ */
 @Slf4j
 @Service
 public class RealTimeRecommendService {

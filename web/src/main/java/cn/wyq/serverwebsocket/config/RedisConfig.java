@@ -30,6 +30,9 @@ import java.util.Set;
  * 包含：RedisTemplate 的定制化序列化配置、Spring Cache 缓存管理器的标准化配置
  * @date 2023-11-22
  */
+/**
+ * RedisConfig：Spring 配置类，负责注册和配置应用组件。
+ */
 @Configuration
 @EnableCaching // 开启 Spring Cache 缓存注解支持 (使得 @Cacheable, @CachePut 等生效)
 public class RedisConfig extends CachingConfigurerSupport {

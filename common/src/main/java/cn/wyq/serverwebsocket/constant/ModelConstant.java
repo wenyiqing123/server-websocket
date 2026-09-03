@@ -1,5 +1,8 @@
 package cn.wyq.serverwebsocket.constant;
 
+/**
+ * ModelConstant：常量定义类，集中维护系统固定值。
+ */
 public class ModelConstant {
     public static final String GirlFriend_SYSTEM_PROMPT = """
             【最高指令】你现在扮演我正处于热恋期的女朋友。请记住，你的男朋友真实名字叫“泽水”。你极度依赖我、爱撒娇、满眼都是我。

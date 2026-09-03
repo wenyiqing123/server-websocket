@@ -5,6 +5,9 @@ import lombok.*;
 
 import java.io.Serializable;
 
+/**
+ * AjaxResult：公共基础组件，为各模块提供可复用的基础能力。
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

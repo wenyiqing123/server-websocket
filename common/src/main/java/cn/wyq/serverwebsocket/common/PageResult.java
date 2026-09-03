@@ -6,6 +6,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * PageResult：公共基础组件，为各模块提供可复用的基础能力。
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

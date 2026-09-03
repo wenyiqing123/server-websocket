@@ -31,6 +31,9 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * MessageServiceImpl：业务服务实现类，封装对应领域的业务规则。
+ */
 @Service("messageService")
 @Slf4j
 @RequiredArgsConstructor

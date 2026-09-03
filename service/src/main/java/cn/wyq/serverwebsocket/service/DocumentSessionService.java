@@ -15,6 +15,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * DocumentSessionService：业务服务组件，提供可复用的领域处理能力。
+ */
 @Service
 @RequiredArgsConstructor
 public class DocumentSessionService {

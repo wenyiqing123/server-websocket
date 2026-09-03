@@ -6,6 +6,9 @@ import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+/**
+ * RabbitConfig：Spring 配置类，负责注册和配置应用组件。
+ */
 @Configuration
 public class RabbitConfig {
 

@@ -16,6 +16,9 @@ import java.util.List;
  * 负责对话 (Conversation) 和消息 (ConversationMessage) 的所有数据库操作
  * 对应的 SQL 语句定义在 AiMapper.xml 中。
  */
+/**
+ * AIMapper：MyBatis 数据访问接口，负责数据库查询与持久化操作。
+ */
 @Mapper
 public interface AIMapper {
 

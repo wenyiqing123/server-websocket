@@ -8,6 +8,9 @@ import org.mapstruct.Mapping;
 
 import java.util.List;
 
+/**
+ * MessageStructMapper：MyBatis 数据访问接口，负责数据库查询与持久化操作。
+ */
 @Mapper(componentModel = "spring") // 交给 Spring 管理
 public interface MessageStructMapper {
 

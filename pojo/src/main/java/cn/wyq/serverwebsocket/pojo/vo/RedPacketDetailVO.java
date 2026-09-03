@@ -6,6 +6,9 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * RedPacketDetailVO：视图对象，用于组织接口返回和展示数据。
+ */
 @Data
 public class RedPacketDetailVO {
     private Long redPacketId;
@@ -25,6 +28,9 @@ public class RedPacketDetailVO {
     // 领取记录明细列表
     private List<RecordItem> recordList;
 
+    /**
+     * RecordItem：视图对象，用于组织接口返回和展示数据。
+     */
     @Data
     public static class RecordItem {
         private Integer userId;

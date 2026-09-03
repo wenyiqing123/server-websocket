@@ -13,6 +13,9 @@ import org.springframework.stereotype.Component;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * MailUtil：通用工具类，封装可复用的辅助方法。
+ */
 @Component
 public class MailUtil {
 

@@ -9,6 +9,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+/**
+ * MoneyExpiryScheduleTask：定时任务组件，负责按计划执行后台作业。
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor

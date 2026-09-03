@@ -3,6 +3,9 @@ package cn.wyq.serverwebsocket.enumeration;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+/**
+ * UserRoleEnum：枚举定义，集中约束相关状态或类型的取值。
+ */
 @Getter
 @AllArgsConstructor
 public enum UserRoleEnum {

@@ -1,5 +1,8 @@
 package cn.wyq.serverwebsocket.constant;
 
+/**
+ * ResultConstant：常量定义类，集中维护系统固定值。
+ */
 public class ResultConstant {
     // ===================== 成功类 =====================
     public static final int SUCCESS = 200;

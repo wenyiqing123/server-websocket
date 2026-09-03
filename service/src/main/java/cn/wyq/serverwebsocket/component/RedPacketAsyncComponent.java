@@ -21,6 +21,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * RedPacketAsyncComponent：后端领域对象，封装相关数据和处理能力。
+ */
 @Slf4j
 @Component
 public class RedPacketAsyncComponent {

@@ -1,5 +1,8 @@
 package cn.wyq.serverwebsocket.constant;
 
+/**
+ * RedPacketConstant：常量定义类，集中维护系统固定值。
+ */
 public class RedPacketConstant {
     /**
      * Redis 红包业务全局前缀

@@ -9,6 +9,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 
+/**
+ * AccountController：Web 层控制器，负责接收并处理 HTTP 请求。
+ */
 @RestController
 @RequestMapping("/account")
 public class AccountController {

@@ -4,6 +4,9 @@ import cn.wyq.serverwebsocket.pojo.entity.SysDocument;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.springframework.web.multipart.MultipartFile;
 
+/**
+ * DocumentService：业务服务接口，定义对应领域的业务操作契约。
+ */
 public interface DocumentService extends IService<SysDocument> {
     /**
      * 上传并解析文档存入向量库

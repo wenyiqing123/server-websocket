@@ -14,6 +14,9 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.List;
 
+/**
+ * MessageStatsImpl：业务服务实现类，封装对应领域的业务规则。
+ */
 @Service
 public class MessageStatsImpl implements MessageStatsService {
 

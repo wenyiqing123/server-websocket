@@ -6,6 +6,9 @@ import cn.wyq.serverwebsocket.pojo.vo.OrderQueryDTO;
 
 import java.util.List;
 
+/**
+ * RechargeOrderService：业务服务接口，定义对应领域的业务操作契约。
+ */
 public interface RechargeOrderService {
     /**
      * 获取订单分页列表

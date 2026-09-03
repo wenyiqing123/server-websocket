@@ -10,6 +10,9 @@ import java.time.LocalDateTime;
 /**
  * 统一的 WebSocket 通信消息体
  */
+/**
+ * WsMessage：数据传输对象，用于承载接口请求参数。
+ */
 @Data
 @Builder
 @NoArgsConstructor

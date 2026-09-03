@@ -10,6 +10,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * SysConfigServiceImpl：业务服务实现类，封装对应领域的业务规则。
+ */
 @Service
 public class SysConfigServiceImpl extends ServiceImpl<SysConfigMapper, SysConfig> implements SysConfigService {
     private final CacheClient cacheClient;

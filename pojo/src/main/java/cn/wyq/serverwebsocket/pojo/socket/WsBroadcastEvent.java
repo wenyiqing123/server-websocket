@@ -8,6 +8,9 @@ import lombok.NoArgsConstructor;
  * WebSocket 广播事件载体
  * 放在所有模块都能访问到的底层（如 pojo 模块）
  */
+/**
+ * WsBroadcastEvent：WebSocket 通信对象，负责封装实时连接或消息数据。
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

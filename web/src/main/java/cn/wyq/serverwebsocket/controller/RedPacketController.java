@@ -14,6 +14,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 
+/**
+ * RedPacketController：Web 层控制器，负责接收并处理 HTTP 请求。
+ */
 @Slf4j
 @RestController
 @RequestMapping("/redpacket")

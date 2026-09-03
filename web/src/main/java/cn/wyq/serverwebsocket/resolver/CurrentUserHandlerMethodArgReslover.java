@@ -13,6 +13,9 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
+/**
+ * CurrentUserHandlerMethodArgReslover：参数解析组件，负责将请求信息转换为方法参数。
+ */
 @Component
 public class CurrentUserHandlerMethodArgReslover implements HandlerMethodArgumentResolver {
 

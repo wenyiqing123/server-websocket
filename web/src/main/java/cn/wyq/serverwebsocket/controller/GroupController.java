@@ -15,6 +15,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * GroupController：Web 层控制器，负责接收并处理 HTTP 请求。
+ */
 @RestController
 @RequestMapping("/group")
 @Tag(name = "群聊管理接口")

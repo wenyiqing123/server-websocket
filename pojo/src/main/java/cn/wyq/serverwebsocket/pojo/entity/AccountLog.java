@@ -9,6 +9,9 @@ import lombok.Data;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+/**
+ * AccountLog：业务实体对象，用于映射和传递持久化数据。
+ */
 @Data
 @Builder
 @TableName("u_account_log")

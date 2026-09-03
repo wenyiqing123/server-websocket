@@ -12,6 +12,9 @@ import org.springframework.web.client.RestTemplate;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * QwenTagExtractor：通用工具类，封装可复用的辅助方法。
+ */
 @Slf4j
 @Component
 public class QwenTagExtractor {

@@ -21,6 +21,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * FriendServiceImpl：业务服务实现类，封装对应领域的业务规则。
+ */
 @Service
 public class FriendServiceImpl implements FriendService {
 

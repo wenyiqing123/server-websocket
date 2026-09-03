@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * UserWalletController：Web 层控制器，负责接收并处理 HTTP 请求。
+ */
 @RestController
 @RequestMapping("/finance/wallet") // 🌟 严格遵守不要 /api 的约定
 public class UserWalletController {

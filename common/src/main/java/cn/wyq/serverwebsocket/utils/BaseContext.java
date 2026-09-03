@@ -1,5 +1,8 @@
 package cn.wyq.serverwebsocket.utils;
 
+/**
+ * BaseContext：通用工具类，封装可复用的辅助方法。
+ */
 public class BaseContext {
     // 线程容器，每个线程单独存一份，互不干扰
     private static ThreadLocal<Long> threadLocal = new ThreadLocal<>();

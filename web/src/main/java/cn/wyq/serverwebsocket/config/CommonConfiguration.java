@@ -15,6 +15,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+/**
+ * CommonConfiguration：Spring 配置类，负责注册和配置应用组件。
+ */
 @Configuration
 @Slf4j
 @RequiredArgsConstructor

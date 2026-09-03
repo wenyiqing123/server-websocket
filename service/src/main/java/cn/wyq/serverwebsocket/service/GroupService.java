@@ -9,6 +9,9 @@ import cn.wyq.serverwebsocket.pojo.entity.ChatGroup;
 import java.util.List;
 
 
+/**
+ * GroupService：业务服务接口，定义对应领域的业务操作契约。
+ */
 public interface GroupService {
 
 

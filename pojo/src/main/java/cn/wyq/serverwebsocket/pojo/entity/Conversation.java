@@ -12,6 +12,9 @@ import java.time.LocalDateTime;
  * 对话表实体类
  * 对应表名：conversation
  */
+/**
+ * Conversation：业务实体对象，用于映射和传递持久化数据。
+ */
 @Data
 @Builder
 @NoArgsConstructor // 1. 生成无参构造函数（Jackson 反序列化必须）

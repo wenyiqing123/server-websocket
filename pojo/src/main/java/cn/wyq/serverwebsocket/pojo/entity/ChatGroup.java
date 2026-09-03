@@ -7,6 +7,9 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 
+/**
+ * ChatGroup：业务实体对象，用于映射和传递持久化数据。
+ */
 @Data
 @TableName("chat_group")
 public class ChatGroup {

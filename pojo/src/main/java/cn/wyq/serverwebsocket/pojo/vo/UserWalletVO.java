@@ -4,6 +4,9 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 
+/**
+ * UserWalletVO：视图对象，用于组织接口返回和展示数据。
+ */
 @Data
 public class UserWalletVO {
     private Integer userId;

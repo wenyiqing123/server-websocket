@@ -39,6 +39,9 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * ChatServiceImpl：业务服务实现类，封装对应领域的业务规则。
+ */
 @Service
 @Slf4j
 public class ChatServiceImpl implements ChatService {

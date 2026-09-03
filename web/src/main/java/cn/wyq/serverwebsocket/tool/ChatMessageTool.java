@@ -10,6 +10,9 @@ import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+/**
+ * ChatMessageTool：AI/业务工具组件，为模型或业务流程提供可调用能力。
+ */
 @Component
 @RequiredArgsConstructor
 public class ChatMessageTool {

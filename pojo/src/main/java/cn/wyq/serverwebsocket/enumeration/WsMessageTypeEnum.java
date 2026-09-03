@@ -5,6 +5,9 @@ import lombok.Getter;
 /**
  * WebSocket 消息类型枚举
  */
+/**
+ * WsMessageTypeEnum：枚举定义，集中约束相关状态或类型的取值。
+ */
 @Getter
 public enum WsMessageTypeEnum {
 

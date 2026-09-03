@@ -8,6 +8,9 @@ import java.io.Serializable;
  * 消息表实体类
  * 对应表名：conversation_message
  */
+/**
+ * ConversationMessage：业务实体对象，用于映射和传递持久化数据。
+ */
 @Data
 public class ConversationMessage implements Serializable {
     private static final long serialVersionUID = 1L;

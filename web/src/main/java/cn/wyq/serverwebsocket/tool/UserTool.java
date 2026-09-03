@@ -10,6 +10,9 @@ import org.springframework.util.StringUtils;
 
 import java.util.List;
 
+/**
+ * UserTool：AI/业务工具组件，为模型或业务流程提供可调用能力。
+ */
 @Component
 @RequiredArgsConstructor
 public class UserTool {

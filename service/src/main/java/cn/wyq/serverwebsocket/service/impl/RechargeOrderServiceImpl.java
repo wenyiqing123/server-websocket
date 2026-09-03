@@ -16,6 +16,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
 
+/**
+ * RechargeOrderServiceImpl：业务服务实现类，封装对应领域的业务规则。
+ */
 @Service
 public class RechargeOrderServiceImpl implements RechargeOrderService {
 

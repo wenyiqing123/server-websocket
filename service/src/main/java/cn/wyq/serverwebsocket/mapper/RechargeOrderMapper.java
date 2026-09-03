@@ -10,6 +10,9 @@ import org.apache.ibatis.annotations.Select;
 import java.math.BigDecimal;
 import java.util.List;
 
+/**
+ * RechargeOrderMapper：MyBatis 数据访问接口，负责数据库查询与持久化操作。
+ */
 @Mapper
 public interface RechargeOrderMapper extends BaseMapper<RechargeOrder> {
     @Select("SELECT status FROM recharge_order WHERE out_trade_no = #{outTradeNo}")

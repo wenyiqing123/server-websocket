@@ -5,6 +5,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+/**
+ * ImageNetClassLoader：通用工具类，封装可复用的辅助方法。
+ */
 public class ImageNetClassLoader {
 
     public static String[] loadClassNames() throws IOException {

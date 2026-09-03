@@ -50,6 +50,9 @@ import java.util.Objects;
                 @ExtensionProperty(name = "x-order", value = "1")
         })
 })
+/**
+ * UserController：Web 层控制器，负责接收并处理 HTTP 请求。
+ */
 @Slf4j
 @RequiredArgsConstructor
 public class UserController {

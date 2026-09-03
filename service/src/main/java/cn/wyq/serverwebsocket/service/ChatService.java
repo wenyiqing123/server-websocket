@@ -7,6 +7,9 @@ import reactor.core.publisher.Flux;
 
 import java.util.List;
 
+/**
+ * ChatService：业务服务接口，定义对应领域的业务操作契约。
+ */
 public interface ChatService {
     Flux<String> chatStream(String message, String sessionId, String userName, String agentType, List<String> docIds);
 

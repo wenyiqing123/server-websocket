@@ -12,6 +12,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * SysConfigController：Web 层控制器，负责接收并处理 HTTP 请求。
+ */
 @RestController
 @RequestMapping("/sys-config")
 @Tag(name = "系统设置接口")

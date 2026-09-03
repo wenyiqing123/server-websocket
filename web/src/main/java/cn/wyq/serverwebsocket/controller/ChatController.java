@@ -18,6 +18,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Flux;
 
+/**
+ * ChatController：Web 层控制器，负责接收并处理 HTTP 请求。
+ */
 @RestController
 @RequestMapping("/ai")
 @Slf4j

@@ -13,6 +13,9 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+/**
+ * Message：业务实体对象，用于映射和传递持久化数据。
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

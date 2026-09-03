@@ -14,6 +14,9 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 // 🌟 核心修复：删除了原来的 exclude，因为对应的包已经被咱们删光了
+/**
+ * ServerWebsocketApplication：后端领域对象，封装相关数据和处理能力。
+ */
 @SpringBootApplication
 @Slf4j
 @EnableCaching //开启redis缓存

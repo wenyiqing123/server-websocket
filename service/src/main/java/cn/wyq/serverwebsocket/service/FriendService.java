@@ -4,6 +4,9 @@ import cn.wyq.serverwebsocket.common.Result;
 
 import java.util.List;
 
+/**
+ * FriendService：业务服务接口，定义对应领域的业务操作契约。
+ */
 public interface FriendService {
     /**
      * 发起好友申请

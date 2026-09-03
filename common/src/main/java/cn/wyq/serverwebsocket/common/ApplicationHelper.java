@@ -13,6 +13,9 @@ import org.springframework.stereotype.Component;
  * 例如：WebSocket ServerEndpoint、普通工具类等
  * 2. 提供静态方法直接获取 ApplicationContext 或 Bean
  */
+/**
+ * ApplicationHelper：公共基础组件，为各模块提供可复用的基础能力。
+ */
 @Component
 public class ApplicationHelper implements ApplicationContextAware {
 

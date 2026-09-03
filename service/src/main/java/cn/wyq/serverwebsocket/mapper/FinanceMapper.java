@@ -10,6 +10,9 @@ import java.util.List;
 /**
  * 财务数据统计 Mapper
  */
+/**
+ * FinanceMapper：MyBatis 数据访问接口，负责数据库查询与持久化操作。
+ */
 @Mapper
 public interface FinanceMapper {
 

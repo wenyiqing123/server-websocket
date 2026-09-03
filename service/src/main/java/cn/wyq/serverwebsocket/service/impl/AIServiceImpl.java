@@ -25,6 +25,9 @@ import java.util.List;
 /**
  * AI 服务实现类：专注于对话和消息的数据存储与查询 (手动缓存高并发防御版)
  */
+/**
+ * AIServiceImpl：业务服务实现类，封装对应领域的业务规则。
+ */
 @Slf4j
 @Service
 public class AIServiceImpl implements AIService {

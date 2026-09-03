@@ -29,6 +29,9 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+/**
+ * GroupServiceImpl：业务服务实现类，封装对应领域的业务规则。
+ */
 @Service
 public class GroupServiceImpl implements GroupService {
 

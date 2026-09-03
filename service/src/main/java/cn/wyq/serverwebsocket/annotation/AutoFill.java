@@ -11,6 +11,9 @@ import java.lang.annotation.Target;
 /**
  * 数据库操作类型注解，用于标识某个方法需要根据注解中指定的数据库操作类型进行自动填充
  */
+/**
+ * AutoFill：自定义注解，用于声明通用的业务元数据。
+ */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface AutoFill {

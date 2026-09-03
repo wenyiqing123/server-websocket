@@ -19,6 +19,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+/**
+ * CacheInitRunner：Spring 配置类，负责注册和配置应用组件。
+ */
 @Component
 @Slf4j
 public class CacheInitRunner {

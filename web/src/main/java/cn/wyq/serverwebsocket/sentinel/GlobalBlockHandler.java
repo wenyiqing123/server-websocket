@@ -9,6 +9,9 @@ import lombok.extern.slf4j.Slf4j;
 // import cn.wyq.common.core.Result;
 // import cn.wyq.pojo.User;
 
+/**
+ * GlobalBlockHandler：Sentinel 相关组件，负责流量保护或降级处理。
+ */
 @Slf4j
 public class GlobalBlockHandler {
 

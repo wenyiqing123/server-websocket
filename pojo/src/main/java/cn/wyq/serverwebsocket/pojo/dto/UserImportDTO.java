@@ -9,6 +9,9 @@ import lombok.Data;
 @Data
 @ContentRowHeight(20)
 // 💡 建议顺手加个表头高度，让第一行的标题看起来更大气
+/**
+ * UserImportDTO：数据传输对象，用于承载接口请求参数。
+ */
 @HeadRowHeight(25)
 public class UserImportDTO {
 

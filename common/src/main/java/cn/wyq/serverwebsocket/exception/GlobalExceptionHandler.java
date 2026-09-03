@@ -9,6 +9,9 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 
 import javax.net.ssl.SSLHandshakeException;
 
+/**
+ * GlobalExceptionHandler：异常处理组件，用于统一表达或处理应用异常。
+ */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler(ServiceException.class)

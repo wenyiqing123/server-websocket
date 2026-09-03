@@ -34,6 +34,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * UserServiceImpl：业务服务实现类，封装对应领域的业务规则。
+ */
 @Service
 @Slf4j
 @RequiredArgsConstructor

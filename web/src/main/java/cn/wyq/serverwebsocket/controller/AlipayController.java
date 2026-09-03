@@ -22,6 +22,9 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * AlipayController：Web 层控制器，负责接收并处理 HTTP 请求。
+ */
 @Slf4j
 @RestController
 public class AlipayController {

@@ -6,6 +6,9 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 
+/**
+ * ImageUtils：通用工具类，封装可复用的辅助方法。
+ */
 public class ImageUtils {
 
     private static final float[] MEAN = {0.485f, 0.456f, 0.406f};

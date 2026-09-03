@@ -7,6 +7,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * AlipayConfig：Spring 配置类，负责注册和配置应用组件。
+ */
 @Data
 @Configuration
 @ConfigurationProperties(prefix = "alipay")

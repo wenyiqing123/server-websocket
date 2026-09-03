@@ -6,6 +6,9 @@ import lombok.Data;
 import java.io.Serializable;
 import java.util.HashMap;
 
+/**
+ * Result：公共基础组件，为各模块提供可复用的基础能力。
+ */
 @Data
 
 @Builder

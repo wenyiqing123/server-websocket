@@ -9,6 +9,9 @@ import org.springframework.stereotype.Component;
 /**
  * 监听器类:主要任务是用ServletRequest将我们的HttpSession携带过去
  */
+/**
+ * RequestListener：事件监听组件，负责接收并处理应用事件。
+ */
 @Component
 public class RequestListener implements ServletRequestListener {
     @Override

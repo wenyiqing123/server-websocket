@@ -17,6 +17,9 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.LocalDate;
 import java.util.List;
 
+/**
+ * MessageStatsController：Web 层控制器，负责接收并处理 HTTP 请求。
+ */
 @RestController
 @RequestMapping("/message-stats")
 @Tag(name = "消息统计控制器", description = "提供消息统计相关的接口")

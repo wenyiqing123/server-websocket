@@ -14,6 +14,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * MessageService：业务服务接口，定义对应领域的业务操作契约。
+ */
 public interface MessageService  extends IService<Message> {
     Integer addMessage(MessageInfo messageInfo);
 

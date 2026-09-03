@@ -16,6 +16,9 @@ import org.springframework.context.annotation.Configuration;
  *
  * @author Hva
  */
+/**
+ * Knife4jConfiguration：Spring 配置类，负责注册和配置应用组件。
+ */
 @Configuration
 public class Knife4jConfiguration {
     static {

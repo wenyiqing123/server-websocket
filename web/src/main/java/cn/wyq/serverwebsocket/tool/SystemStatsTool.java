@@ -12,6 +12,9 @@ import org.springframework.stereotype.Component;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * SystemStatsTool：AI/业务工具组件，为模型或业务流程提供可调用能力。
+ */
 @Component
 @RequiredArgsConstructor
 public class SystemStatsTool {

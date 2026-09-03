@@ -22,6 +22,9 @@ import java.util.Map;
  * - 开启 Spring 对 WebSocket 的支持
  * - 通过 ServerEndpointConfig.Configurator 在握手阶段处理 token
  */
+/**
+ * WebSocketConfig：Spring 配置类，负责注册和配置应用组件。
+ */
 @Configuration
 @EnableWebSocket
 

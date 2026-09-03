@@ -6,6 +6,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
+/**
+ * RedPacketUtils：通用工具类，封装可复用的辅助方法。
+ */
 public class RedPacketUtils {
 
     /**

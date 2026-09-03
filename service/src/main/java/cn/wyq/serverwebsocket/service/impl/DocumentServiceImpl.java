@@ -23,6 +23,9 @@ import java.io.File;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * DocumentServiceImpl：业务服务实现类，封装对应领域的业务规则。
+ */
 @Service
 public class DocumentServiceImpl extends ServiceImpl<SysDocumentMapper, SysDocument> implements DocumentService {
 

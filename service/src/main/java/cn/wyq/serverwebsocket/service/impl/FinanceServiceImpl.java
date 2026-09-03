@@ -13,6 +13,9 @@ import java.util.List;
 /**
  * 财务数据统计 Service 实现类
  */
+/**
+ * FinanceServiceImpl：业务服务实现类，封装对应领域的业务规则。
+ */
 @Service
 public class FinanceServiceImpl implements FinanceService {
 

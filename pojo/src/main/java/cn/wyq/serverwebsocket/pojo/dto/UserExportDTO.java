@@ -20,6 +20,9 @@ import java.net.URL;
 // 🚨 必须放在类上！统管所有数据行的高度，给图片留出垂直空间
 @ContentRowHeight(20)
 // 💡 建议顺手加个表头高度，让第一行的标题看起来更大气
+/**
+ * UserExportDTO：数据传输对象，用于承载接口请求参数。
+ */
 @HeadRowHeight(25)
 public class UserExportDTO {
 

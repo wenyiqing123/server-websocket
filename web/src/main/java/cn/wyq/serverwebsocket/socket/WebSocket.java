@@ -35,6 +35,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * WebSocket 服务端逻辑
  */
+/**
+ * WebSocket：WebSocket 通信对象，负责封装实时连接或消息数据。
+ */
 @Component
 @Slf4j
 @ServerEndpoint(value = "/websocket/{username}", configurator = WebSocketConfig.class)

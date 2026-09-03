@@ -7,6 +7,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashMap;
 
+/**
+ * ServletUtil：通用工具类，封装可复用的辅助方法。
+ */
 public class ServletUtil {
     /**
      * 将字符串渲染到客户端

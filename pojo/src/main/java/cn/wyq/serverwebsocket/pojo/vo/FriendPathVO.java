@@ -7,6 +7,9 @@ import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
+/**
+ * FriendPathVO：视图对象，用于组织接口返回和展示数据。
+ */
 @AllArgsConstructor
 @Data
 @Builder

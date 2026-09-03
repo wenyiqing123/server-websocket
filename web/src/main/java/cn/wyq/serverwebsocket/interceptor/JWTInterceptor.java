@@ -16,6 +16,9 @@ import java.lang.reflect.Method;
 /**
  * 权限验证拦截器 (纯无状态 Access Token 极致性能版)
  */
+/**
+ * JWTInterceptor：请求拦截组件，负责请求前后的通用处理。
+ */
 @Slf4j
 @Component
 public class JWTInterceptor implements HandlerInterceptor {

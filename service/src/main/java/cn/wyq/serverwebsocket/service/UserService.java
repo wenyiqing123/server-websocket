@@ -12,6 +12,9 @@ import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * UserService：业务服务接口，定义对应领域的业务操作契约。
+ */
 public interface UserService {
     // 查询所有用户
     PageResult<List<UserEmailApplyEntity>> userList(UserQueryDTO userQueryDTO);

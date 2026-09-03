@@ -12,6 +12,9 @@ import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * RedisUtil：通用工具类，封装可复用的辅助方法。
+ */
 @Component
 @Slf4j
 public class RedisUtil {

@@ -6,6 +6,9 @@ import lombok.Data;
 
 import java.util.Date;
 
+/**
+ * SysDocument：业务实体对象，用于映射和传递持久化数据。
+ */
 @Data
 @TableName("sys_document")
 public class SysDocument {

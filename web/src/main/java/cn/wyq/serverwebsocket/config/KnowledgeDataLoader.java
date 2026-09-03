@@ -11,6 +11,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+/**
+ * KnowledgeDataLoader：Spring 配置类，负责注册和配置应用组件。
+ */
 @Service
 @Slf4j
 public class KnowledgeDataLoader {

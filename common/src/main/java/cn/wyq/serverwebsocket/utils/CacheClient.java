@@ -2,9 +2,9 @@ package cn.wyq.serverwebsocket.utils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.extern.slf4j.Slf4j;
@@ -14,8 +14,8 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
@@ -24,6 +24,9 @@ import java.util.function.Function;
 
 /**
  * JSON 字符串缓存客户端，统一处理缓存穿透、击穿和雪崩。
+ */
+/**
+ * CacheClient：通用工具类，封装可复用的辅助方法。
  */
 @Component
 @Slf4j
@@ -287,6 +290,9 @@ public class CacheClient {
         }
     }
 
+    /**
+     * CacheRead：通用工具类，封装可复用的辅助方法。
+     */
     private record CacheRead<R>(boolean hit, R value) {
         private static <R> CacheRead<R> hit(R value) {
             return new CacheRead<>(true, value);

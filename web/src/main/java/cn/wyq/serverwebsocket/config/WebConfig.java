@@ -25,6 +25,9 @@ import java.util.List;
 /**
  * 终极合并版：全局 Web 配置类
  */
+/**
+ * WebConfig：Spring 配置类，负责注册和配置应用组件。
+ */
 @Configuration
 @Slf4j
 public class WebConfig implements WebMvcConfigurer {

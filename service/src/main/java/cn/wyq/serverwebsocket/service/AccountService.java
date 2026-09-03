@@ -16,6 +16,9 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * AccountService：业务服务组件，提供可复用的领域处理能力。
+ */
 @Slf4j
 @Service
 public class AccountService {

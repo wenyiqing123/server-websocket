@@ -6,6 +6,9 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 
+/**
+ * MessageExportDTO：数据传输对象，用于承载接口请求参数。
+ */
 @Data
 public class MessageExportDTO {
 

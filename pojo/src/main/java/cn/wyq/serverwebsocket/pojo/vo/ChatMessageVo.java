@@ -4,6 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * ChatMessageVo：视图对象，用于组织接口返回和展示数据。
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

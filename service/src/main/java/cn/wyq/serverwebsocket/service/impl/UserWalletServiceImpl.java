@@ -18,6 +18,9 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * UserWalletServiceImpl：业务服务实现类，封装对应领域的业务规则。
+ */
 @Service
 public class UserWalletServiceImpl implements UserWalletService {
 

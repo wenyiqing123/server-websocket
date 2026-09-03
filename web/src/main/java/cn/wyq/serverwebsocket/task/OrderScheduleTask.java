@@ -9,6 +9,9 @@ import org.springframework.stereotype.Component;
 /**
  * 订单相关的定时任务
  */
+/**
+ * OrderScheduleTask：定时任务组件，负责按计划执行后台作业。
+ */
 @Slf4j
 @Component
 public class OrderScheduleTask {

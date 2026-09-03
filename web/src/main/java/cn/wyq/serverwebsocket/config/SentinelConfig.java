@@ -6,6 +6,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * SentinelConfig：Spring 配置类，负责注册和配置应用组件。
+ */
 @Configuration
 public class SentinelConfig {
 

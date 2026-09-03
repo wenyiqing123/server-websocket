@@ -11,6 +11,9 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 import java.util.ArrayList;
 
+/**
+ * LogOutFilter：请求拦截组件，负责请求前后的通用处理。
+ */
 @Component
 public class LogOutFilter implements HandlerInterceptor {
 
