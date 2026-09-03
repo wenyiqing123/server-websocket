@@ -6,6 +6,7 @@ import cn.wyq.serverwebsocket.mapper.RechargeOrderMapper;
 import cn.wyq.serverwebsocket.pojo.entity.Account;
 import cn.wyq.serverwebsocket.pojo.entity.AccountLog;
 import cn.wyq.serverwebsocket.pojo.entity.RechargeOrder;
+import cn.wyq.serverwebsocket.utils.CacheClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,21 +26,18 @@ public class RechargeService {
     private AccountMapper accountMapper;
     @Autowired
     private AccountLogMapper accountLogMapper;
+    @Autowired
+    private CacheClient cacheClient;
     public boolean checkOrderIsPaid(String outTradeNo) {
         if (outTradeNo == null || outTradeNo.trim().isEmpty()) {
             return false;
         }
 
-        // 1. 去数据库查询该订单的状态
-        Integer status = rechargeOrderMapper.selectStatusByOutTradeNo(outTradeNo);
-
-        // 2. 如果订单不存在，返回 false
-        if (status == null) {
-            return false;
-        }
-
-        // 3. 判断状态是否为 1 (1 代表已支付，请根据你数据库的实际设计调整)
-        return status == 1;
+        return cacheClient.queryWithMutex("finance:recharge-status", outTradeNo,
+                Boolean.class, ignored -> {
+                    Integer status = rechargeOrderMapper.selectStatusByOutTradeNo(outTradeNo);
+                    return status != null && status == 1;
+                }, 5, java.util.concurrent.TimeUnit.SECONDS);
     }
     /**
      * 1. 扫码前：创建待支付订单
@@ -53,6 +51,7 @@ public class RechargeService {
                 .createTime(LocalDateTime.now())
                 .build();
         rechargeOrderMapper.insert(order);
+        cacheClient.evict("finance:recharge-status", outTradeNo);
     }
 
     /**
@@ -109,6 +108,8 @@ public class RechargeService {
         order.setAlipayTradeNo(alipayTradeNo);
         order.setPayTime(LocalDateTime.now());
         rechargeOrderMapper.updateById(order);
+        cacheClient.evict("finance:recharge-status", outTradeNo);
+        cacheClient.evictByPrefix("finance");
 
         log.info("【充值成功入账】用户: {}, 金额: {}", userId, amount);
     }

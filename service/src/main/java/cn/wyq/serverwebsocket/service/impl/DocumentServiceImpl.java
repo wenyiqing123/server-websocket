@@ -3,7 +3,9 @@ package cn.wyq.serverwebsocket.service.impl;
 import cn.wyq.serverwebsocket.mapper.SysDocumentMapper;
 import cn.wyq.serverwebsocket.pojo.entity.SysDocument;
 import cn.wyq.serverwebsocket.service.DocumentService;
+import cn.wyq.serverwebsocket.utils.CacheClient;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.reader.TextReader;
 import org.springframework.ai.reader.pdf.PagePdfDocumentReader;
@@ -28,6 +30,8 @@ public class DocumentServiceImpl extends ServiceImpl<SysDocumentMapper, SysDocum
 
     @Autowired
     private VectorStore vectorStore;
+    @Autowired
+    private CacheClient cacheClient;
 
     // 🌟 复用你 UploadController 里的配置项
     @Value("${image.mapping}")
@@ -38,6 +42,15 @@ public class DocumentServiceImpl extends ServiceImpl<SysDocumentMapper, SysDocum
 
     @Value("${server.port}")
     private String serverPort;
+
+    @Override
+    public List<SysDocument> list() {
+        return cacheClient.queryWithMutex("documents", "all",
+                new TypeReference<List<SysDocument>>() {}, ignored -> {
+                    List<SysDocument> documents = super.list();
+                    return documents == null ? List.of() : documents;
+                }, 5, java.util.concurrent.TimeUnit.MINUTES);
+    }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -114,6 +127,7 @@ public class DocumentServiceImpl extends ServiceImpl<SysDocumentMapper, SysDocum
             // 8. 写入向量库，并持久化缓存，避免服务重启后丢失上传文档的向量
             vectorStore.accept(splitDocuments);
             persistVectorStore();
+            cacheClient.evict("documents", "all");
 
             return docId;
 
@@ -140,6 +154,7 @@ public class DocumentServiceImpl extends ServiceImpl<SysDocumentMapper, SysDocum
         if (doc != null) {
             // 1. 从 MySQL 中删除记录
             this.removeById(docId);
+            cacheClient.evict("documents", "all");
 
             // 2. 从本地硬盘中删除物理文件
             String originalFilename = doc.getFileName();

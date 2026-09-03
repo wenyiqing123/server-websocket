@@ -5,6 +5,7 @@ import cn.wyq.serverwebsocket.constant.RedPacketConstant;
 import cn.wyq.serverwebsocket.mapper.*;
 import cn.wyq.serverwebsocket.pojo.entity.*;
 import cn.wyq.serverwebsocket.pojo.vo.RedPacketDetailVO;
+import cn.wyq.serverwebsocket.utils.CacheClient;
 import cn.wyq.serverwebsocket.utils.RedPacketUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -42,11 +43,21 @@ public class RedPacketService {
 
     @Autowired
     private RedPacketRecordMapper redPacketRecordMapper;
+    @Autowired
+    private CacheClient cacheClient;
 
     /**
      * 查询红包详情与领取列表
      */
     public RedPacketDetailVO getRedPacketDetail(Long redPacketId, Integer currentUserId) {
+        String cacheId = String.valueOf(redPacketId) + "|" + String.valueOf(currentUserId);
+        return cacheClient.queryWithMutex("redpackets:detail", cacheId,
+                RedPacketDetailVO.class,
+                ignored -> getRedPacketDetailFromDatabase(redPacketId, currentUserId),
+                30, java.util.concurrent.TimeUnit.SECONDS);
+    }
+
+    private RedPacketDetailVO getRedPacketDetailFromDatabase(Long redPacketId, Integer currentUserId) {
         RedPacketDetailVO vo = new RedPacketDetailVO();
 
         // 1. 查询红包主记录
@@ -197,6 +208,8 @@ public class RedPacketService {
         }
 
         log.info("红包 [{}] 预热进 Redis 成功，Key为: {}", redPacket.getId(), redisListKey);
+        cacheClient.evict("account:balance", senderId);
+        cacheClient.evictByPrefix("finance");
 
         return redPacket.getId();
     }
@@ -254,6 +267,10 @@ public class RedPacketService {
             throw e;
         }
 
+        cacheClient.evictByPrefix("redpackets:detail");
+        cacheClient.evict("account:balance", userId);
+        cacheClient.evictByPrefix("finance");
+
         return grabbedAmount;
     }
 
@@ -299,6 +316,9 @@ public class RedPacketService {
                 .build());
 
         clearRedPacketCache(redPacketId);
+        cacheClient.evictByPrefix("redpackets:detail");
+        cacheClient.evict("account:balance", redPacket.getSenderId());
+        cacheClient.evictByPrefix("finance");
         log.info("红包 [{}] 过期退回发送者 [{}]，金额 {}", redPacketId, redPacket.getSenderId(), refundAmount);
         return true;
     }

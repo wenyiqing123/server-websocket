@@ -12,6 +12,7 @@ cn\wyq\serverwebsocket\common\ImagePropertis.class
 cn\wyq\serverwebsocket\common\PageResult$PageResultBuilder.class
 cn\wyq\serverwebsocket\constant\ModelConstant.class
 cn\wyq\serverwebsocket\constant\RedisKeyConstants.class
+cn\wyq\serverwebsocket\utils\CacheClient$CacheRead.class
 cn\wyq\serverwebsocket\utils\MailUtil.class
 cn\wyq\serverwebsocket\common\ApplicationHelper.class
 cn\wyq\serverwebsocket\utils\ImageNetClassLoader.class
@@ -20,6 +21,7 @@ cn\wyq\serverwebsocket\common\AjaxResult$AjaxResultBuilder.class
 cn\wyq\serverwebsocket\constant\BloomConstant.class
 cn\wyq\serverwebsocket\exception\ServiceException.class
 cn\wyq\serverwebsocket\utils\BaseContext.class
+cn\wyq\serverwebsocket\utils\CacheClient.class
 cn\wyq\serverwebsocket\utils\ImageUtils.class
 cn\wyq\serverwebsocket\common\JacksonObjectMapper.class
 cn\wyq\serverwebsocket\common\PageResult.class

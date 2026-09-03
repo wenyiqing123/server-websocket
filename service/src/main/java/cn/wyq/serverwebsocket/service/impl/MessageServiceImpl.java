@@ -2,7 +2,6 @@ package cn.wyq.serverwebsocket.service.impl;
 
 import cn.wyq.serverwebsocket.common.PageResult;
 import cn.wyq.serverwebsocket.common.Result;
-import cn.wyq.serverwebsocket.constant.RedisKeyConstants;
 import cn.wyq.serverwebsocket.exception.ServiceException;
 import cn.wyq.serverwebsocket.mapper.ChatGroupMapper;
 import cn.wyq.serverwebsocket.mapper.MessageMapper;
@@ -14,16 +13,17 @@ import cn.wyq.serverwebsocket.pojo.entity.Message;
 import cn.wyq.serverwebsocket.pojo.socket.MessageFull;
 import cn.wyq.serverwebsocket.pojo.socket.MessageInfo;
 import cn.wyq.serverwebsocket.service.MessageService;
+import cn.wyq.serverwebsocket.utils.CacheClient;
 import com.alibaba.excel.EasyExcel;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -42,19 +42,29 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
     private final ChatGroupMapper chatGroupMapper;
 
 
-    // 💡 核心新增：注入 RedisTemplate
-    // 由于使用了 @RequiredArgsConstructor，声明为 private final 即可自动注入
-    private final RedisTemplate<String, Object> redisTemplate;
+    private final CacheClient cacheClient;
 
     @Override
     public Result clearHistory(String userName, String targetName) {
         // 直接调用 Mapper 删除两人之间的所有消息
         int rows = messageMapper.deleteChatHistory(userName, targetName);
+        evictMessageCaches();
         return Result.success("聊天记录已清空");
     }
 
     @Override
     public Result getFilteredHistory(String userName, String targetName, Integer type, String keyword) {
+        if (userName == null || userName.trim().isEmpty() || targetName == null || targetName.trim().isEmpty()) {
+            throw new ServiceException("聊天双方不能为空", 400);
+        }
+        String cacheId = String.valueOf(userName) + "|" + String.valueOf(targetName) + "|"
+                + String.valueOf(type) + "|" + String.valueOf(keyword);
+        return cacheClient.queryWithMutex("messages:filtered", cacheId, Result.class,
+                ignored -> getFilteredHistoryFromDatabase(userName, targetName, type, keyword),
+                30, java.util.concurrent.TimeUnit.SECONDS);
+    }
+
+    private Result getFilteredHistoryFromDatabase(String userName, String targetName, Integer type, String keyword) {
         // 🚨 注意：如果你的数据库底层实体类叫 MessageInfo，请将泛型换成 MessageInfo
         QueryWrapper<Message> query = new QueryWrapper<>();
 
@@ -121,17 +131,30 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
 
     @Override
     public Integer addMessage(MessageInfo messageInfo) {
+        if (messageInfo == null || messageInfo.getFromName() == null || messageInfo.getToName() == null
+                || messageInfo.getMessage() == null) {
+            throw new ServiceException("消息内容不完整", 400);
+        }
         messageMapper.addMessage(messageInfo);
-
-        // 💡 架构师温馨提示：发新消息会改变第一页的列表，建议在这里也加上这行代码清除缓存
-        // String cacheKey = RedisKeyConstants.MANAGE_MESSAGES_CACHE + ":page=1:pageSize=9:list";
-        // redisTemplate.delete(cacheKey);
+        cacheClient.evict("messages:conversation", conversationCacheId(messageInfo));
+        cacheClient.evictByPrefix("messages:filtered");
+        cacheClient.evictByPrefix("messages:page");
 
         return messageInfo.getId();
     }
 
     @Override
     public List<MessageFull> findAll(MessageInfo messageInfo) {
+        if (messageInfo == null) {
+            throw new ServiceException("聊天查询参数不能为空", 400);
+        }
+        String cacheId = conversationCacheId(messageInfo);
+        return cacheClient.queryWithMutex("messages:conversation", cacheId,
+                new TypeReference<List<MessageFull>>() {},
+                ignored -> findAllFromDatabase(messageInfo), 30, java.util.concurrent.TimeUnit.SECONDS);
+    }
+
+    private List<MessageFull> findAllFromDatabase(MessageInfo messageInfo) {
         // 1. 声明一个统一的列表来接收最终的 MessageFull 数据
         List<MessageFull> finalMessageList = new ArrayList<>();
 
@@ -201,6 +224,7 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
         try {
             // 3. 数据库将消息内容置空/打上撤回标记
             messageMapper.recallMessage(id);
+            evictMessageCaches();
 
             // 4. 组装一条空消息对象并返回给 Controller
             MessageFull recallEvent = new MessageFull();
@@ -220,22 +244,25 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public PageResult<List<Message>> pageQuery(MessageQueryDTO messageQueryDTO) {
-        // 3. 缓存未命中（或带条件查询），执行数据库检索
-        PageHelper.startPage(messageQueryDTO.getPage(), messageQueryDTO.getPageSize());
-        Page<Message> page = messageMapper.pageQuery(messageQueryDTO);
-
-        long total = page.getTotal();
-        List<Message> result = page.getResult();
-        for (Message message : result) {
-            if (message.getToName().startsWith("GROUP")) {
-                String groupName = chatGroupMapper.findGroupNameByGroupId(message.getToName());
-                message.setToName("群聊："+groupName);
-            }
-        }
-        PageResult<List<Message>> pageResult = PageResult.success(total, result);
-        return pageResult;
+        MessageQueryDTO query = messageQueryDTO == null ? new MessageQueryDTO() : messageQueryDTO;
+        String cacheId = "page=" + query.getPage() + ",size=" + query.getPageSize()
+                + ",id=" + query.getId() + ",message=" + query.getMessage()
+                + ",from=" + query.getFromName() + ",to=" + query.getToName()
+                + ",start=" + query.getSendAtStart() + ",end=" + query.getSendAtEnd();
+        return cacheClient.queryWithMutex("messages:page", cacheId,
+                new TypeReference<PageResult<List<Message>>>() {}, ignored -> {
+                    PageHelper.startPage(query.getPage(), query.getPageSize());
+                    Page<Message> page = messageMapper.pageQuery(query);
+                    List<Message> result = page.getResult();
+                    for (Message message : result) {
+                        if (message.getToName() != null && message.getToName().startsWith("GROUP")) {
+                            String groupName = chatGroupMapper.findGroupNameByGroupId(message.getToName());
+                            message.setToName("群聊：" + groupName);
+                        }
+                    }
+                    return PageResult.success(page.getTotal(), result);
+                }, 2, java.util.concurrent.TimeUnit.MINUTES);
     }
 
     @Override
@@ -244,9 +271,7 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
             // 1. 操作数据库
             messageMapper.deleteMessage(id);
 
-            // 2. 🧹 手动清理 Redis 缓存 (替代原本的 @CacheEvict)
-            String cacheKey = RedisKeyConstants.MANAGE_MESSAGES_CACHE + ":page=1:pageSize=9:list";
-            redisTemplate.delete(cacheKey);
+            evictMessageCaches();
             log.debug("成功清除消息分页缓存");
 
         } catch (Exception e) {
@@ -263,6 +288,7 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
     @Override
     public void deleteMessageByUser(Integer id) {
         messageMapper.deleteMessageByUser(id);
+        evictMessageCaches();
     }
 
     @Override
@@ -298,5 +324,25 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
         EasyExcel.write(response.getOutputStream(), MessageExportDTO.class)
                 .sheet("消息数据")
                 .doWrite(exportList);
+    }
+
+    private String conversationCacheId(MessageInfo messageInfo) {
+        String fromName = messageInfo.getFromName() == null ? "" : messageInfo.getFromName().trim();
+        String toName = messageInfo.getToName() == null ? "" : messageInfo.getToName().trim();
+        if (toName.isEmpty()) {
+            return "broadcast";
+        }
+        if (toName.startsWith("GROUP_")) {
+            return "group:" + toName;
+        }
+        return fromName.compareTo(toName) <= 0
+                ? "private:" + fromName + "|" + toName
+                : "private:" + toName + "|" + fromName;
+    }
+
+    private void evictMessageCaches() {
+        cacheClient.evictByPrefix("messages:conversation");
+        cacheClient.evictByPrefix("messages:filtered");
+        cacheClient.evictByPrefix("messages:page");
     }
 }

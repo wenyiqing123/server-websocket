@@ -10,9 +10,11 @@ import cn.wyq.serverwebsocket.pojo.entity.SysConfig;
 import cn.wyq.serverwebsocket.pojo.entity.SysDocument;
 import cn.wyq.serverwebsocket.service.ChatService;
 import cn.wyq.serverwebsocket.service.SysConfigService;
+import cn.wyq.serverwebsocket.utils.CacheClient;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvisor;
@@ -52,6 +54,7 @@ public class ChatServiceImpl implements ChatService {
     private final SysDocumentMapper sysDocumentMapper;
     private final VectorStore vectorStore;
     private final SysConfigService sysConfigService;
+    private final CacheClient cacheClient;
     // 🌟 填入你在阿里云百炼平台申请的 API Key
     @Value("${spring.ai.openai.api-key:sk-5fe3023e1e5643469ba7f17b32efc864}")
     private String aliyunApiKey;
@@ -66,7 +69,8 @@ public class ChatServiceImpl implements ChatService {
             ChatMapper chatMapper,
             SysDocumentMapper sysDocumentMapper,
             VectorStore vectorStore,
-            SysConfigService sysConfigService) {
+            SysConfigService sysConfigService,
+            CacheClient cacheClient) {
         this.girlfriendClient = girlfriendClient;
         this.serviceClient = serviceClient;
         this.chatMemory = chatMemory;
@@ -74,6 +78,7 @@ public class ChatServiceImpl implements ChatService {
         this.sysDocumentMapper = sysDocumentMapper;
         this.vectorStore = vectorStore;
         this.sysConfigService = sysConfigService;
+        this.cacheClient = cacheClient;
     }
 
     private String getIsolatedMemoryId(String agentType, String sessionId) {
@@ -213,10 +218,15 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public List<Chat> getSessionList(String userId, String agentType) {
-        List<Chat> allSessions = chatMapper.selectByUserId(userId);
-        return allSessions.stream()
-                .filter(chat -> chat.getId().startsWith(agentType + "_"))
-                .toList();
+        String normalizedAgentType = StringUtils.hasText(agentType) ? agentType.trim() : "girlfriend";
+        return cacheClient.queryWithMutex("ai:sessions", userId + "|" + normalizedAgentType,
+                new TypeReference<List<Chat>>() {}, ignored -> {
+                    List<Chat> allSessions = chatMapper.selectByUserId(userId);
+                    if (allSessions == null) return List.of();
+                    return allSessions.stream()
+                            .filter(chat -> chat.getId() != null && chat.getId().startsWith(normalizedAgentType + "_"))
+                            .toList();
+                }, 2, java.util.concurrent.TimeUnit.MINUTES);
     }
 
     @Override
@@ -224,6 +234,7 @@ public class ChatServiceImpl implements ChatService {
         String prefix = StringUtils.hasText(agentType) ? agentType : "girlfriend";
         String sessionId = prefix + "_session_" + UUID.randomUUID().toString().replace("-", "").substring(0, 10);
         chatMapper.insertSession(sessionId, userId, title);
+        cacheClient.evictByPrefix("ai:sessions");
         return new Chat(sessionId, userId, title, LocalDate.now());
     }
 
@@ -234,6 +245,7 @@ public class ChatServiceImpl implements ChatService {
         chatMemory.clear(getIsolatedMemoryId("girlfriend", sessionId));
         chatMemory.clear(getIsolatedMemoryId("service", sessionId));
         chatMemory.clear(getIsolatedMemoryId("document", sessionId));
+        cacheClient.evictByPrefix("ai:sessions");
     }
 
 

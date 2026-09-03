@@ -12,7 +12,9 @@ import cn.wyq.serverwebsocket.pojo.entity.GroupMember;
 import cn.wyq.serverwebsocket.pojo.entity.UserEmailApplyEntity;
 import cn.wyq.serverwebsocket.pojo.vo.GroupMemberQueryVo;
 import cn.wyq.serverwebsocket.service.GroupService;
+import cn.wyq.serverwebsocket.utils.CacheClient;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +26,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,30 +40,28 @@ public class GroupServiceImpl implements GroupService {
 
     @Autowired
     private UserMapper userMapper;
+    @Autowired
+    private CacheClient cacheClient;
 
     @Override
     public Result getGroupMembersDetail(String groupId) {
-        // 1. 查出群内所有成员
-        QueryWrapper<GroupMember> query = new QueryWrapper<>();
-        query.eq("group_id", groupId);
-        List<GroupMember> members = groupMemberMapper.selectList(query);
-
-        // 2. 组装前端需要的详细信息（带头像）
-        List<Map<String, Object>> resultList = new ArrayList<>();
-        for (GroupMember member : members) {
-            Map<String, Object> item = new HashMap<>();
-            item.put("userName", member.getUserName());
-            item.put("role", member.getRole()); // 0-成员, 1-管理, 2-群主
-            item.put("joinTime", member.getJoinTime());
-            // 查用户头像
-            item.put("path", userMapper.getStatusAndPathByUserName(member.getUserName()));
-            resultList.add(item);
-        }
-
-        // 3. 按照角色排序（群主在前，管理员其次，普通成员在后）
-        resultList.sort((a, b) -> Integer.compare((Integer) b.get("role"), (Integer) a.get("role")));
-
-        return Result.success(resultList);
+        return cacheClient.queryWithMutex("groups:members-detail", groupId, Result.class,
+                ignored -> {
+                    QueryWrapper<GroupMember> query = new QueryWrapper<>();
+                    query.eq("group_id", groupId);
+                    List<GroupMember> members = groupMemberMapper.selectList(query);
+                    List<Map<String, Object>> resultList = new ArrayList<>();
+                    for (GroupMember member : members) {
+                        Map<String, Object> item = new HashMap<>();
+                        item.put("userName", member.getUserName());
+                        item.put("role", member.getRole());
+                        item.put("joinTime", member.getJoinTime());
+                        item.put("path", userMapper.getStatusAndPathByUserName(member.getUserName()));
+                        resultList.add(item);
+                    }
+                    resultList.sort((a, b) -> Integer.compare((Integer) b.get("role"), (Integer) a.get("role")));
+                    return Result.success(resultList);
+                }, 2, TimeUnit.MINUTES);
     }
 
     @Override
@@ -81,6 +82,7 @@ public class GroupServiceImpl implements GroupService {
         if (groupAvatar != null && !groupAvatar.trim().isEmpty()) group.setPath(groupAvatar);
 
         chatGroupMapper.updateById(group);
+        evictGroupCaches(groupId);
         return Result.success("群信息修改成功");
     }
 
@@ -109,6 +111,7 @@ public class GroupServiceImpl implements GroupService {
 
         // 4. 执行删除
         groupMemberMapper.delete(targetQuery);
+        evictGroupCaches(groupId);
         return Result.success("已将 " + targetUserName + " 移出群聊");
     }
 
@@ -126,6 +129,7 @@ public class GroupServiceImpl implements GroupService {
         }
 
         groupMemberMapper.delete(query);
+        evictGroupCaches(groupId);
         return Result.success("已成功退出群聊");
     }
 
@@ -164,6 +168,7 @@ public class GroupServiceImpl implements GroupService {
         QueryWrapper<GroupMember> delMembersQuery = new QueryWrapper<>();
         delMembersQuery.eq("group_id", groupId);
         groupMemberMapper.delete(delMembersQuery);
+        evictGroupCaches(groupId);
 
         // 4. (可选) 清空该群的聊天记录
         /*
@@ -176,19 +181,22 @@ public class GroupServiceImpl implements GroupService {
     }
     @Override
     public Result getGroupMembers(String groupId) {
-        List<GroupMemberQueryVo> groupMemberQueryVoList=  groupMemberMapper.queryGroupMembers(groupId);
-        return Result.success(groupMemberQueryVoList);
+        return cacheClient.queryWithMutex("groups:members", groupId, Result.class,
+                ignored -> {
+                    List<GroupMemberQueryVo> members = groupMemberMapper.queryGroupMembers(groupId);
+                    return Result.success(members == null ? new ArrayList<>() : members);
+                }, 2, TimeUnit.MINUTES);
     }
     @Override
     public List<String> getGroupMemberNames(String groupId) {
-        QueryWrapper<GroupMember> query = new QueryWrapper<>();
-        query.eq("group_id", groupId);
-        List<GroupMember> members = groupMemberMapper.selectList(query);
-
-        // 提取所有成员的 userName 并返回一个 String 列表
-        return members.stream()
-                .map(GroupMember::getUserName)
-                .collect(Collectors.toList());
+        return cacheClient.queryWithMutex("groups:member-names", groupId,
+                new TypeReference<List<String>>() {},
+                ignored -> {
+                    QueryWrapper<GroupMember> query = new QueryWrapper<>();
+                    query.eq("group_id", groupId);
+                    List<GroupMember> members = groupMemberMapper.selectList(query);
+                    return members.stream().map(GroupMember::getUserName).collect(Collectors.toList());
+                }, 2, TimeUnit.MINUTES);
     }
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -233,45 +241,56 @@ public class GroupServiceImpl implements GroupService {
             groupMemberMapper.insert(member);
         }
 
+        evictGroupCaches(groupId);
+
         return Result.success("群聊创建成功！", groupId);
     }
 
     @Override
     public Result getMyGroups(String userName) {
-        QueryWrapper<GroupMember> memberQuery = new QueryWrapper<>();
-        memberQuery.eq("user_name", userName);
-        List<GroupMember> myMemberships = groupMemberMapper.selectList(memberQuery);
-
-        if (myMemberships.isEmpty()) {
-            return Result.success(new ArrayList<>());
-        }
-
-        List<String> groupIds = new ArrayList<>();
-        for (GroupMember membership : myMemberships) {
-            groupIds.add(membership.getGroupId());
-        }
-
-        // 🌟 注意：这里 in 的条件变成了 "id"，因为 chat_group 表主键叫 id
-        QueryWrapper<ChatGroup> groupQuery = new QueryWrapper<>();
-        groupQuery.in("id", groupIds);
-        List<ChatGroup> myGroups = chatGroupMapper.selectList(groupQuery);
-
-        return Result.success(myGroups);
+        return cacheClient.queryWithMutex("groups:mine", userName, Result.class,
+                ignored -> {
+                    QueryWrapper<GroupMember> memberQuery = new QueryWrapper<>();
+                    memberQuery.eq("user_name", userName);
+                    List<GroupMember> myMemberships = groupMemberMapper.selectList(memberQuery);
+                    if (myMemberships.isEmpty()) {
+                        return Result.success(new ArrayList<>());
+                    }
+                    List<String> groupIds = myMemberships.stream().map(GroupMember::getGroupId).toList();
+                    QueryWrapper<ChatGroup> groupQuery = new QueryWrapper<>();
+                    groupQuery.in("id", groupIds);
+                    return Result.success(chatGroupMapper.selectList(groupQuery));
+                }, 2, TimeUnit.MINUTES);
     }
 
     @Override
     public PageResult<List<ChatGroup>> getGroupPage(GroupQueryDTO queryDTO) {
-        // 1. 开启 PageHelper 分页拦截
-        PageHelper.startPage(queryDTO.getPage(), queryDTO.getPageSize());
+        GroupQueryDTO query = queryDTO == null ? new GroupQueryDTO() : queryDTO;
+        if (query.getPage() == null) query.setPage(1);
+        if (query.getPageSize() == null) query.setPageSize(10);
+        return cacheClient.queryWithMutex("groups:page", groupQueryKey(query),
+                new TypeReference<PageResult<List<ChatGroup>>>() {},
+                ignored -> {
+                    PageHelper.startPage(query.getPage(), query.getPageSize());
+                    Page<ChatGroup> page = chatGroupMapper.selectGroupList(query);
+                    return PageResult.success(page.getTotal(), page.getResult());
+                }, 2, TimeUnit.MINUTES);
+    }
 
-        // 2. 执行数据库查询 (此时 MyBatis 执行的 SQL 会被自动注入 LIMIT)
-        Page<ChatGroup> page = chatGroupMapper.selectGroupList(queryDTO);
+    private String groupQueryKey(GroupQueryDTO query) {
+        return "page=" + query.getPage() + ",size=" + query.getPageSize()
+                + ",id=" + query.getGroupId() + ",name=" + query.getGroupName()
+                + ",owner=" + query.getOwnerName() + ",member=" + query.getMemberName()
+                + ",start=" + query.getStartTime() + ",end=" + query.getEndTime();
+    }
 
-        // 3. 封装返回标准的 PageResult
-        long total = page.getTotal();
-        List<ChatGroup> records = page.getResult();
-
-        return PageResult.success(total, records);
-        // 假设你的 PageResult 有 success(long total, List data) 这个静态方法
+    private void evictGroupCaches(String groupId) {
+        if (groupId != null) {
+            cacheClient.evict("groups:members-detail", groupId);
+            cacheClient.evict("groups:members", groupId);
+            cacheClient.evict("groups:member-names", groupId);
+        }
+        cacheClient.evictByPrefix("groups:mine");
+        cacheClient.evictByPrefix("groups:page");
     }
 }

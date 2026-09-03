@@ -6,6 +6,8 @@ import cn.wyq.serverwebsocket.pojo.dto.AdjustBalanceDTO;
 import cn.wyq.serverwebsocket.pojo.dto.WalletQueryDTO;
 import cn.wyq.serverwebsocket.pojo.vo.UserWalletVO;
 import cn.wyq.serverwebsocket.service.UserWalletService;
+import cn.wyq.serverwebsocket.utils.CacheClient;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,13 +23,21 @@ public class UserWalletServiceImpl implements UserWalletService {
 
     @Autowired
     private UserWalletMapper walletMapper;
+    @Autowired
+    private CacheClient cacheClient;
 
     @Override
     public PageResult<List<UserWalletVO>> getWalletPage(WalletQueryDTO queryDTO) {
-        PageHelper.startPage(queryDTO.getPageNum(), queryDTO.getPageSize());
-        List<UserWalletVO> list = walletMapper.selectWalletList(queryDTO);
-        PageInfo<UserWalletVO> pageInfo = new PageInfo<>(list);
-        return  PageResult.success(pageInfo.getTotal(), pageInfo.getList());
+        WalletQueryDTO query = queryDTO == null ? new WalletQueryDTO() : queryDTO;
+        String key = "page=" + query.getPageNum() + ",size=" + query.getPageSize()
+                + ",user=" + query.getUserId() + ",name=" + query.getUserName();
+        return cacheClient.queryWithMutex("finance:user-wallets", key,
+                new TypeReference<PageResult<List<UserWalletVO>>>() {}, ignored -> {
+                    PageHelper.startPage(query.getPageNum(), query.getPageSize());
+                    List<UserWalletVO> list = walletMapper.selectWalletList(query);
+                    PageInfo<UserWalletVO> pageInfo = new PageInfo<>(list);
+                    return PageResult.success(pageInfo.getTotal(), pageInfo.getList());
+                }, 2, java.util.concurrent.TimeUnit.MINUTES);
     }
 
     @Override
@@ -65,5 +75,6 @@ public class UserWalletServiceImpl implements UserWalletService {
                 orderNo,
                 "【系统人工调账】" + dto.getRemark()
         );
+        cacheClient.evictByPrefix("finance");
     }
 }

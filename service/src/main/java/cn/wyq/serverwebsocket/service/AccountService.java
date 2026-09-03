@@ -5,6 +5,7 @@ import cn.wyq.serverwebsocket.mapper.AccountLogMapper;
 import cn.wyq.serverwebsocket.mapper.AccountMapper;
 import cn.wyq.serverwebsocket.pojo.entity.Account;
 import cn.wyq.serverwebsocket.pojo.entity.AccountLog;
+import cn.wyq.serverwebsocket.utils.CacheClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
@@ -23,6 +25,8 @@ public class AccountService {
 
     @Autowired
     private AccountLogMapper accountLogMapper;
+    @Autowired
+    private CacheClient cacheClient;
 
     @Transactional(rollbackFor = Exception.class)
     public BigDecimal recharge(Integer userId, BigDecimal amount) {
@@ -65,6 +69,8 @@ public class AccountService {
         accountLogMapper.insert(accountLog);
 
         log.info("用户 [{}] 充值成功，当前余额: {}", userId, balanceAfter);
+        cacheClient.evict("account:balance", userId);
+        cacheClient.evictByPrefix("finance");
         return balanceAfter;
     }
     public BigDecimal getCurrentUserBalance(Long userId) {
@@ -72,9 +78,10 @@ public class AccountService {
             throw new ServiceException("无法获取用户信息，请重新登录", 401);
         }
 
-        BigDecimal balance = accountMapper.selectBalanceByUserId(userId);
-
-        // 防护机制：如果数据库里没有该用户的钱包记录，默认返回 0，防止前端拿到 null 报错
-        return balance != null ? balance : BigDecimal.ZERO;
+        return cacheClient.queryWithMutex("account:balance", userId, BigDecimal.class,
+                id -> {
+                    BigDecimal balance = accountMapper.selectBalanceByUserId(id);
+                    return balance != null ? balance : BigDecimal.ZERO;
+                }, 30, TimeUnit.SECONDS);
     }
 }

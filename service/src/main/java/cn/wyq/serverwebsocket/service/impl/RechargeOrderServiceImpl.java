@@ -5,6 +5,8 @@ import cn.wyq.serverwebsocket.mapper.RechargeOrderMapper;
 import cn.wyq.serverwebsocket.pojo.entity.RechargeOrder;
 import cn.wyq.serverwebsocket.pojo.vo.OrderQueryDTO;
 import cn.wyq.serverwebsocket.service.RechargeOrderService;
+import cn.wyq.serverwebsocket.utils.CacheClient;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,14 +21,22 @@ public class RechargeOrderServiceImpl implements RechargeOrderService {
 
     @Autowired
     private RechargeOrderMapper orderMapper;
+    @Autowired
+    private CacheClient cacheClient;
 
     @Override
     public PageResult<List<RechargeOrder>> getOrderPage(OrderQueryDTO queryDTO) {
-        // 开启 PageHelper 分页
-        PageHelper.startPage(queryDTO.getPageNum(), queryDTO.getPageSize());
-        List<RechargeOrder> list = orderMapper.selectOrderList(queryDTO);
-        PageInfo<RechargeOrder> pageInfo = new PageInfo<>(list);
-        return  PageResult.success(pageInfo.getTotal(), pageInfo.getList());
+        OrderQueryDTO query = queryDTO == null ? new OrderQueryDTO() : queryDTO;
+        String key = "page=" + query.getPageNum() + ",size=" + query.getPageSize()
+                + ",trade=" + query.getOutTradeNo() + ",user=" + query.getUserId()
+                + ",status=" + query.getStatus();
+        return cacheClient.queryWithMutex("finance:recharge-orders", key,
+                new TypeReference<PageResult<List<RechargeOrder>>>() {}, ignored -> {
+                    PageHelper.startPage(query.getPageNum(), query.getPageSize());
+                    List<RechargeOrder> list = orderMapper.selectOrderList(query);
+                    PageInfo<RechargeOrder> pageInfo = new PageInfo<>(list);
+                    return PageResult.success(pageInfo.getTotal(), pageInfo.getList());
+                }, 2, java.util.concurrent.TimeUnit.MINUTES);
     }
 
     @Override
@@ -53,5 +63,6 @@ public class RechargeOrderServiceImpl implements RechargeOrderService {
 
         // 5. 插入资金流水表 (u_account_log), type=1 代表充值
         orderMapper.insertAccountLog(order.getUserId(), 1, order.getAmount(), currentBalance, outTradeNo, "管理员手动补单");
+        cacheClient.evictByPrefix("finance");
     }
 }

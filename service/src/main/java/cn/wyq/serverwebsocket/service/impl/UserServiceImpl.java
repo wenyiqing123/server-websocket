@@ -3,7 +3,6 @@ package cn.wyq.serverwebsocket.service.impl;
 import cn.wyq.serverwebsocket.common.PageResult;
 import cn.wyq.serverwebsocket.common.Result;
 import cn.wyq.serverwebsocket.constant.BloomConstant;
-import cn.wyq.serverwebsocket.constant.RedisKeyConstants;
 import cn.wyq.serverwebsocket.exception.ServiceException;
 import cn.wyq.serverwebsocket.mapper.ChatGroupMapper;
 import cn.wyq.serverwebsocket.mapper.FriendMapper;
@@ -15,20 +14,16 @@ import cn.wyq.serverwebsocket.pojo.entity.UserEmailApplyEntity;
 import cn.wyq.serverwebsocket.pojo.entity.UserEntity;
 import cn.wyq.serverwebsocket.pojo.vo.UserVo;
 import cn.wyq.serverwebsocket.service.UserService;
-import cn.wyq.serverwebsocket.utils.BaseContext;
-import cn.wyq.serverwebsocket.utils.JWTUtil;
-import cn.wyq.serverwebsocket.utils.MailUtil;
-import cn.wyq.serverwebsocket.utils.RedisUtil;
+import cn.wyq.serverwebsocket.utils.*;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RBloomFilter;
-import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.BeanUtils;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,7 +50,7 @@ public class UserServiceImpl implements UserService {
 
 
 
-    private final RedisTemplate<String, Object> redisTemplate;
+    private final CacheClient cacheClient;
     private final ChatGroupMapper chatGroupMapper;
     private final MessageMapper messageMapper;
     private final FriendMapper friendMapper;
@@ -63,54 +58,29 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    @SuppressWarnings("unchecked")
     public PageResult<List<UserEmailApplyEntity>> userList(UserQueryDTO userQueryDTO) {
-        // 3. 缓存未命中，查数据库
-        PageHelper.startPage(userQueryDTO.getPage(), userQueryDTO.getPageSize());
-        Page<UserEmailApplyEntity> page = userMapper.selectAllUsers(userQueryDTO);
-        long total = page.getTotal();
-        List<UserEmailApplyEntity> userList = page.getResult();
-        PageResult<List<UserEmailApplyEntity>> pageResult = PageResult.success(total, userList);
-        return pageResult;
+        UserQueryDTO query = userQueryDTO == null ? new UserQueryDTO() : userQueryDTO;
+        return cacheClient.queryWithMutex(
+                "manage:users:apply", userQueryKey(query),
+                new TypeReference<PageResult<List<UserEmailApplyEntity>>>() {},
+                ignored -> {
+                    PageHelper.startPage(query.getPage(), query.getPageSize());
+                    Page<UserEmailApplyEntity> page = userMapper.selectAllUsers(query);
+                    return PageResult.success(page.getTotal(), page.getResult());
+                }, 10, TimeUnit.MINUTES);
     }
 
     @Override
     public PageResult<List<UserEntity>> userAppendList(UserQueryDTO userQueryDTO) {
-        // 1. 提取缓存条件判断
-        boolean isCacheable = (userQueryDTO.getId() == null || String.valueOf(userQueryDTO.getId()).isEmpty())
-                && userQueryDTO.getPage() == 1
-                && userQueryDTO.getPageSize() == 9
-                && (userQueryDTO.getUserName() == null || userQueryDTO.getUserName().isEmpty())
-                && (userQueryDTO.getRole() == null || userQueryDTO.getRole() == 0);
-
-        String cacheKey = RedisKeyConstants.MANAGE_USERS_CACHE + ":page=1,pageSize=9:list";
-
-        // 2. 查缓存
-        if (isCacheable) {
-            Object cachedData = redisTemplate.opsForValue().get(cacheKey);
-            if (cachedData != null) {
-                log.debug("命中用户首页分页缓存！");
-                return (PageResult<List<UserEntity>>) cachedData;
-            }
-        }
-
-        // 3. 缓存未命中，查数据库
-        PageHelper.startPage(userQueryDTO.getPage(), userQueryDTO.getPageSize());
-        Page<UserEntity> page = userMapper.selectAllAppendUsers(userQueryDTO);
-        long total = page.getTotal();
-        List<UserEntity> userList = page.getResult();
-        PageResult<List<UserEntity>> pageResult = PageResult.success(total, userList);
-
-        // 4. 🛡️ 核心防御：写缓存并防穿透
-        if (isCacheable) {
-            if (userList == null || userList.isEmpty()) {
-                redisTemplate.opsForValue().set(cacheKey, pageResult, 1, TimeUnit.MINUTES);
-                log.info("用户列表为空，已存入空缓存防穿透");
-            } else {
-                redisTemplate.opsForValue().set(cacheKey, pageResult, 2, TimeUnit.HOURS);
-            }
-        }
-        return pageResult;
+        UserQueryDTO query = userQueryDTO == null ? new UserQueryDTO() : userQueryDTO;
+        return cacheClient.queryWithMutex(
+                "manage:users:append", userQueryKey(query),
+                new TypeReference<PageResult<List<UserEntity>>>() {},
+                ignored -> {
+                    PageHelper.startPage(query.getPage(), query.getPageSize());
+                    Page<UserEntity> page = userMapper.selectAllAppendUsers(query);
+                    return PageResult.success(page.getTotal(), page.getResult());
+                }, 10, TimeUnit.MINUTES);
     }
 
     @Override
@@ -119,17 +89,18 @@ public class UserServiceImpl implements UserService {
             return Result.error("搜索关键词不能为空");
         }
 
-        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.like("user_name", keyword);
-        queryWrapper.select("id", "user_name", "path");
-        queryWrapper.last("LIMIT 20");
-
-        List<User> userList = userMapper.selectList(queryWrapper);
-
-        if (userList.isEmpty()) {
-            return Result.success("未搜索到相关用户");
-        }
-        return Result.success(userList);
+        String normalizedKeyword = keyword.trim();
+        return cacheClient.queryWithMutex(
+                "users:search", normalizedKeyword,
+                Result.class,
+                ignored -> {
+                    QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+                    queryWrapper.like("user_name", normalizedKeyword);
+                    queryWrapper.select("id", "user_name", "path");
+                    queryWrapper.last("LIMIT 20");
+                    List<User> userList = userMapper.selectList(queryWrapper);
+                    return userList.isEmpty() ? Result.success("未搜索到相关用户") : Result.success(userList);
+                }, 5, TimeUnit.MINUTES);
     }
 
     @Override
@@ -182,22 +153,27 @@ public class UserServiceImpl implements UserService {
 
         // ================= 6. 清理各种 Redis 缓存 =================
         // 清理后台分页列表缓存
-        String cacheKey = RedisKeyConstants.MANAGE_USERS_CACHE + ":page=1,pageSize=9:list";
-        redisTemplate.delete(cacheKey);
-        // 清理用户详情缓存
-        redisTemplate.delete("user:id:" + id);
+        evictUserCaches(id);
         // 🌟 强制将该用户踢下线
-        redisTemplate.delete("refreshToken:userId:" + id);
+        redisUtil.delete("refreshToken:userId:" + id);
 
         return result;
     }
 
     @Override
     public int updateUser(UserEntity user) {
+        if (user == null || user.getId() <= 0 || user.getUserName() == null || user.getUserName().trim().isEmpty()) {
+            throw new ServiceException("用户信息不完整", 400);
+        }
         UserEmailApplyEntity oneByUsername = userMapper.findOneByUsername(user.getUserName());
-        if (oneByUsername!=null) throw new ServiceException("该用户名已存在",400);
+        if (oneByUsername != null && oneByUsername.getId() != user.getId()) {
+            throw new ServiceException("该用户名已存在",400);
+        }
 //        System.out.println(user.getId());
         UserEmailApplyEntity currentUserById = userMapper.getCurrentUserById(user.getId());
+        if (currentUserById == null) {
+            throw new ServiceException("用户不存在", 404);
+        }
 //        UserEmailApplyEntity oneByUsername = userMapper.findOneByUsername(user.getUserName());
         String oldUserName=currentUserById.getUserName();
         String newUserName=user.getUserName();
@@ -208,13 +184,12 @@ public class UserServiceImpl implements UserService {
            int messageRows=userMapper.updateUserNameInMessage(oldUserName,newUserName);
            int conversationRows=userMapper.updateUserNameInConversation(oldUserName,newUserName);
        }
-        int result = userMapper.updateUser(user);
+       int result = userMapper.updateUser(user);
 
         // 🧹 手动清除缓存
-        String cacheKey = RedisKeyConstants.MANAGE_USERS_CACHE + ":page=1,pageSize=9:list";
-        redisTemplate.delete(cacheKey);
-        String cacheKey1 = "user:id:" + user.getId();
-        redisTemplate.delete(cacheKey1);
+        evictUserCaches(user.getId());
+        cacheClient.evict("users:path", oldUserName);
+        cacheClient.evict("users:path", newUserName);
         return result;
     }
 
@@ -250,9 +225,8 @@ public class UserServiceImpl implements UserService {
         currentUser.setEmail(dto.getNewEmail());
         userMapper.updateEmailById(currentUser);
 
-        // 6. 清除用户列表缓存
-        String cacheKey = RedisKeyConstants.MANAGE_USERS_CACHE + ":page=1,pageSize=9:list";
-        redisTemplate.delete(cacheKey);
+        // 6. 清除用户相关缓存
+        evictUserCaches(currentId);
 
         return Result.success("邮箱绑定成功");
     }
@@ -286,6 +260,7 @@ public class UserServiceImpl implements UserService {
         // 注意：如果数据量极大(上万条)，建议在 Service 拆分成每 1000 条插入一次，防止 SQL 过长报错。
         if (!insertList.isEmpty()) {
             userMapper.insertBatch(insertList);
+            evictUserCaches(null);
         }
     }
 
@@ -316,12 +291,18 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<User> findAllUsers() {
-        return userMapper.findAllUsers();
+        return cacheClient.queryWithMutex(
+                "users:all", "all", new TypeReference<List<User>>() {},
+                ignored -> {
+                    List<User> users = userMapper.findAllUsers();
+                    return users == null ? new ArrayList<>() : users;
+                }, 10, TimeUnit.MINUTES);
     }
 
     @Override
     public String getPath(String username) {
-        return userMapper.getPath(username);
+        return cacheClient.queryWithMutex("users:path", username, String.class,
+                userMapper::getPath, 30, TimeUnit.MINUTES);
     }
 
     @Override
@@ -352,28 +333,39 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserEmailApplyEntity> getPendingAdmins() {
-        return userMapper.selectPendingAdminList();
+        return cacheClient.queryWithMutex("users:pending-admins", "all",
+                new TypeReference<List<UserEmailApplyEntity>>() {},
+                ignored -> {
+                    List<UserEmailApplyEntity> users = userMapper.selectPendingAdminList();
+                    return users == null ? new ArrayList<>() : users;
+                }, 2, TimeUnit.MINUTES);
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean approveAdmin(Integer userId) {
-        // 🧹 清除缓存
-        String cacheKey = RedisKeyConstants.MANAGE_USERS_CACHE + ":page=1,pageSize=9:list";
-        redisTemplate.delete(cacheKey);
-
-        return userMapper.approveAdmin(userId) > 0;
+        boolean updated = userMapper.approveAdmin(userId) > 0;
+        if (updated) {
+            evictUserCaches(userId);
+        }
+        return updated;
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean rejectAdmin(Integer userId) {
-        return userMapper.rejectAdmin(userId) > 0;
+        boolean updated = userMapper.rejectAdmin(userId) > 0;
+        if (updated) {
+            evictUserCaches(userId);
+        }
+        return updated;
     }
 
     @Override
     public UserEmailApplyEntity getCurrentUserById(int currentId) {
-        return userMapper.getCurrentUserById(currentId);
+        return cacheClient.queryWithMutex("users:detail", currentId,
+                UserEmailApplyEntity.class, userMapper::getCurrentUserById,
+                10, TimeUnit.MINUTES);
     }
 
     @Override
@@ -426,8 +418,9 @@ public class UserServiceImpl implements UserService {
         updateUser.setId(Math.toIntExact(currentId));
         updateUser.setPassword(encodedNewPassword);
 
-        redisTemplate.delete("refreshToken:userId:" + currentId);
+        redisUtil.delete("refreshToken:userId:" + currentId);
         userMapper.updateUser(updateUser);
+        evictUserCaches(Math.toIntExact(currentId));
     }
 
     @Override
@@ -444,48 +437,9 @@ public class UserServiceImpl implements UserService {
             return null;
         }
 
-        // 2. 🚀 Redis 缓存
-        String cacheKey = "user:id:" + id;
-        Object cachedData = redisTemplate.opsForValue().get(cacheKey);
-        if (cachedData != null) {
-            if ("".equals(cachedData)) {
-                log.debug("[Redis空值缓存] 拦截非法查询，ID: {}", id);
-                return null;
-            }
-            return (User) cachedData;
-        }
-
-        // 3. 🔐 分布式锁
-        String lockKey = "lock:user:" + id;
-        RLock lock = redissonClient.getLock(lockKey);
-        try {
-            if (lock.tryLock(5, 10, TimeUnit.SECONDS)) {
-                cachedData = redisTemplate.opsForValue().get(cacheKey);
-                if (cachedData != null) {
-                    return "".equals(cachedData) ? null : (User) cachedData;
-                }
-
-                User user = userMapper.findById(id);
-                if (user == null) {
-                    redisTemplate.opsForValue().set(cacheKey, "", 1, TimeUnit.MINUTES);
-                    log.info("[数据库空结果] ID: {} 为误判，已存入空值缓存", id);
-                } else {
-                    redisTemplate.opsForValue().set(cacheKey, user, 2, TimeUnit.HOURS);
-                    log.info("[数据库查询成功] 已更新缓存，ID: {}", id);
-                }
-                return user;
-            } else {
-                log.error("❌ [分布式锁] 获取锁超时，ID: {}", id);
-                throw new ServiceException("服务器忙，请稍后再试", 503);
-            }
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new ServiceException("系统异常", 500);
-        } finally {
-            if (lock.isHeldByCurrentThread()) {
-                lock.unlock();
-            }
-        }
+        // 2. 🚀 统一缓存：空值、互斥锁、随机 TTL 均由 CacheClient 处理
+        return cacheClient.queryWithMutex("users:id", id, User.class,
+                userMapper::findById, 2, TimeUnit.HOURS);
     }
 
     @Override
@@ -541,9 +495,7 @@ public class UserServiceImpl implements UserService {
             log.info("新注册用户 ID {} 已同步加入布隆过滤器", newUserId);
         }
 
-        // 7. 手动清除列表缓存
-        String cacheKey = RedisKeyConstants.MANAGE_USERS_CACHE + ":page=1,pageSize=9:list";
-        redisTemplate.delete(cacheKey);
+        evictUserCaches(newUserId);
 
         return 1;
     }
@@ -603,13 +555,15 @@ public class UserServiceImpl implements UserService {
         // 3. 修改密码
         user.setPassword(passwordEncoder.encode(dto.getNewPassword()));
         userMapper.updatePasswordById(user);
+        evictUserCaches(user.getId());
 
         return Result.success("密码重置成功，请使用新密码登录");
     }
 
     @Override
     public String getPathByEmail(String email) {
-        return userMapper.getPathByEmail(email);
+        return cacheClient.queryWithMutex("users:path-email", email, String.class,
+                userMapper::getPathByEmail, 30, TimeUnit.MINUTES);
     }
 
 
@@ -635,5 +589,28 @@ public class UserServiceImpl implements UserService {
         // 🌟 打印日志：通过返回值，我们就能清楚地知道到底有没有数据被修改
         log.info("【用户改名联级更新】[{}] 改为 [{}]: 更新群主表 {} 行, 好友表 {} 行, 群成员表 {} 行",
                 oldUserName, newUserName, ownerRows, friendRows, memberRows);
+        cacheClient.evict("users:path", oldUserName);
+        cacheClient.evict("users:path", newUserName);
+        cacheClient.evictKey(cacheClient.buildKey("users:all", "all"));
+    }
+
+    private String userQueryKey(UserQueryDTO query) {
+        return "page=" + query.getPage()
+                + ",size=" + query.getPageSize()
+                + ",id=" + String.valueOf(query.getId())
+                + ",name=" + String.valueOf(query.getUserName())
+                + ",role=" + String.valueOf(query.getRole())
+                + ",email=" + String.valueOf(query.getEmail());
+    }
+
+    private void evictUserCaches(Integer userId) {
+        if (userId != null) {
+            cacheClient.evict("users:id", userId);
+            cacheClient.evict("users:detail", userId);
+        }
+        cacheClient.evictByPrefix("manage:users:apply");
+        cacheClient.evictByPrefix("manage:users:append");
+        cacheClient.evictKey(cacheClient.buildKey("users:all", "all"));
+        cacheClient.evictKey(cacheClient.buildKey("users:pending-admins", "all"));
     }
 }

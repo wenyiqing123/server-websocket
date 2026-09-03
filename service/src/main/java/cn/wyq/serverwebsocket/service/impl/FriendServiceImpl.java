@@ -6,9 +6,12 @@ import cn.wyq.serverwebsocket.mapper.MessageMapper;
 import cn.wyq.serverwebsocket.mapper.UserMapper;
 import cn.wyq.serverwebsocket.pojo.User;
 import cn.wyq.serverwebsocket.pojo.entity.Friend;
+import cn.wyq.serverwebsocket.pojo.entity.UserEmailApplyEntity;
 import cn.wyq.serverwebsocket.pojo.vo.FriendPathVO;
 import cn.wyq.serverwebsocket.service.FriendService;
+import cn.wyq.serverwebsocket.utils.CacheClient;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -42,55 +44,50 @@ public class FriendServiceImpl implements FriendService {
 
         // 3. （可选）连带清空两人的聊天记录。如果你不想删记录，把这行注释掉即可
         messageMapper.deleteChatHistory(userName, friendName);
+        evictFriendCaches(userName, friendName);
         return Result.success("好友已删除");
     }
     @Override
     public Result getPendingRequests(String userName) {
-        // 查询条件：friend_name 是我，且 status 是 0（待处理）
-        QueryWrapper<Friend> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("friend_name", userName).eq("status", 0);
-
-        // 按时间倒序，最新的申请在最上面
-        queryWrapper.orderByDesc("create_time");
-
-        List<Friend> pendingList = friendMapper.selectList(queryWrapper);
-        ArrayList<FriendPathVO> friendPathVOArrayList = new ArrayList<>();
-        for (Friend friend : pendingList) {
-            FriendPathVO friendPathVO = new FriendPathVO();
-            BeanUtils.copyProperties(friend,friendPathVO);
-            friendPathVO.setPath(userMapper.findOneByUsername(friend.getUserName()).getPath());
-            friendPathVOArrayList.add(friendPathVO);
-        }
-        return Result.success(friendPathVOArrayList);
+        return cacheClient.queryWithMutex("friends:pending", userName, Result.class,
+                ignored -> {
+                    QueryWrapper<Friend> queryWrapper = new QueryWrapper<>();
+                    queryWrapper.eq("friend_name", userName).eq("status", 0).orderByDesc("create_time");
+                    List<Friend> pendingList = friendMapper.selectList(queryWrapper);
+                    ArrayList<FriendPathVO> result = new ArrayList<>();
+                    for (Friend friend : pendingList) {
+                        FriendPathVO friendPathVO = new FriendPathVO();
+                        BeanUtils.copyProperties(friend, friendPathVO);
+                        UserEmailApplyEntity user = userMapper.findOneByUsername(friend.getUserName());
+                        if (user != null) {
+                            friendPathVO.setPath(user.getPath());
+                        }
+                        result.add(friendPathVO);
+                    }
+                    return Result.success(result);
+                }, 2, java.util.concurrent.TimeUnit.MINUTES);
     }
     @Autowired
     private UserMapper userMapper;
+    @Autowired
+    private CacheClient cacheClient;
 
     @Override
     public Result getMyFriends(String userName) {
-        // 1. 查出所有 status=1 (已同意) 的好友账号
-        QueryWrapper<Friend> friendQuery = new QueryWrapper<>();
-        friendQuery.eq("user_name", userName).eq("status", 1);
-        List<Friend> friends = friendMapper.selectList(friendQuery);
-
-        if (friends.isEmpty()) {
-            return Result.success(new ArrayList<>());
-        }
-
-        // 2. 提取所有好友的账号名称
-        List<String> friendNames = friends.stream()
-                .map(Friend::getFriendName)
-                .collect(Collectors.toList());
-
-        // 3. 去 user 表查出这些好友的头像信息
-        QueryWrapper<User> userQuery = new QueryWrapper<>();
-        // 我们用 selectMaps 方便前端直接接收带驼峰的字段名
-        userQuery.in("user_name", friendNames)
-                .select("user_name AS userName", "path");
-
-        List<Map<String, Object>> resultList = userMapper.selectMaps(userQuery);
-
-        return Result.success(resultList);
+        return cacheClient.queryWithMutex("friends:list", userName, Result.class,
+                ignored -> {
+                    QueryWrapper<Friend> friendQuery = new QueryWrapper<>();
+                    friendQuery.eq("user_name", userName).eq("status", 1);
+                    List<Friend> friends = friendMapper.selectList(friendQuery);
+                    if (friends.isEmpty()) {
+                        return Result.success(new ArrayList<>());
+                    }
+                    List<String> friendNames = friends.stream()
+                            .map(Friend::getFriendName).collect(Collectors.toList());
+                    QueryWrapper<User> userQuery = new QueryWrapper<>();
+                    userQuery.in("user_name", friendNames).select("user_name AS userName", "path");
+                    return Result.success(userMapper.selectMaps(userQuery));
+                }, 2, java.util.concurrent.TimeUnit.MINUTES);
     }
     @Override
     public Result acceptFriend(Integer id, String userName) {
@@ -133,13 +130,19 @@ public class FriendServiceImpl implements FriendService {
             friendMapper.updateById(reverseFriend);
         }
 
+        evictFriendCaches(userName, friendRequest.getUserName());
+
         return Result.success("已同意好友申请");
     }
 
     @Override
     public List<String> getMyFriendsNameByUsername(String userName) {
-
-        return friendMapper.getMyFriendsNameByUsername(userName);
+        return cacheClient.queryWithMutex("friends:names", userName,
+                new TypeReference<List<String>>() {},
+                ignored -> {
+                    List<String> names = friendMapper.getMyFriendsNameByUsername(userName);
+                    return names == null ? new ArrayList<>() : names;
+                }, 2, java.util.concurrent.TimeUnit.MINUTES);
     }
 
     @Override
@@ -163,6 +166,7 @@ public class FriendServiceImpl implements FriendService {
                 // 如果之前被拒绝了，允许重新发起申请，状态重置为 0
                 existFriend.setStatus(0);
                 friendMapper.updateById(existFriend);
+                evictFriendCaches(userName, friendName);
                 return Result.success("重新发送好友申请成功");
             }
         }
@@ -183,6 +187,7 @@ public class FriendServiceImpl implements FriendService {
             newFriend.setFriendName(friendName);
             newFriend.setStatus(1);
             friendMapper.insert(newFriend);
+            evictFriendCaches(userName, friendName);
             return Result.success("对方也申请了您，已自动成为好友！");
         }
 
@@ -192,7 +197,17 @@ public class FriendServiceImpl implements FriendService {
         friend.setFriendName(friendName);
         friend.setStatus(0); // 0表示待通过
         friendMapper.insert(friend);
+        evictFriendCaches(userName, friendName);
 
         return Result.success("好友申请发送成功");
+    }
+
+    private void evictFriendCaches(String firstUser, String secondUser) {
+        cacheClient.evict("friends:pending", firstUser);
+        cacheClient.evict("friends:pending", secondUser);
+        cacheClient.evict("friends:list", firstUser);
+        cacheClient.evict("friends:list", secondUser);
+        cacheClient.evict("friends:names", firstUser);
+        cacheClient.evict("friends:names", secondUser);
     }
 }

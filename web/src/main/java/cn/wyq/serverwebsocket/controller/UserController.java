@@ -16,6 +16,7 @@ import cn.wyq.serverwebsocket.service.FriendService;
 import cn.wyq.serverwebsocket.service.UserService;
 import cn.wyq.serverwebsocket.socket.WebSocket;
 import cn.wyq.serverwebsocket.utils.BaseContext;
+import cn.wyq.serverwebsocket.utils.CacheClient;
 import cn.wyq.serverwebsocket.utils.MailUtil;
 import com.alibaba.csp.sentinel.annotation.SentinelResource;
 import com.alibaba.excel.EasyExcel;
@@ -39,6 +40,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/user")
@@ -56,6 +58,7 @@ public class UserController {
     private final PasswordEncoder passwordEncoder;
     private final MailUtil mailUtil;
     private final UserMapper userMapper;
+    private final CacheClient cacheClient;
 
     @GetMapping("/hello")
     @LoginNotRequired
@@ -336,26 +339,38 @@ public class UserController {
     @PutMapping("/client-update")
     @Operation(summary = "C端用户修改个人资料")
     public Result clientUpdateProfile(@RequestBody User user) {
-        UserEmailApplyEntity userEmailApplyEntity = userMapper.findOneByUsername(user.getUserName());
-        if (userEmailApplyEntity != null && !user.getUserName().equals(userEmailApplyEntity.getUserName()))
-            throw new ServiceException("该用户名已存在", 400);
-
+        if (user == null || user.getUserName() == null || user.getUserName().trim().isEmpty()) {
+            throw new ServiceException("用户名不能为空", 400);
+        }
         int currentId = Math.toIntExact(BaseContext.getCurrentId());
         UserEmailApplyEntity existingUser = userMapper.getCurrentUserById(currentId);
-
-        if (existingUser != null) {
-            String oldUserName = existingUser.getUserName();
-            existingUser.setUserName(user.getUserName());
-            existingUser.setPath(user.getPath());
-            userMapper.updateUsernameAvatar(existingUser);
-            userService.updateUsernameInGroupAndFriend(oldUserName, user.getUserName());
-            // 发送系统广播：通知本人资料更新成功
-            // 💡 这里发送给【新的】用户名，因为如果它当前在线的话，此时 session 可能需要重新校验绑定
-            WebSocket.sendSystemBroadcast(user.getUserName(), "个人资料更新成功。");
-
-            return Result.success("更新成功");
+        if (existingUser == null) {
+            return Result.error("用户不存在");
         }
-        return Result.error("用户不存在");
+
+        String newUserName = user.getUserName().trim();
+        UserEmailApplyEntity userEmailApplyEntity = userMapper.findOneByUsername(newUserName);
+        if (userEmailApplyEntity != null && !Objects.equals(userEmailApplyEntity.getId(), currentId)) {
+            throw new ServiceException("该用户名已存在", 400);
+        }
+
+        String oldUserName = existingUser.getUserName();
+        existingUser.setUserName(newUserName);
+        existingUser.setPath(user.getPath());
+        userMapper.updateUsernameAvatar(existingUser);
+        userService.updateUsernameInGroupAndFriend(oldUserName, newUserName);
+        cacheClient.evict("users:id", currentId);
+        cacheClient.evict("users:detail", currentId);
+        cacheClient.evict("users:path", oldUserName);
+        cacheClient.evict("users:path", newUserName);
+        cacheClient.evictKey(cacheClient.buildKey("users:all", "all"));
+        cacheClient.evictByPrefix("manage:users:apply");
+        cacheClient.evictByPrefix("manage:users:append");
+        // 发送系统广播：通知本人资料更新成功
+        // 💡 这里发送给【新的】用户名，因为如果它当前在线的话，此时 session 可能需要重新校验绑定
+        WebSocket.sendSystemBroadcast(newUserName, "个人资料更新成功。");
+
+        return Result.success("更新成功");
     }
 
     @PutMapping("/client-password")
@@ -375,6 +390,9 @@ public class UserController {
 
         user.setPassword(passwordEncoder.encode(newPassword));
         userMapper.updatePasswordById(user);
+        cacheClient.evict("users:id", user.getId());
+        cacheClient.evict("users:detail", user.getId());
+        cacheClient.evictKey(cacheClient.buildKey("users:all", "all"));
 
         // 发送系统广播：通知本人密码修改成功
         WebSocket.sendSystemBroadcast(userName, "登录密码修改成功，下次请使用新密码登录。");
@@ -407,6 +425,9 @@ public class UserController {
 
         user.setEmail(dto.getNewEmail());
         userMapper.updateEmailById(user);
+        cacheClient.evict("users:detail", user.getId());
+        cacheClient.evictByPrefix("manage:users:apply");
+        cacheClient.evictByPrefix("manage:users:append");
 
         // 发送系统广播：通知本人邮箱换绑成功
         WebSocket.sendSystemBroadcast(dto.getUserName(), "邮箱换绑成功，当前绑定邮箱为：" + dto.getNewEmail());

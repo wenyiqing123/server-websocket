@@ -6,6 +6,7 @@ import cn.wyq.serverwebsocket.config.AlipayConfig;
 import cn.wyq.serverwebsocket.mapper.RechargeOrderMapper;
 import cn.wyq.serverwebsocket.service.RechargeService;
 import cn.wyq.serverwebsocket.utils.BaseContext;
+import cn.wyq.serverwebsocket.utils.CacheClient;
 import com.alibaba.fastjson2.JSONObject;
 import com.alipay.api.AlipayClient;
 import com.alipay.api.internal.util.AlipaySignature;
@@ -33,6 +34,8 @@ public class AlipayController {
     private AlipayConfig alipayConfig;
     @Autowired
     private RechargeOrderMapper orderMapper;
+    @Autowired
+    private CacheClient cacheClient;
     // 🌟 优化：把回调地址写在 application.yml 里，比如: alipay.notify-url: http://xxx/alipay/notify
     @Value("${alipay.notify-url:http://2affce96.r7.cpolar.cn/alipay/notify}")
     private String notifyUrl;
@@ -43,6 +46,9 @@ public class AlipayController {
         // 注意：只更新状态为 0 (待支付) 的订单，防止误操作
         int updated = orderMapper.updateOrderStatusToClosed(outTradeNo);
         if (updated > 0) {
+            // 订单状态和管理端财务列表都可能已被缓存，关闭订单后必须立即失效。
+            cacheClient.evict("finance:recharge-status", outTradeNo);
+            cacheClient.evictByPrefix("finance");
             return Result.success("订单已主动关闭");
         }
         return Result.error("订单取消失败或订单状态已改变");
