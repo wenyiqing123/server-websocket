@@ -5,6 +5,66 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="68dfcc89-984c-4e29-8ce5-b393bae2b8b7" name="Changes" comment="2026-9-3">
+      <change afterPath="$PROJECT_DIR$/common/src/main/java/cn/wyq/serverwebsocket/utils/CacheClient.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/common/target/classes/cn/wyq/serverwebsocket/utils/CacheClient$CacheRead.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/common/target/classes/cn/wyq/serverwebsocket/utils/CacheClient.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/logs/2026-09/mylog-2026-06-07.log" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/logs/2026-09/mylog-2026-09-02.log" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pojo/src/main/java/cn/wyq/serverwebsocket/pojo/dto/DocumentSessionDocumentsDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pojo/src/main/java/cn/wyq/serverwebsocket/pojo/dto/SendTransferDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pojo/src/main/java/cn/wyq/serverwebsocket/pojo/entity/Transfer.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pojo/target/classes/cn/wyq/serverwebsocket/pojo/dto/AiReplyDto$MessageItem.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pojo/target/classes/cn/wyq/serverwebsocket/pojo/dto/DocumentSessionDocumentsDTO.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pojo/target/classes/cn/wyq/serverwebsocket/pojo/dto/SendTransferDTO.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pojo/target/classes/cn/wyq/serverwebsocket/pojo/entity/Transfer$TransferBuilder.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pojo/target/classes/cn/wyq/serverwebsocket/pojo/entity/Transfer.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/service/src/main/java/cn/wyq/serverwebsocket/mapper/DocumentSessionMapper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/service/src/main/java/cn/wyq/serverwebsocket/mapper/TransferMapper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/service/src/main/java/cn/wyq/serverwebsocket/service/DocumentSessionService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/service/src/main/java/cn/wyq/serverwebsocket/service/TransferService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/mapper/DocumentSessionMapper.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/mapper/TransferMapper.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/service/DocumentSessionService$1.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/service/DocumentSessionService.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/service/TransferService.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/service/impl/AIServiceImpl$1.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/service/impl/AIServiceImpl$2.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/service/impl/ChatServiceImpl$1.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/service/impl/DocumentServiceImpl$1.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/service/impl/FinanceServiceImpl$1.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/service/impl/FinanceServiceImpl$2.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/service/impl/FinanceServiceImpl$3.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/service/impl/FinanceServiceImpl$4.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/service/impl/FinanceServiceImpl$5.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/service/impl/FriendServiceImpl$1.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/service/impl/GroupServiceImpl$1.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/service/impl/GroupServiceImpl$2.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/service/impl/MessageServiceImpl$1.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/service/impl/MessageServiceImpl$2.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/service/impl/MessageStatsImpl$1.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/service/impl/MessageStatsImpl$2.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/service/impl/MessageStatsImpl$3.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/service/impl/RechargeOrderServiceImpl$1.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/service/impl/SysConfigServiceImpl$1.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/service/impl/TransactionLogServiceImpl$1.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/service/impl/UserServiceImpl$1.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/service/impl/UserServiceImpl$2.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/service/impl/UserServiceImpl$3.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/service/impl/UserServiceImpl$4.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/service/impl/UserWalletServiceImpl$1.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sql/ai_session_document.sql" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sql/u_transfer.sql" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/upload/3327b97814fa488497df90bac91351f9.pdf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/upload/814d2a304c.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/upload/bfe4350f1607415a88b40057b2e76a67.pdf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/upload/cca6f6def8ed4666aa1229169fa7f240.pdf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/upload/e1ac4ab5b97d40bf9b6012cccf5d7a33.pdf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/upload/fbaada28f0.pdf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/web/src/main/java/cn/wyq/serverwebsocket/controller/TransferController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/web/src/main/java/cn/wyq/serverwebsocket/task/MoneyExpiryScheduleTask.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/web/src/main/java/cn/wyq/serverwebsocket/tool/ChatMessageTool.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/web/src/main/resources/static/dataset/mecha_vector_cache - 副本.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logs/mylog.log" beforeDir="false" afterPath="$PROJECT_DIR$/logs/mylog.log" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -560,7 +620,7 @@
       <workItem from="1788330847733" duration="32000" />
       <workItem from="1788333561913" duration="10686000" />
       <workItem from="1788349161946" duration="2638000" />
-      <workItem from="1788425606171" duration="4600000" />
+      <workItem from="1788425606171" duration="4920000" />
     </task>
     <task id="LOCAL-00016" summary="2026-2-7&#10;上传git，导入gemini">
       <option name="closed" value="true" />
