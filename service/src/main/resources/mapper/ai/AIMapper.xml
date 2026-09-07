@@ -16,11 +16,6 @@
         <result column="content" property="content" jdbcType="VARCHAR"/>
         <result column="role" property="role" jdbcType="INTEGER"/>
     </resultMap>
-    <delete id="deleteConversationById" parameterType="int">
-        delete
-        from conversation
-        where id = #{id};
-    </delete>
     <delete id="deleteMessagesByConversationId" parameterType="int">
         delete from conversation_message where conversation_id=#{id};
     </delete>
@@ -30,6 +25,13 @@
         FROM conversation
         where user_name=#{userName}
         ORDER BY update_time DESC
+    </select>
+
+    <select id="countConversationByIdAndUserName" resultType="int">
+        SELECT COUNT(1)
+        FROM conversation
+        WHERE id = #{conversationId}
+          AND user_name = #{userName}
     </select>
 
     <insert id="insertConversation" parameterType="cn.wyq.serverwebsocket.pojo.entity.Conversation"
@@ -44,18 +46,27 @@
         SET name = #{updateConversationNameDTO.name},
             update_time=#{now}
         WHERE id = #{updateConversationNameDTO.conversationId}
+          AND user_name = #{userName}
     </update>
 
-    <select id="selectMessagesByConversationId" resultMap="ConversationMessage">
-        SELECT id, conversation_id, content, role
-        FROM conversation_message
-        WHERE conversation_id = #{conversationId}
-        ORDER BY id ASC
+    <select id="selectMessagesByConversationIdAndUserName" resultMap="ConversationMessage">
+        SELECT m.id, m.conversation_id, m.content, m.role
+        FROM conversation_message m
+        INNER JOIN conversation c ON c.id = m.conversation_id
+        WHERE m.conversation_id = #{conversationId}
+          AND c.user_name = #{userName}
+        ORDER BY m.id ASC
     </select>
 
     <insert id="insertMessage" parameterType="cn.wyq.serverwebsocket.pojo.dto.ConversationMessageDTO">
         INSERT INTO conversation_message (conversation_id, content, role)
         VALUES (#{conversationId}, #{content}, #{role})
     </insert>
+
+    <delete id="deleteConversationByIdAndUserName">
+        DELETE FROM conversation
+        WHERE id = #{conversationId}
+          AND user_name = #{userName}
+    </delete>
 
 </mapper>

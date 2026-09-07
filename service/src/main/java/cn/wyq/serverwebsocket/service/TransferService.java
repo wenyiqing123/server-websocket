@@ -9,6 +9,7 @@ import cn.wyq.serverwebsocket.pojo.entity.AccountLog;
 import cn.wyq.serverwebsocket.pojo.entity.Transfer;
 import cn.wyq.serverwebsocket.pojo.entity.UserEmailApplyEntity;
 import cn.wyq.serverwebsocket.utils.CacheClient;
+import cn.wyq.serverwebsocket.utils.SystemConfigUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -31,6 +32,7 @@ public class TransferService {
     private final AccountLogMapper accountLogMapper;
     private final UserMapper userMapper;
     private final CacheClient cacheClient;
+    private final SysConfigService sysConfigService;
 
     @Transactional(rollbackFor = Exception.class)
     public Transfer sendTransfer(Integer senderId, String receiverName, BigDecimal amount, String remark) {
@@ -100,8 +102,9 @@ public class TransferService {
         if (transfer.getStatus() == null || transfer.getStatus() != 0) {
             throw new IllegalStateException("该转账已处理");
         }
-        if (isExpired(transfer)) {
-            returnTransferLocked(transfer);
+        int expireHours = transferExpireHours();
+        if (isExpired(transfer, expireHours)) {
+            returnTransferLocked(transfer, expireHours);
             transfer.setStatus(2);
             transfer.setReturnTime(LocalDateTime.now());
             return transfer;
@@ -138,11 +141,13 @@ public class TransferService {
 
     @Transactional(rollbackFor = Exception.class)
     public boolean refundExpiredTransfer(Long transferId) {
+        int expireHours = transferExpireHours();
         Transfer transfer = transferMapper.selectByIdForUpdate(transferId);
-        if (transfer == null || transfer.getStatus() == null || transfer.getStatus() != 0 || !isExpired(transfer)) {
+        if (transfer == null || transfer.getStatus() == null || transfer.getStatus() != 0
+                || !isExpired(transfer, expireHours)) {
             return false;
         }
-        returnTransferLocked(transfer);
+        returnTransferLocked(transfer, expireHours);
         cacheClient.evict("account:balance", transfer.getSenderId());
         cacheClient.evict("transfers:detail", transfer.getTransferNo());
         cacheClient.evictByPrefix("finance");
@@ -160,8 +165,8 @@ public class TransferService {
         return transfer;
     }
 
-    private void returnTransferLocked(Transfer transfer) {
-        if (transferMapper.markTransferReturned(transfer.getId()) != 1) {
+    private void returnTransferLocked(Transfer transfer, int expireHours) {
+        if (transferMapper.markTransferReturned(transfer.getId(), expireHours) != 1) {
             throw new IllegalStateException("该转账已处理");
         }
 
@@ -190,8 +195,19 @@ public class TransferService {
         cacheClient.evictByPrefix("finance");
     }
 
-    private boolean isExpired(Transfer transfer) {
-        return transfer.getCreateTime() == null
-                || !transfer.getCreateTime().isAfter(LocalDateTime.now().minusDays(1));
+    /** 从平台配置读取转账过期窗口，配置异常时回退到一天。 */
+    private int transferExpireHours() {
+        try {
+            return SystemConfigUtils.intValue(sysConfigService.getConfigMap(),
+                    "transfer_expire_hours", 24, 1, 24 * 365);
+        } catch (RuntimeException e) {
+            log.warn("读取转账过期配置失败，将使用默认 24 小时", e);
+            return 24;
+        }
+    }
+
+    private boolean isExpired(Transfer transfer, int expireHours) {
+        return transfer == null || transfer.getCreateTime() == null
+                || !transfer.getCreateTime().isAfter(LocalDateTime.now().minusHours(expireHours));
     }
 }

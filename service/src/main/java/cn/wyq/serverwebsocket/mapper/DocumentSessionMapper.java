@@ -10,11 +10,20 @@ import java.util.List;
 @Mapper
 public interface DocumentSessionMapper {
 
-    @Select("SELECT COUNT(1) FROM ai_chat_session WHERE id = #{sessionId} AND user_id = #{userName}")
-    int countOwnedSession(@Param("sessionId") String sessionId, @Param("userName") String userName);
+    @Select("SELECT COUNT(1) FROM ai_chat_session WHERE id = #{sessionId} AND owner_user_id = #{ownerUserId}")
+    int countOwnedSession(@Param("sessionId") String sessionId, @Param("ownerUserId") Integer ownerUserId);
 
-    @Select("SELECT document_id FROM ai_session_document WHERE session_id = #{sessionId} ORDER BY created_at ASC")
-    List<String> selectDocumentIds(@Param("sessionId") String sessionId);
+    /**
+     * 只查询归属于当前用户的文档，历史无归属文档不会随会话暴露给普通用户。
+     */
+    @Select("SELECT association.document_id "
+            + "FROM ai_session_document association "
+            + "INNER JOIN sys_document document ON document.id = association.document_id "
+            + "WHERE association.session_id = #{sessionId} "
+            + "AND document.owner_user_id = #{ownerUserId} "
+            + "ORDER BY association.created_at ASC")
+    List<String> selectDocumentIds(@Param("sessionId") String sessionId,
+                                   @Param("ownerUserId") Integer ownerUserId);
 
     @Delete("DELETE FROM ai_session_document WHERE session_id = #{sessionId}")
     int deleteBySessionId(@Param("sessionId") String sessionId);

@@ -1,18 +1,34 @@
 app:
-  domain: http://10.185.88.128:8000
+  # 对外服务地址；生产环境请覆盖为 HTTPS 公网地址。
+  domain: "${APP_DOMAIN:http://localhost:8000}"
+  # 可通过 APP_ENV 切换运行环境；JWT_SECRET 未注入时使用下方固定开发密钥。
+  environment: "${APP_ENV:development}"
+
+# JWT_SECRET 可由部署环境覆盖；未配置时使用固定默认值，保证本地启动即可完成 JWT 初始化。
+security:
+  jwt:
+    secret: "${JWT_SECRET:jwt_secret_for_server_websocket}"
+
 spring:
   application:
     name: server-websocket
+  # Spring 的 multipart 限制必须位于 spring.servlet 下；具体业务上限由 sys_config
+  # 的 rag_max_upload_bytes / file_max_upload_bytes 再按接口动态校验。
+  servlet:
+    multipart:
+      max-file-size: 1GB
+      max-request-size: 1GB
   cloud:
     sentinel:
       transport:
-        dashboard: localhost:8090 # 控制台地址
-        port: 8719 # 客户端监控端口（如果被占用会自动+1扫描）
+        dashboard: "${SENTINEL_DASHBOARD:localhost:8090}"
+        port: ${SENTINEL_PORT:8719}
   mail:
-    host: smtp.qq.com
-    port: 465
-    username: 2402317148@qq.com
-    password: gfhmjyhutnhrdieh
+    # 邮件服务凭据必须由环境变量或外部配置中心提供。
+    host: "${MAIL_HOST:smtp.qq.com}"
+    port: ${MAIL_PORT:465}
+    username: "${MAIL_USERNAME:2402317148@qq.com}"
+    password: "${MAIL_PASSWORD:gfhmjyhutnhrdieh}"
     default-encoding: UTF-8
     properties:
       mail:
@@ -21,10 +37,11 @@ spring:
           ssl:
             enable: true
   rabbitmq:
-    host: localhost
-    port: 5672
-    username: guest
-    password: guest
+    # localhost/guest 仅作为未暴露到公网的本地开发默认值；生产环境必须覆盖。
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
     publisher-confirm-type: correlated
     publisher-returns: true
     listener:
@@ -37,94 +54,50 @@ spring:
     resources:
       static-locations:
         - file:${user.dir}/upload/
-
-  # 🌟 修复缩进：mvc 必须在 spring 下面，往左退 2 格
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
-
-  # 🌟 修复缩进：datasource 必须在 spring 下面，往左退 2 格
   datasource:
-    url: jdbc:mysql://127.0.0.1:3306/chat?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&sessionVariables=sql_mode='ANSI_QUOTES'
-    username: root
-    password: yq040809
+    # 本地默认值不含密码；生产环境应使用权限最小化的专用数据库账户。
+    url: "${DB_URL:jdbc:mysql://127.0.0.1:3306/chat?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&sessionVariables=sql_mode='ANSI_QUOTES'}"
+    username: ${DB_USERNAME:root}
+    password: "${DB_PASSWORD:yq040809}"
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
-    # 连接在池中的最大生命周期（毫秒）。设为 120000 (2分钟)，强制在此之前回收，防止拿到死连接。
       max-lifetime: 120000
-    # 连接最大闲置时间（毫秒）。设为 60000 (1分钟)。
       idle-timeout: 60000
-    # 探活心跳时间（毫秒）。每隔 30 秒发送一次微小的心跳，防止 cpolar 认为连接空闲而切断它。
       keepalive-time: 30000
-
-  # 🌟 修复缩进：data (Redis) 必须在 spring 下面，往左退 2 格
   data:
     redis:
-      database: 1      # 💡 注意：你用的是 1 号数据库
-      host: 127.0.0.1
-      port: 6379
-      password:
-      timeout: 6000ms
+      database: ${REDIS_DATABASE:1}
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: "${REDIS_PASSWORD:}"
+      timeout: "${REDIS_TIMEOUT:6000ms}"
       lettuce:
         pool:
           max-active: 8
           max-idle: 8
           min-idle: 0
           max-wait: -1
-#  main:
-#    # 🌟 新增这一行：允许我们自定义的 chatMemory 覆盖掉官方默认的
-#    allow-bean-definition-overriding: true
   ai:
     openai:
-      # 🌟 填入你从百炼控制台获取的 API Key
-      api-key: ${DASHSCOPE_API_KEY:sk-ws-H.PMHRDEP.5Dd1.MEUCIGzMuDXX0_RTprslF3gJPTyaIWOVXAGty09DtA-GKEfDAiEAzs6KQgdS17MQKlRSVobVCPzEyXj4Ijc0jqDbrkQKURU}
-
-      # 🌟 关键：这里去掉末尾的 /v1，Spring AI 会自动补全
-#      base-url: https://dashscope.aliyuncs.com/compatible-mode
-      base-url: https://llm-eomx7r9o91rwtdbj.cn-beijing.maas.aliyuncs.com/compatible-mode
-
-      # 🧠 聊天模型配置 (建议使用 qwen-max 或 qwen-plus)
+      # 使用阿里云百炼 OpenAI 兼容接口；密钥不能提交到仓库。
+      api-key: "${DASHSCOPE_API_KEY:sk-ws-H.PMPYMRX.iWOs.MEUCIQCYypOzo4Q4bFSVam8quwBCS2YIgDav5KgCuliFRo2hYAIgWdkrf5iCZEkWjG_0Xg7L8puVbATgeX1kYlb_XAqgFN0}"
+      base-url: "${DASHSCOPE_BASE_URL:https://dashscope.aliyuncs.com/compatible-mode}"
       chat:
         options:
-          model: qwen-plus
+          model: qwen3.8-max-0902
           temperature: 0.7
-
-      # 📏 向量化模型配置 (百炼兼容版)
       embedding:
         enabled: true
         options:
-          model: text-embedding-v3 # 阿里云最强的向量模型
-
-    # --------------------------------
-    # 🌟 2. Ollama 向量化配置 (专职做文档切块嵌入)
-    # --------------------------------
-#    ollama:
-#      base-url: http://localhost:11434
-#      chat:
-#        enabled: false # 关闭它的聊天功能，让 GPT-4o 专心干活
-#      embedding:
-#        enabled: true
-#        options:
-#          model: nomic-embed-text # 用于 RAG 的嵌入模型
-
-    # --------------------------------
-    # 🌟 3. 开启基于 JDBC 的聊天记忆库表自动创建
-    # --------------------------------
+          model: text-embedding-v3
     chat:
       memory:
         jdbc:
-          initialize-schema: false # 第一次启动会在 MySQL 自动建记忆表
+          initialize-schema: false
 
-
-#    ollama:
-#      base-url: http://localhost:11434
-#      chat:
-#        options:
-#          # 🚨 核心：这里填入你在 Ollama 中拉取好的模型名称
-#          # 比如：llama3, qwen2.5:7b, deepseek-r1:1.5b
-#          model: qwen2.5:3b
-#          # 可选配置：控制模型回答的创造性，0 比较严谨，1 比较天马行空
-#          temperature: 0.7
 mybatis:
   configuration:
     map-underscore-to-camel-case: true
@@ -141,27 +114,33 @@ server:
     encoding:
       charset: UTF-8
       force: true
-    multipart:
-      max-file-size: 10MB
-      max-request-size: 10MB
-  port: 8000
+  port: ${SERVER_PORT:8000}
 
-# 🌟 修复跨平台路径
 image:
   mapping: /file/
-  location: ${user.dir}/upload/
+  location: "${IMAGE_LOCATION:${user.dir}/upload/}"
+
+# AI 文档与普通 /file/** 上传分开保存；留空时服务使用 ${user.dir}/private-ai-documents。
+ai:
+  document:
+    storage:
+      location: "${AI_DOCUMENT_STORAGE_LOCATION:}"
+    limits:
+      # Spring multipart 只提供 1GB 的静态安全上限；服务层会按数据库配置再次校验。
+      max-file-size-bytes: 10485760
+      # 在 Spring AI 完整读取 PDF 前限制页数，避免小体积但高页数的 PDF 消耗过多内存。
+      max-pdf-pages: 100
+      # PDF/TXT/Markdown 提取出的文本总量与向量切片数量上限。
+      max-extracted-characters: 200000
+      max-slices: 400
 
 alipay:
-  # 截图里你的 APPID
-  app-id: "9021000163616415"
-  # 刚才复制的 应用私钥
-  private-key: "MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCS6Zy5aSpI4oGtmwkbBHul+5SygmqVs0f1/aBg2wLN6eqtOSPgJaF0e4LB1N/Gk1pWsHFDi6CrAUXVbqBaWrQ+BBdaIJxZW4LJ7qbhNVbHEAjjJN/j06rmfzPozcuSoBzwfSOtXBGtNkQQRjfWJCBN3mw86u/Pdx8fLR00P2j4WZvNSvyoIOTlIQDcHOgPiMe71R99a79g6dzu/2jzWpCsG7f9sOo7G4/P8HRlWEbH4QCoXUt6Cy5+pRoYLShh2H+33iLt0tLXB17emk08T33SXuOc5er1fG5OSWALb1uaIadA0VKKvWXyUFKyL+MfQX20mQLj83jEN3ZRawmGgy8RAgMBAAECggEAPQsCiuvOnRA4r8juhKJdOj+Jro6P+PnQWb7zx6rYxHSAhU9rv7QDHSJA14c7IAiUDdcsiNNYhBV4TdG0oTZ1FBuhFFrefCaQ9pTKFGOUVgwslSz6NnD53uJV0FLKVnde7vIgQ+UwlxcoOtbiVoEWRyS3NqyrzjmB3fNh4hbC6AW3Gm8u+/i+vftxRvBEGI86euK/cloiMVeUVM2LNxZjTN+yLLBX5E5q7pw3Sc7Oqpcd0P66GH6cstXNcaKXTGhsSSDLnvX8vkC7F+AdCXVjuKliqKdmqIQW5W5Hmt2PUw5D/D6j4RZcy3T6cToDvSLhyITn5u/0HoM6FWiYCRDgzQKBgQDunkIrjVKUe5t0tQ8o6tC+80TBKxo4hIWGhKaFSKHM9gMzSM4p4OZKF0v49Z0ZajGUkSay5okex7zRud474pwNQ0sMFmFH61kOkYqsKwTouaFrTpQDathyfhBKyIWV7r/q7bkBDpSXjCScJZ82+j4YW7H15VogL10VKXl6KHs6wwKBgQCdnTsZXn77OPHYWpg0esXmhmNHIzuIWehSbP/e4DVCS0MkbUOAZBOHnOrcAPn7Le4RJzyoqMkOabXrK/JQj9J7OKuZoZt+MHks+b87cjsgGZ9womIxjCNATfXbFhjI9qQbTtlnwja4jYHDCCDUFpYSY321QYks+ZnRID9GOvdJmwKBgQDspCJ3UqYM/zDCYzVvnL/8PwF2mKpeVn6dUzxZfhiITYoK+C8NNS7tV4FOmzZ7l+cnsXOxhBOEZQ2K6EvPFAMy3AO3LxK24l3lpszhxaAOtNmys7DyWqnhkcfSgl6IvMez0qHgvHb8fE1qVZ06Rp4CRh2NATGKLa6gaAtC7JaZRQKBgHyk/zvM0zbxjbC/1GaMQT1RQencHxRxpZypvqAPR48p3etMzXkXq6ovmjxqOUc+x2qhUQNAl9/iEY/trS+wzY/M/Uf92e4tf2bmCymD6OY13TVB9c2hOa9899VO4ELtalJ+RMgdexDwN5J5Nx0Cz6OzMpLJRSZgLhiIHAH6V93JAoGAU1q/XbZXL+pUs/t4Xvk22deLdChXsdpxRhv67f7Q86hm9q9xIWQSHGt2hcrBRbtUxfGAFpSp/fj5cf/7DUv3Xek71DuzzlHrTclYpUVa5MIc8CoSSE5ceyRMLEzu+ARhujLJCWgogCBS+24iUAKjyMj5OHS2S43eUfNZu104fd0="
-  # 刚才复制的 支付宝公钥
-  alipay-public-key: "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAk4fYKvREA/RgpZwYpBALb+A4/Pi/4Ap7dQ9fx29L+rtnPNvxDgoWH9dppX5vjf6mwhzHPKWl2QIqqkPOS2yMTP1HwDMvjC89Ez3XVT3ypO79rS1g25kfGdpxnusMzYsGtsSVyDcGyDXbB97oXexO/7DUNXLT9tIXUCGHtl4Iey9DUr0Q2yz5SsZRSAwkCnarhhpub7dVVpkDQ14Ke3quxSEM0lFgz9sOix6TTBoICz5SsRrjuwQAIJ0b7tJw2nacD2kNP/XO/CVE5+qp9RYERqGw37Or95QYFeHiDZQKwcM7H/ug5HRjwQc78u/RyBOCRNwMbwylNYq/pqOS5gz57wIDAQAB"
-  # 截图里的 支付宝网关地址
-  gateway-url: "https://openapi-sandbox.dl.alipaydev.com/gateway.do"
-  sign-type: "RSA2"
-  charset: "UTF-8"
-  format: "json"
-# 后端url:只能在公网生效
-  notify-url: https://49ae2e51.r3.cpolar.top/alipay/notify
+  # 支付宝沙箱或生产凭据必须由部署环境注入，不能保存在仓库中。
+  app-id: "${ALIPAY_APP_ID:9021000163616415}"
+  private-key: "${ALIPAY_PRIVATE_KEY:MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCS6Zy5aSpI4oGtmwkbBHul+5SygmqVs0f1/aBg2wLN6eqtOSPgJaF0e4LB1N/Gk1pWsHFDi6CrAUXVbqBaWrQ+BBdaIJxZW4LJ7qbhNVbHEAjjJN/j06rmfzPozcuSoBzwfSOtXBGtNkQQRjfWJCBN3mw86u/Pdx8fLR00P2j4WZvNSvyoIOTlIQDcHOgPiMe71R99a79g6dzu/2jzWpCsG7f9sOo7G4/P8HRlWEbH4QCoXUt6Cy5+pRoYLShh2H+33iLt0tLXB17emk08T33SXuOc5er1fG5OSWALb1uaIadA0VKKvWXyUFKyL+MfQX20mQLj83jEN3ZRawmGgy8RAgMBAAECggEAPQsCiuvOnRA4r8juhKJdOj+Jro6P+PnQWb7zx6rYxHSAhU9rv7QDHSJA14c7IAiUDdcsiNNYhBV4TdG0oTZ1FBuhFFrefCaQ9pTKFGOUVgwslSz6NnD53uJV0FLKVnde7vIgQ+UwlxcoOtbiVoEWRyS3NqyrzjmB3fNh4hbC6AW3Gm8u+/i+vftxRvBEGI86euK/cloiMVeUVM2LNxZjTN+yLLBX5E5q7pw3Sc7Oqpcd0P66GH6cstXNcaKXTGhsSSDLnvX8vkC7F+AdCXVjuKliqKdmqIQW5W5Hmt2PUw5D/D6j4RZcy3T6cToDvSLhyITn5u/0HoM6FWiYCRDgzQKBgQDunkIrjVKUe5t0tQ8o6tC+80TBKxo4hIWGhKaFSKHM9gMzSM4p4OZKF0v49Z0ZajGUkSay5okex7zRud474pwNQ0sMFmFH61kOkYqsKwTouaFrTpQDathyfhBKyIWV7r/q7bkBDpSXjCScJZ82+j4YW7H15VogL10VKXl6KHs6wwKBgQCdnTsZXn77OPHYWpg0esXmhmNHIzuIWehSbP/e4DVCS0MkbUOAZBOHnOrcAPn7Le4RJzyoqMkOabXrK/JQj9J7OKuZoZt+MHks+b87cjsgGZ9womIxjCNATfXbFhjI9qQbTtlnwja4jYHDCCDUFpYSY321QYks+ZnRID9GOvdJmwKBgQDspCJ3UqYM/zDCYzVvnL/8PwF2mKpeVn6dUzxZfhiITYoK+C8NNS7tV4FOmzZ7l+cnsXOxhBOEZQ2K6EvPFAMy3AO3LxK24l3lpszhxaAOtNmys7DyWqnhkcfSgl6IvMez0qHgvHb8fE1qVZ06Rp4CRh2NATGKLa6gaAtC7JaZRQKBgHyk/zvM0zbxjbC/1GaMQT1RQencHxRxpZypvqAPR48p3etMzXkXq6ovmjxqOUc+x2qhUQNAl9/iEY/trS+wzY/M/Uf92e4tf2bmCymD6OY13TVB9c2hOa9899VO4ELtalJ+RMgdexDwN5J5Nx0Cz6OzMpLJRSZgLhiIHAH6V93JAoGAU1q/XbZXL+pUs/t4Xvk22deLdChXsdpxRhv67f7Q86hm9q9xIWQSHGt2hcrBRbtUxfGAFpSp/fj5cf/7DUv3Xek71DuzzlHrTclYpUVa5MIc8CoSSE5ceyRMLEzu+ARhujLJCWgogCBS+24iUAKjyMj5OHS2S43eUfNZu104fd0=}"
+  alipay-public-key: "${ALIPAY_PUBLIC_KEY:MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAk4fYKvREA/RgpZwYpBALb+A4/Pi/4Ap7dQ9fx29L+rtnPNvxDgoWH9dppX5vjf6mwhzHPKWl2QIqqkPOS2yMTP1HwDMvjC89Ez3XVT3ypO79rS1g25kfGdpxnusMzYsGtsSVyDcGyDXbB97oXexO/7DUNXLT9tIXUCGHtl4Iey9DUr0Q2yz5SsZRSAwkCnarhhpub7dVVpkDQ14Ke3quxSEM0lFgz9sOix6TTBoICz5SsRrjuwQAIJ0b7tJw2nacD2kNP/XO/CVE5+qp9RYERqGw37Or95QYFeHiDZQKwcM7H/ug5HRjwQc78u/RyBOCRNwMbwylNYq/pqOS5gz57wIDAQAB}"
+  gateway-url: "${ALIPAY_GATEWAY_URL:https://openapi-sandbox.dl.alipaydev.com/gateway.do}"
+  sign-type: RSA2
+  charset: UTF-8
+  format: json
+  notify-url: "${ALIPAY_NOTIFY_URL:https://49ae2e51.r3.cpolar.top/alipay/notify}"

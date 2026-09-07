@@ -38,6 +38,9 @@ public class WebConfig implements WebMvcConfigurer {
     @Autowired
     private JWTInterceptor jwtInterceptor;
 
+    @Autowired
+    private CurrentUserHandlerMethodArgReslover currentUserResolver;
+
     // JWT 拦截器放行的白名单
     private static final List<String> EXCLUDE_PATHS = Arrays.asList(
             "/user/path",
@@ -102,7 +105,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
         // 注册自定义参数解析器（如 @CurrentUser）
-        argumentResolvers.add(new CurrentUserHandlerMethodArgReslover());
+        argumentResolvers.add(currentUserResolver);
     }
 
     // ================== 5. 跨域与消息转换器 ==================

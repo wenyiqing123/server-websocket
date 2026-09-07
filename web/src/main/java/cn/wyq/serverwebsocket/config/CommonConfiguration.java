@@ -1,7 +1,7 @@
 package cn.wyq.serverwebsocket.config;
 
 import cn.wyq.serverwebsocket.constant.ModelConstant;
-import cn.wyq.serverwebsocket.tool.*;
+import cn.wyq.serverwebsocket.tool.ChatMessageTool;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
@@ -23,10 +23,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 @RequiredArgsConstructor
 public class CommonConfiguration {
 
-    private final UserTool userTool;
-    private final MessageTool messageTool;
-    private final MessageAnalysisTool messageAnalysisTool;
-    private final SystemStatsTool systemStatsTool;
     private final ChatMessageTool chatMessageTool;
 
     /**
@@ -53,7 +49,7 @@ public class CommonConfiguration {
     @Bean("girlfriendChatClient")
     public ChatClient girlfriendChatClient(ChatClient.Builder builder,
                                            @Qualifier("customChatMemory") ChatMemory chatMemory) {
-        log.info("【系统加载】启动仿真女友（Azure GPT-4o 驱动版）装载完毕！");
+        log.info("【系统加载】启动仿真女友（Qwen 3.8 Max 驱动版）装载完毕！");
         return builder
                 .defaultAdvisors(
                         MessageChatMemoryAdvisor.builder(chatMemory).build(),
@@ -63,16 +59,16 @@ public class CommonConfiguration {
     }
 
     /**
-     * 🕵️ 2号智能体：全能数据管家
-     * 🌟 同样使用 @Qualifier 明确指定
+     * 🕵️ 2号智能体：官方客服。
+     * 仅暴露受当前用户身份约束的代发消息工具；不能由模型提示词代替数据权限校验。
      */
     @Bean("serviceChatClient")
     public ChatClient serviceChatClient(ChatClient.Builder builder,
                                         @Qualifier("customChatMemory") ChatMemory chatMemory) {
-        log.info("【系统加载】启动全能数据管家（Azure GPT-4o 驱动版），装载数据库查询工具！");
+        log.info("【系统加载】启动官方客服（Qwen 3.8 Max 驱动版），装载受限代发消息工具！");
         return builder
                 .defaultSystem(ModelConstant.SERVICE_SYSTEM_PROMPT)
-                .defaultTools(userTool, messageTool, messageAnalysisTool, systemStatsTool, chatMessageTool)
+                .defaultTools(chatMessageTool)
                 .defaultAdvisors(
                         MessageChatMemoryAdvisor.builder(chatMemory).build(),
                         new SimpleLoggerAdvisor()

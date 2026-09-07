@@ -45,25 +45,29 @@ public class AIcontroller {
     // 1. 获取左侧侧边栏：历史对话列表
     @Operation(summary = "获取历史对话列表", description = "获取历史对话列表，按更新时间倒序排列")
     @GetMapping("/history")
-    public AjaxResult<List<Conversation>> getHistory(@RequestParam String userName) {
-        log.info("请求获取AI历史对话列表，用户名 userName: {}", userName);
-        return AjaxResult.success(aiService.list(userName));
+    public AjaxResult<List<Conversation>> getHistory(@CurrentUser UserEntity currentUser) {
+        log.info("请求获取AI历史对话列表，当前用户: {}", currentUser.getUserName());
+        return AjaxResult.success(aiService.list(currentUser.getUserName()));
     }
 
     // 2. 点击某个对话：获取该对话的所有消息详情
     @Operation(summary = "获取该对话的所有消息详情", description = "获取该对话的所有消息详情")
     @GetMapping("/messages/{conversationId}")
-    public AjaxResult<List<ConversationMessage>> getMessages(@PathVariable Integer conversationId) {
-        log.info("请求获取对话消息记录详情，对话ID conversationId: {}", conversationId);
-        return AjaxResult.success(aiService.getMessages(conversationId));
+    public AjaxResult<List<ConversationMessage>> getMessages(@PathVariable Integer conversationId,
+                                                              @CurrentUser UserEntity currentUser) {
+        log.info("请求获取对话消息记录详情，当前用户: {}, 对话ID: {}",
+                currentUser.getUserName(), conversationId);
+        return AjaxResult.success(aiService.getMessages(conversationId, currentUser.getUserName()));
     }
 
     // 3. 核心功能：发送消息
     @PostMapping("/send")
     @Operation(summary = "发送消息", description = "发送消息到AI模型，返回模型回复")
-    public AjaxResult<Void> sendMessage(@RequestBody ConversationMessageDTO conversationMessageDTO) {
-        log.info("请求发送AI消息，参数 payload: {}", conversationMessageDTO);
-        aiService.saveConversationMessage(conversationMessageDTO);
+    public AjaxResult<Void> sendMessage(@RequestBody ConversationMessageDTO conversationMessageDTO,
+                                        @CurrentUser UserEntity currentUser) {
+        log.info("请求发送AI消息，当前用户: {}, 对话ID: {}", currentUser.getUserName(),
+                conversationMessageDTO == null ? null : conversationMessageDTO.getConversationId());
+        aiService.saveConversationMessage(conversationMessageDTO, currentUser.getUserName());
         return AjaxResult.success();
     }
 

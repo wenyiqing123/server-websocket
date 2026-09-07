@@ -27,20 +27,21 @@ import io.swagger.v3.oas.annotations.extensions.Extension;
 import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 @RestController
 @RequestMapping("/user")
@@ -74,12 +75,14 @@ public class UserController {
     @GetMapping("/pending-admins")
     @Operation(summary = "获取待审批的管理员申请列表")
     public Result getPendingAdmins() {
+        requireSuperAdministrator();
         return Result.success(userService.getPendingAdmins());
     }
 
     @PutMapping("/approve-admin/{id}")
     @Operation(summary = "通过管理员申请")
     public Result approveAdmin(@PathVariable Integer id) {
+        requireSuperAdministrator();
         boolean success = userService.approveAdmin(id);
         return success ? Result.success("已通过该用户的管理员申请") : Result.error("操作失败，请稍后重试");
     }
@@ -87,6 +90,7 @@ public class UserController {
     @PutMapping("/reject-admin/{id}")
     @Operation(summary = "拒绝管理员申请")
     public Result rejectAdmin(@PathVariable Integer id) {
+        requireSuperAdministrator();
         boolean success = userService.rejectAdmin(id);
         return success ? Result.success("已拒绝该用户的管理员申请") : Result.error("操作失败，请稍后重试");
     }
@@ -99,7 +103,7 @@ public class UserController {
             @Extension(properties = {@ExtensionProperty(name = "x-order", value = "1")})
     })
     public Result login(@RequestBody User user, @RequestParam Integer applyRole) {
-        log.info("请求用户登录，尝试登录账号信息: {}", user);
+        log.info("请求用户登录，用户名: {}", user == null ? null : user.getUserName());
         Result login = userService.login(user, applyRole);
         if (login.get("code").equals(200)) {
             List<String> friendNames = friendService.getMyFriendsNameByUsername(user.getUserName());
@@ -137,6 +141,7 @@ public class UserController {
     @GetMapping("/users")
     @Operation(summary = "查询所有用户", description = "查询所有用户接口")
     public Result findAllUsers() {
+        requireActiveAdministrator();
         log.info("请求查询全量用户列表 (非分页)");
         List<User> allUsers = userService.findAllUsers();
         return Result.success(allUsers);
@@ -178,6 +183,8 @@ public class UserController {
     @DeleteMapping("/{id}")
     @Operation(summary = "删除用户", description = "根据ID物理删除用户")
     public AjaxResult<Void> deleteUser(@PathVariable Integer id) {
+        UserEmailApplyEntity operator = requireActiveAdministrator();
+        assertCanManageTarget(operator, id, null);
         log.info("请求物理删除用户，待删除用户ID: {}", id);
         int result = userService.deleteUserById(id);
         return AjaxResult.toAjax(result);
@@ -189,13 +196,25 @@ public class UserController {
     @PutMapping("/update")
     @Operation(summary = "修改用户", description = "支持修改用户名、权限和头像路径")
     public AjaxResult<Void> updateUser(@RequestBody UserEntity user) {
-//        UserEmailApplyEntity oneByUsername = userMapper.findOneByUsername(user.getUserName());
-        log.info("请求修改用户信息，参数 payload: {}", user);
+        UserEmailApplyEntity operator = requireActiveAdministrator();
+        if (user == null || user.getId() <= 0) {
+            throw new ServiceException("用户编号不能为空", 400);
+        }
+        assertCanManageTarget(operator, user.getId(), user);
+        UserEmailApplyEntity targetBeforeUpdate = userMapper.getCurrentUserById(user.getId());
+        String previousUserName = targetBeforeUpdate == null ? null : targetBeforeUpdate.getUserName();
+        log.info("请求修改用户信息，目标用户ID: {}", user.getId());
         if (user.getPassword() != null && !user.getPassword().isEmpty()) {
             log.info("检测到密码修改请求，执行密码重新加密");
             user.setPassword(passwordEncoder.encode(user.getPassword()));
         }
         int result = userService.updateUser(user);
+        if (result > 0 && previousUserName != null && !previousUserName.equals(user.getUserName())) {
+            // 管理员不能代替目标用户签发新凭据。服务事务已经提交后，撤销其刷新凭据并关闭旧身份连接，
+            // 下次操作必须以数据库中的新用户名重新登录。
+            userService.revokeRefreshToken(user.getId());
+            WebSocket.disconnectUser(previousUserName);
+        }
         return AjaxResult.toAjax(result);
     }
 
@@ -216,6 +235,7 @@ public class UserController {
     @GetMapping("/list")
     @Operation(summary = "分页查询用户", description = "分页查询用户接口")
     public PageResult<List<UserEmailApplyEntity>> Userlist(@ParameterObject UserQueryDTO userQueryDTO) {
+        requireActiveAdministrator();
         log.info("请求分页查询用户列表，查询条件 payload: {}", userQueryDTO);
         return userService.userList(userQueryDTO);
     }
@@ -223,6 +243,7 @@ public class UserController {
     @GetMapping("/append/list")
     @Operation(summary = "分页查询用户", description = "分页查询用户接口")
     public PageResult<List<UserEntity>> UserAppendlist(@ParameterObject UserQueryDTO userQueryDTO) {
+        requireActiveAdministrator();
         log.info("请求分页查询用户列表，查询条件 payload: {}", userQueryDTO);
         return userService.userAppendList(userQueryDTO);
     }
@@ -255,6 +276,7 @@ public class UserController {
     @GetMapping("/export")
     @Operation(summary = "按条件导出excel", description = "按条件导出excel")
     public void exportUser(@ParameterObject UserQueryExportDTO userQueryExportDTO, HttpServletResponse response) throws IOException {
+        requireActiveAdministrator();
         log.info("导出用户列表到excel：{}", userQueryExportDTO);
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setCharacterEncoding("utf-8");
@@ -270,6 +292,7 @@ public class UserController {
     @PostMapping("/import")
     @Operation(summary = "通过Excel批量导入用户")
     public Result importUser(@RequestParam("file") MultipartFile file) {
+        requireActiveAdministrator();
         try {
             // 1. 使用 EasyExcel 同步读取文件流转换为 DTO 集合
             List<UserImportDTO> userList = EasyExcel.read(file.getInputStream())
@@ -311,14 +334,22 @@ public class UserController {
     @GetMapping("/{id}")
     @Operation(summary = "根据id查询用户", description = "根据id查询用户")
     public Result getUser(@PathVariable int id) {
-        return Result.success(userService.findById(id));
+        User user = userService.findById(id);
+        if (user != null) {
+            user.setPassword(null);
+        }
+        return Result.success(user);
     }
 
     @GetMapping()
     @Operation(summary = "获取当前用户信息", description = "获取当前用户信息")
     public Result getUser() {
         int currentId = Math.toIntExact(BaseContext.getCurrentId());
-        return Result.success(userService.findById(currentId));
+        User user = userService.findById(currentId);
+        if (user != null) {
+            user.setPassword(null);
+        }
+        return Result.success(user);
     }
 
     @PatchMapping("/updatePassword")
@@ -330,7 +361,11 @@ public class UserController {
     @GetMapping("/current")
     public Result getCurrentUser() {
         int currentId = Math.toIntExact(BaseContext.getCurrentId());
-        return Result.success(userService.getCurrentUserById(currentId));
+        UserEmailApplyEntity user = userService.getCurrentUserById(currentId);
+        if (user != null) {
+            user.setPassword(null);
+        }
+        return Result.success(user);
     }
 
     @PostMapping("/update-email")
@@ -341,6 +376,7 @@ public class UserController {
 
     @PutMapping("/client-update")
     @Operation(summary = "C端用户修改个人资料")
+    @Transactional(rollbackFor = Exception.class)
     public Result clientUpdateProfile(@RequestBody User user) {
         if (user == null || user.getUserName() == null || user.getUserName().trim().isEmpty()) {
             throw new ServiceException("用户名不能为空", 400);
@@ -369,21 +405,45 @@ public class UserController {
         cacheClient.evictKey(cacheClient.buildKey("users:all", "all"));
         cacheClient.evictByPrefix("manage:users:apply");
         cacheClient.evictByPrefix("manage:users:append");
-        // 发送系统广播：通知本人资料更新成功
-        // 💡 这里发送给【新的】用户名，因为如果它当前在线的话，此时 session 可能需要重新校验绑定
-        WebSocket.sendSystemBroadcast(newUserName, "个人资料更新成功。");
+        boolean usernameChanged = !oldUserName.equals(newUserName);
+        if (!usernameChanged) {
+            // 仅头像等资料变动，保持原有响应契约和当前 WebSocket 连接。
+            WebSocket.sendSystemBroadcast(newUserName, "个人资料更新成功。");
+            return Result.success("更新成功");
+        }
 
-        return Result.success("更新成功");
+        // 事务成功提交后再读取数据库身份、轮换令牌并踢出旧用户名的连接。
+        // TransactionInterceptor 会在 HTTP 响应序列化前执行 afterCommit，因此客户端只会收到已提交身份的新令牌。
+        Map<String, String> tokenPair = new HashMap<>();
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                tokenPair.putAll(userService.rotateTokensAfterUsernameChange(currentId));
+                WebSocket.disconnectUser(oldUserName);
+                try {
+                    WebSocket.sendSystemBroadcast(newUserName, "个人资料更新成功。");
+                } catch (Exception exception) {
+                    // 通知失败不能让已提交的新身份和已签发的令牌对无法返回给客户端。
+                    log.warn("用户资料已更新，但系统通知发送失败", exception);
+                }
+            }
+        });
+
+        return Result.success("更新成功", tokenPair);
     }
 
     @PutMapping("/client-password")
     @Operation(summary = "C端用户修改密码")
-    public Result clientUpdatePassword(@RequestBody Map<String, String> params) {
-        String userName = params.get("userName");
-        String oldPassword = params.get("oldPassword");
-        String newPassword = params.get("newPassword");
+    public Result clientUpdatePassword(@Valid @RequestBody UserUpdatePasswordDTO params) {
+        if (params == null) {
+            return Result.error("新旧密码不能为空");
+        }
+        int currentId = Math.toIntExact(BaseContext.getCurrentId());
+        String oldPassword = params.getOldPassword();
+        String newPassword = params.getNewPassword();
 
-        UserEmailApplyEntity user = userMapper.findOneByUsername(userName);
+        // 目标账户只能由已认证的用户 ID 决定，绝不接受请求体中的用户名。
+        UserEmailApplyEntity user = userMapper.getCurrentUserById(currentId);
         if (user == null) {
             return Result.error("用户不存在");
         }
@@ -396,17 +456,28 @@ public class UserController {
         cacheClient.evict("users:id", user.getId());
         cacheClient.evict("users:detail", user.getId());
         cacheClient.evictKey(cacheClient.buildKey("users:all", "all"));
+        // 前端成功后会主动退出；服务端同时撤销 Refresh Token，阻止旧会话重新换取凭据。
+        userService.revokeRefreshToken(user.getId());
 
-        // 发送系统广播：通知本人密码修改成功
-        WebSocket.sendSystemBroadcast(userName, "登录密码修改成功，下次请使用新密码登录。");
+        // 通知属于附加能力，不能影响前端按成功结果退出登录。
+        try {
+            WebSocket.sendSystemBroadcast(user.getUserName(), "登录密码修改成功，下次请使用新密码登录。");
+        } catch (Exception exception) {
+            log.warn("密码已修改，但系统通知发送失败", exception);
+        }
 
         return Result.success("密码修改成功");
     }
 
     @PutMapping("/client-email")
     @Operation(summary = "C端用户修改/换绑邮箱")
-    public Result clientUpdateEmail(@RequestBody UpdateEmailDto dto) {
-        UserEmailApplyEntity user = userMapper.findOneByUsername(dto.getUserName());
+    public Result clientUpdateEmail(@Valid @RequestBody UpdateEmailDto dto) {
+        if (dto == null) {
+            return Result.error("邮箱修改参数不能为空");
+        }
+        int currentId = Math.toIntExact(BaseContext.getCurrentId());
+        // 目标账户只能由当前认证身份决定，DTO 中不再存在可伪造的 userName 字段。
+        UserEmailApplyEntity user = userMapper.getCurrentUserById(currentId);
         if (user == null) {
             return Result.error("用户状态异常");
         }
@@ -432,8 +503,12 @@ public class UserController {
         cacheClient.evictByPrefix("manage:users:apply");
         cacheClient.evictByPrefix("manage:users:append");
 
-        // 发送系统广播：通知本人邮箱换绑成功
-        WebSocket.sendSystemBroadcast(dto.getUserName(), "邮箱换绑成功，当前绑定邮箱为：" + dto.getNewEmail());
+        // 使用数据库中读取到的用户名通知当前账户，而非请求体字段。
+        try {
+            WebSocket.sendSystemBroadcast(user.getUserName(), "邮箱换绑成功，当前绑定邮箱为：" + dto.getNewEmail());
+        } catch (Exception exception) {
+            log.warn("邮箱已换绑，但系统通知发送失败", exception);
+        }
 
         return Result.success("邮箱绑定成功");
     }
@@ -478,5 +553,45 @@ public class UserController {
     @LoginNotRequired
     public Result forgotPassword(@RequestBody ForgotPasswordDto dto) {
         return userService.forgotPassword(dto);
+    }
+
+    /**
+     * 从数据库重新读取操作人，避免只相信 JWT 中可能已过期的权限信息。
+     */
+    private UserEmailApplyEntity requireActiveAdministrator() {
+        Long currentUserId = BaseContext.getCurrentId();
+        if (currentUserId == null || currentUserId <= 0) {
+            throw new ServiceException("请先登录", 401);
+        }
+        UserEmailApplyEntity operator = userMapper.getCurrentUserById(Math.toIntExact(currentUserId));
+        if (operator == null || !Integer.valueOf(1).equals(operator.getStatus())
+                || operator.getRole() == null || (operator.getRole() != 0 && operator.getRole() != 1)) {
+            throw new ServiceException("仅状态正常的管理员可以执行此操作", 403);
+        }
+        return operator;
+    }
+
+    /** 管理员审批会改变账号权限，因此只允许超级管理员执行。 */
+    private void requireSuperAdministrator() {
+        UserEmailApplyEntity operator = requireActiveAdministrator();
+        if (operator.getRole() != 0) {
+            throw new ServiceException("仅超级管理员可以审批管理员申请", 403);
+        }
+    }
+
+    /** 普通管理员只能维护普通用户，不能修改管理员账号或调整账号权限。 */
+    private void assertCanManageTarget(UserEmailApplyEntity operator, Integer targetUserId, UserEntity update) {
+        if (targetUserId == null || targetUserId <= 0) {
+            throw new ServiceException("用户编号不能为空", 400);
+        }
+        UserEmailApplyEntity target = userMapper.getCurrentUserById(targetUserId);
+        if (target == null) {
+            throw new ServiceException("用户不存在", 404);
+        }
+        if (operator.getRole() != 0
+                && (!Integer.valueOf(2).equals(target.getRole())
+                || (update != null && update.getRole() != 2))) {
+            throw new ServiceException("管理员不能修改管理员账号或调整角色", 403);
+        }
     }
 }

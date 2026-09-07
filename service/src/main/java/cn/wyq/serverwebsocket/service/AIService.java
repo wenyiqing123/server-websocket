@@ -30,7 +30,7 @@ public interface AIService {
      * @param conversationId 对话ID
      * @return 消息列表，按时间顺序排列
      */
-    List<ConversationMessage> getMessages(Integer conversationId);
+    List<ConversationMessage> getMessages(Integer conversationId, String userName);
 
     /**
      * 创建一个新的对话。
@@ -50,7 +50,7 @@ public interface AIService {
      *
      * @param conversationMessageDTO
      */
-    void saveConversationMessage(ConversationMessageDTO conversationMessageDTO);
+    void saveConversationMessage(ConversationMessageDTO conversationMessageDTO, String userName);
 
     void updateConversationName(UserEntity user, UpdateConversationNameDTO updateConversationNameDTO);
 

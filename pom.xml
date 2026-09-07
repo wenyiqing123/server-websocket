@@ -38,20 +38,12 @@
         <sentinel.aspectj.version>1.8.6</sentinel.aspectj.version>
         <easyexcel.version>3.3.2</easyexcel.version>
         <sentinel.http.version>1.8.6</sentinel.http.version>
-        <azure-version>1.0.0-beta.1</azure-version>
         <alipay-version>4.38.221.ALL</alipay-version>
         <fastjson2-version>2.0.47</fastjson2-version>
-        <playwright-version>1.41.0</playwright-version>
     </properties>
     <dependencyManagement>
 
         <dependencies>
-            <!-- 微软 Playwright 浏览器自动化库 -->
-<!--            <dependency>-->
-<!--                <groupId>com.microsoft.playwright</groupId>-->
-<!--                <artifactId>playwright</artifactId>-->
-<!--                <version>${playwright-version}</version> &lt;!&ndash; 请使用较新的版本 &ndash;&gt;-->
-<!--            </dependency>-->
             <!-- 引入 Fastjson2 -->
             <dependency>
                 <groupId>com.alibaba.fastjson2</groupId>
@@ -62,11 +54,6 @@
                 <groupId>com.alipay.sdk</groupId>
                 <artifactId>alipay-sdk-java</artifactId>
                 <version>${alipay-version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.ai</groupId>
-                <artifactId>spring-ai-starter-vector-store-redis</artifactId>
-                <version>${spring-ai.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework.ai</groupId>

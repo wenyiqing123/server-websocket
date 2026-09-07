@@ -25,4 +25,5 @@ cn\wyq\serverwebsocket\utils\CacheClient.class
 cn\wyq\serverwebsocket\utils\ImageUtils.class
 cn\wyq\serverwebsocket\common\JacksonObjectMapper.class
 cn\wyq\serverwebsocket\common\PageResult.class
+cn\wyq\serverwebsocket\utils\SystemConfigUtils.class
 cn\wyq\serverwebsocket\common\AjaxResult.class

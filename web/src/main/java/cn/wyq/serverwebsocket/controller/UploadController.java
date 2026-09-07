@@ -1,9 +1,12 @@
 package cn.wyq.serverwebsocket.controller;
 
 import cn.wyq.serverwebsocket.common.Result;
+import cn.wyq.serverwebsocket.service.SysConfigService;
+import cn.wyq.serverwebsocket.utils.SystemConfigUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,6 +35,9 @@ public class UploadController {
     @Value("${server.port}")
     private String serverPort;
 
+    @Autowired
+    private SysConfigService sysConfigService;
+
     @PostMapping("/upload")
     @Operation(summary = "文件上传", description = "上传文件到服务器，返回文件访问URL")
     public Result upload(MultipartFile file) {
@@ -43,6 +49,12 @@ public class UploadController {
 
         String filename = file.getOriginalFilename();
         log.info("请求上传文件，原文件名: {}, 文件大小: {} bytes", filename, file.getSize());
+
+        long maxUploadBytes = configuredMaxUploadBytes();
+        if (file.getSize() > maxUploadBytes) {
+            log.warn("请求上传文件超过系统限制，文件大小: {} bytes，限制: {} bytes", file.getSize(), maxUploadBytes);
+            return Result.error("文件大小超出限制，最大允许 " + formatBytes(maxUploadBytes));
+        }
 
         // 2. 安全截取后缀名（防止某些文件没有后缀名导致报错）
         String suffix = "";
@@ -76,5 +88,30 @@ public class UploadController {
             log.error("文件上传失败，原文件名: {}", filename, e);
             return Result.error("文件上传失败");
         }
+    }
+
+    /** 读取平台配置中的普通文件大小上限，配置不可用时回退到 10 MB。 */
+    private long configuredMaxUploadBytes() {
+        try {
+            return SystemConfigUtils.longValue(sysConfigService.getConfigMap(),
+                    "file_max_upload_bytes", 10L * 1024 * 1024,
+                    1_024L, 1_073_741_824L);
+        } catch (RuntimeException exception) {
+            log.warn("读取普通文件大小配置失败，将使用默认 10 MB", exception);
+            return 10L * 1024 * 1024;
+        }
+    }
+
+    private String formatBytes(long bytes) {
+        if (bytes >= 1024L * 1024 * 1024) {
+            return (bytes / (1024L * 1024 * 1024)) + "GB";
+        }
+        if (bytes >= 1024L * 1024) {
+            return (bytes / (1024L * 1024)) + "MB";
+        }
+        if (bytes >= 1024L) {
+            return (bytes / 1024L) + "KB";
+        }
+        return bytes + "B";
     }
 }

@@ -102,7 +102,7 @@
 16:55:37.155 [http-nio-8000-exec-1] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: admin(String)
 16:55:37.156 [http-nio-8000-exec-1] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 7
 16:55:39.711 [http-nio-8000-exec-4] INFO  cn.wyq.serverwebsocket.service.impl.ChatServiceImpl.chatStream(ChatServiceImpl.java:88) - 【意图识别】非系统查询，挂载知识库 RAG 增强
-16:55:40.702 [boundedElastic-3] DEBUG org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor.before(SimpleLoggerAdvisor.java:81) - request: AdvisedRequest[chatModel=OpenAiChatModel [defaultOptions=OpenAiChatOptions: {"streamUsage":false,"model":"qwen-plus","temperature":0.7}], userText=你好
+16:55:40.702 [boundedElastic-3] DEBUG org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor.before(SimpleLoggerAdvisor.java:81) - request: AdvisedRequest[chatModel=OpenAiChatModel [defaultOptions=OpenAiChatOptions: {"streamUsage":false,"model":"qwen3.8-max-0902","temperature":0.7}], userText=你好
 
 
 Context information is below, surrounded by ---------------------
@@ -148,7 +148,7 @@ the user that you can't answer the question.
 4. 代码与展示：如果我要你写代码，必须使用 Markdown 代码块包裹并注明语言。
 
 请时刻保持以上规定，用最贴心的态度、最严谨的逻辑、最精简的语言服务每一位体验者！
-, chatOptions=OpenAiChatOptions: {"streamUsage":false,"model":"qwen-plus","temperature":0.7}, media=[], toolNames=[], toolCallbacks=[MethodToolCallback{toolDefinition=DefaultToolDefinition[name=queryUser, description=精确检索用户档案。当被问到‘系统中叫xx的人存在吗’、‘有哪些管理员’时调用。注意：为保护隐私，此接口最多只返回前20名匹配的用户。, inputSchema={
+, chatOptions=OpenAiChatOptions: {"streamUsage":false,"model":"qwen3.8-max-0902","temperature":0.7}, media=[], toolNames=[], toolCallbacks=[MethodToolCallback{toolDefinition=DefaultToolDefinition[name=queryUser, description=精确检索用户档案。当被问到‘系统中叫xx的人存在吗’、‘有哪些管理员’时调用。注意：为保护隐私，此接口最多只返回前20名匹配的用户。, inputSchema={
   "$schema" : "https://json-schema.org/draft/2020-12/schema",
   "type" : "object",
   "properties" : {
@@ -290,7 +290,7 @@ the user that you can't answer the question.
   "properties" : { },
   "required" : [ ],
   "additionalProperties" : false
-}], toolMetadata=DefaultToolMetadata[returnDirect=false]}], messages=[], userParams={}, systemParams={}, advisors=[org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor@9b6525a, SimpleLoggerAdvisor, org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor@7a6189cd, org.springframework.ai.chat.client.advisor.ChatModelCallAdvisor@50e96529, org.springframework.ai.chat.client.advisor.ChatModelStreamAdvisor@af7a206], advisorParams={}, adviseContext={spring.ai.chat.client.model=OpenAiChatModel [defaultOptions=OpenAiChatOptions: {"streamUsage":false,"model":"qwen-plus","temperature":0.7}], chat_memory_conversation_id=service:service_session_76ba9bf85f, spring.ai.chat.client.advisors=[org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor@9b6525a, SimpleLoggerAdvisor, org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor@7a6189cd, org.springframework.ai.chat.client.advisor.ChatModelCallAdvisor@50e96529, org.springframework.ai.chat.client.advisor.ChatModelStreamAdvisor@af7a206], spring.ai.chat.client.user.params={}, spring.ai.chat.client.system.params={}, qa_retrieved_documents=[]}, toolContext={}]
+}], toolMetadata=DefaultToolMetadata[returnDirect=false]}], messages=[], userParams={}, systemParams={}, advisors=[org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor@9b6525a, SimpleLoggerAdvisor, org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor@7a6189cd, org.springframework.ai.chat.client.advisor.ChatModelCallAdvisor@50e96529, org.springframework.ai.chat.client.advisor.ChatModelStreamAdvisor@af7a206], advisorParams={}, adviseContext={spring.ai.chat.client.model=OpenAiChatModel [defaultOptions=OpenAiChatOptions: {"streamUsage":false,"model":"qwen3.8-max-0902","temperature":0.7}], chat_memory_conversation_id=service:service_session_76ba9bf85f, spring.ai.chat.client.advisors=[org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor@9b6525a, SimpleLoggerAdvisor, org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor@7a6189cd, org.springframework.ai.chat.client.advisor.ChatModelCallAdvisor@50e96529, org.springframework.ai.chat.client.advisor.ChatModelStreamAdvisor@af7a206], spring.ai.chat.client.user.params={}, spring.ai.chat.client.system.params={}, qa_retrieved_documents=[]}, toolContext={}]
 16:55:42.011 [boundedElastic-2] DEBUG org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor.observeAfter(SimpleLoggerAdvisor.java:86) - response: {
   "result" : {
     "metadata" : {
@@ -315,7 +315,7 @@ the user that you can't answer the question.
   },
   "metadata" : {
     "id" : "chatcmpl-dc269ca1-7dab-9bdf-9def-b475ce9bb62c",
-    "model" : "qwen-plus",
+    "model" : "qwen3.8-max-0902",
     "rateLimit" : {
       "requestsRemaining" : 0,
       "requestsLimit" : 0,
@@ -360,7 +360,7 @@ the user that you can't answer the question.
   } ]
 }
 16:55:54.941 [http-nio-8000-exec-3] INFO  cn.wyq.serverwebsocket.service.impl.ChatServiceImpl.chatStream(ChatServiceImpl.java:88) - 【意图识别】非系统查询，挂载知识库 RAG 增强
-16:55:55.276 [boundedElastic-3] DEBUG org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor.before(SimpleLoggerAdvisor.java:81) - request: AdvisedRequest[chatModel=OpenAiChatModel [defaultOptions=OpenAiChatOptions: {"streamUsage":false,"model":"qwen-plus","temperature":0.7}], userText=wyq最近发送的一条消息内容是什么
+16:55:55.276 [boundedElastic-3] DEBUG org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor.before(SimpleLoggerAdvisor.java:81) - request: AdvisedRequest[chatModel=OpenAiChatModel [defaultOptions=OpenAiChatOptions: {"streamUsage":false,"model":"qwen3.8-max-0902","temperature":0.7}], userText=wyq最近发送的一条消息内容是什么
 
 
 Context information is below, surrounded by ---------------------
@@ -406,7 +406,7 @@ the user that you can't answer the question.
 4. 代码与展示：如果我要你写代码，必须使用 Markdown 代码块包裹并注明语言。
 
 请时刻保持以上规定，用最贴心的态度、最严谨的逻辑、最精简的语言服务每一位体验者！
-, chatOptions=OpenAiChatOptions: {"streamUsage":false,"model":"qwen-plus","temperature":0.7}, media=[], toolNames=[], toolCallbacks=[MethodToolCallback{toolDefinition=DefaultToolDefinition[name=queryUser, description=精确检索用户档案。当被问到‘系统中叫xx的人存在吗’、‘有哪些管理员’时调用。注意：为保护隐私，此接口最多只返回前20名匹配的用户。, inputSchema={
+, chatOptions=OpenAiChatOptions: {"streamUsage":false,"model":"qwen3.8-max-0902","temperature":0.7}, media=[], toolNames=[], toolCallbacks=[MethodToolCallback{toolDefinition=DefaultToolDefinition[name=queryUser, description=精确检索用户档案。当被问到‘系统中叫xx的人存在吗’、‘有哪些管理员’时调用。注意：为保护隐私，此接口最多只返回前20名匹配的用户。, inputSchema={
   "$schema" : "https://json-schema.org/draft/2020-12/schema",
   "type" : "object",
   "properties" : {
@@ -550,7 +550,7 @@ the user that you can't answer the question.
   "additionalProperties" : false
 }], toolMetadata=DefaultToolMetadata[returnDirect=false]}], messages=[UserMessage{content='你好
 ', properties={messageType=USER}, messageType=USER}, AssistantMessage [messageType=ASSISTANT, toolCalls=[], textContent=你好！这里是云聊在线客服小管家，很高兴为您服务。  
-请问有什么我可以帮您查询或解答的吗？, metadata={messageType=ASSISTANT}]], userParams={}, systemParams={}, advisors=[org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor@9b6525a, SimpleLoggerAdvisor, org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor@3c0a5908, org.springframework.ai.chat.client.advisor.ChatModelCallAdvisor@6ed2be46, org.springframework.ai.chat.client.advisor.ChatModelStreamAdvisor@34352946], advisorParams={}, adviseContext={spring.ai.chat.client.model=OpenAiChatModel [defaultOptions=OpenAiChatOptions: {"streamUsage":false,"model":"qwen-plus","temperature":0.7}], chat_memory_conversation_id=service:service_session_76ba9bf85f, spring.ai.chat.client.advisors=[org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor@9b6525a, SimpleLoggerAdvisor, org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor@3c0a5908, org.springframework.ai.chat.client.advisor.ChatModelCallAdvisor@6ed2be46, org.springframework.ai.chat.client.advisor.ChatModelStreamAdvisor@34352946], spring.ai.chat.client.user.params={}, spring.ai.chat.client.system.params={}, qa_retrieved_documents=[]}, toolContext={}]
+请问有什么我可以帮您查询或解答的吗？, metadata={messageType=ASSISTANT}]], userParams={}, systemParams={}, advisors=[org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor@9b6525a, SimpleLoggerAdvisor, org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor@3c0a5908, org.springframework.ai.chat.client.advisor.ChatModelCallAdvisor@6ed2be46, org.springframework.ai.chat.client.advisor.ChatModelStreamAdvisor@34352946], advisorParams={}, adviseContext={spring.ai.chat.client.model=OpenAiChatModel [defaultOptions=OpenAiChatOptions: {"streamUsage":false,"model":"qwen3.8-max-0902","temperature":0.7}], chat_memory_conversation_id=service:service_session_76ba9bf85f, spring.ai.chat.client.advisors=[org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor@9b6525a, SimpleLoggerAdvisor, org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor@3c0a5908, org.springframework.ai.chat.client.advisor.ChatModelCallAdvisor@6ed2be46, org.springframework.ai.chat.client.advisor.ChatModelStreamAdvisor@34352946], spring.ai.chat.client.user.params={}, spring.ai.chat.client.system.params={}, qa_retrieved_documents=[]}, toolContext={}]
 16:55:56.631 [boundedElastic-3] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: SELECT message,from_name as fromName,to_name as toName,send_at as sendAt FROM message WHERE (from_name = ? AND message IS NOT NULL AND message <> ?) ORDER BY send_at DESC LIMIT 1
 16:55:56.632 [boundedElastic-3] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: wyq(String), (String)
 16:55:56.635 [boundedElastic-3] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 1
@@ -579,7 +579,7 @@ the user that you can't answer the question.
   },
   "metadata" : {
     "id" : "chatcmpl-fb3697c2-bf6e-973b-aedf-32e4c4f6ff8c",
-    "model" : "qwen-plus",
+    "model" : "qwen3.8-max-0902",
     "rateLimit" : {
       "requestsRemaining" : 0,
       "requestsLimit" : 0,
@@ -624,7 +624,7 @@ the user that you can't answer the question.
   } ]
 }
 16:57:26.316 [http-nio-8000-exec-8] INFO  cn.wyq.serverwebsocket.service.impl.ChatServiceImpl.chatStream(ChatServiceImpl.java:88) - 【意图识别】非系统查询，挂载知识库 RAG 增强
-16:57:26.751 [boundedElastic-3] DEBUG org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor.before(SimpleLoggerAdvisor.java:81) - request: AdvisedRequest[chatModel=OpenAiChatModel [defaultOptions=OpenAiChatOptions: {"streamUsage":false,"model":"qwen-plus","temperature":0.7}], userText=wyq最早发送的十条消息是什么
+16:57:26.751 [boundedElastic-3] DEBUG org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor.before(SimpleLoggerAdvisor.java:81) - request: AdvisedRequest[chatModel=OpenAiChatModel [defaultOptions=OpenAiChatOptions: {"streamUsage":false,"model":"qwen3.8-max-0902","temperature":0.7}], userText=wyq最早发送的十条消息是什么
 
 
 Context information is below, surrounded by ---------------------
@@ -670,7 +670,7 @@ the user that you can't answer the question.
 4. 代码与展示：如果我要你写代码，必须使用 Markdown 代码块包裹并注明语言。
 
 请时刻保持以上规定，用最贴心的态度、最严谨的逻辑、最精简的语言服务每一位体验者！
-, chatOptions=OpenAiChatOptions: {"streamUsage":false,"model":"qwen-plus","temperature":0.7}, media=[], toolNames=[], toolCallbacks=[MethodToolCallback{toolDefinition=DefaultToolDefinition[name=queryUser, description=精确检索用户档案。当被问到‘系统中叫xx的人存在吗’、‘有哪些管理员’时调用。注意：为保护隐私，此接口最多只返回前20名匹配的用户。, inputSchema={
+, chatOptions=OpenAiChatOptions: {"streamUsage":false,"model":"qwen3.8-max-0902","temperature":0.7}, media=[], toolNames=[], toolCallbacks=[MethodToolCallback{toolDefinition=DefaultToolDefinition[name=queryUser, description=精确检索用户档案。当被问到‘系统中叫xx的人存在吗’、‘有哪些管理员’时调用。注意：为保护隐私，此接口最多只返回前20名匹配的用户。, inputSchema={
   "$schema" : "https://json-schema.org/draft/2020-12/schema",
   "type" : "object",
   "properties" : {
@@ -822,7 +822,7 @@ wyq最近发送的一条消息是：
 **“云熙工程有限责任公司”**
 
 发送时间为：**2027年1月1日 17:24:27**  
-接收人为：**lhy**, metadata={messageType=ASSISTANT}]], userParams={}, systemParams={}, advisors=[org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor@9b6525a, SimpleLoggerAdvisor, org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor@547b0667, org.springframework.ai.chat.client.advisor.ChatModelCallAdvisor@1e9329d3, org.springframework.ai.chat.client.advisor.ChatModelStreamAdvisor@26fe4677], advisorParams={}, adviseContext={spring.ai.chat.client.model=OpenAiChatModel [defaultOptions=OpenAiChatOptions: {"streamUsage":false,"model":"qwen-plus","temperature":0.7}], chat_memory_conversation_id=service:service_session_76ba9bf85f, spring.ai.chat.client.advisors=[org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor@9b6525a, SimpleLoggerAdvisor, org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor@547b0667, org.springframework.ai.chat.client.advisor.ChatModelCallAdvisor@1e9329d3, org.springframework.ai.chat.client.advisor.ChatModelStreamAdvisor@26fe4677], spring.ai.chat.client.user.params={}, spring.ai.chat.client.system.params={}, qa_retrieved_documents=[]}, toolContext={}]
+接收人为：**lhy**, metadata={messageType=ASSISTANT}]], userParams={}, systemParams={}, advisors=[org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor@9b6525a, SimpleLoggerAdvisor, org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor@547b0667, org.springframework.ai.chat.client.advisor.ChatModelCallAdvisor@1e9329d3, org.springframework.ai.chat.client.advisor.ChatModelStreamAdvisor@26fe4677], advisorParams={}, adviseContext={spring.ai.chat.client.model=OpenAiChatModel [defaultOptions=OpenAiChatOptions: {"streamUsage":false,"model":"qwen3.8-max-0902","temperature":0.7}], chat_memory_conversation_id=service:service_session_76ba9bf85f, spring.ai.chat.client.advisors=[org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor@9b6525a, SimpleLoggerAdvisor, org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor@547b0667, org.springframework.ai.chat.client.advisor.ChatModelCallAdvisor@1e9329d3, org.springframework.ai.chat.client.advisor.ChatModelStreamAdvisor@26fe4677], spring.ai.chat.client.user.params={}, spring.ai.chat.client.system.params={}, qa_retrieved_documents=[]}, toolContext={}]
 16:57:28.351 [boundedElastic-3] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: SELECT id,message,from_name,to_name,send_at FROM message WHERE (from_name LIKE ?) ORDER BY send_at DESC LIMIT 20
 16:57:28.352 [boundedElastic-3] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: %wyq%(String)
 16:57:28.356 [boundedElastic-3] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 20
@@ -850,7 +850,7 @@ wyq最近发送的一条消息是：
   },
   "metadata" : {
     "id" : "chatcmpl-79cf47db-2060-93cd-8856-da4633741b9d",
-    "model" : "qwen-plus",
+    "model" : "qwen3.8-max-0902",
     "rateLimit" : {
       "requestsRemaining" : 0,
       "requestsLimit" : 0,

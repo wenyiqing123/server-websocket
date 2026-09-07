@@ -1,6 +1,8 @@
 package cn.wyq.serverwebsocket.task;
 
 import cn.wyq.serverwebsocket.mapper.RechargeOrderMapper;
+import cn.wyq.serverwebsocket.service.SysConfigService;
+import cn.wyq.serverwebsocket.utils.SystemConfigUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -19,6 +21,9 @@ public class OrderScheduleTask {
     @Autowired
     private RechargeOrderMapper orderMapper;
 
+    @Autowired
+    private SysConfigService sysConfigService;
+
     /**
      * 定时取消超时未支付的订单
      * cron = "0 * * * * ?" 表示每分钟的第 0 秒执行一次
@@ -26,8 +31,15 @@ public class OrderScheduleTask {
     @Scheduled(cron = "0/10 * * * * ?")
     public void cancelUnpaidOrders() {
         try {
-            // 🌟 设定超时时间为 5 分钟 (与前端和支付宝保持完全一致)
-            int timeoutMinutes = 5;
+            // 从平台设置读取超时时间，配置异常时保持默认 5 分钟。
+            int timeoutMinutes;
+            try {
+                timeoutMinutes = SystemConfigUtils.intValue(sysConfigService.getConfigMap(),
+                        "recharge_close_minutes", 5, 1, 24 * 60);
+            } catch (RuntimeException e) {
+                log.warn("读取充值订单过期配置失败，将使用默认 5 分钟", e);
+                timeoutMinutes = 5;
+            }
 
             // 执行批量关单
             int closedCount = orderMapper.closeExpiredOrders(timeoutMinutes);

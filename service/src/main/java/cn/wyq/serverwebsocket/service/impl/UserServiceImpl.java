@@ -13,6 +13,8 @@ import cn.wyq.serverwebsocket.pojo.dto.*;
 import cn.wyq.serverwebsocket.pojo.entity.UserEmailApplyEntity;
 import cn.wyq.serverwebsocket.pojo.entity.UserEntity;
 import cn.wyq.serverwebsocket.pojo.vo.UserVo;
+import cn.wyq.serverwebsocket.service.ChatService;
+import cn.wyq.serverwebsocket.service.SysConfigService;
 import cn.wyq.serverwebsocket.service.UserService;
 import cn.wyq.serverwebsocket.utils.*;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -58,6 +60,8 @@ public class UserServiceImpl implements UserService {
     private final MessageMapper messageMapper;
     private final FriendMapper friendMapper;
     private final RedissonClient redissonClient;
+    private final ChatService chatService;
+    private final SysConfigService sysConfigService;
 
 
     @Override
@@ -151,10 +155,14 @@ public class UserServiceImpl implements UserService {
         // (SQL: DELETE FROM message WHERE from_name = #{userName} OR to_name = #{userName})
         messageMapper.deleteAllMessagesByUserName(userName);
 
-        // ================= 5. 删除用户本身 =================
+        // ================= 5. 清理 AI 会话和持久化聊天记忆 =================
+        // 会话以不可变用户编号归属，删除账户时必须同步删除，防止用户名复用后读取旧数据。
+        chatService.deleteSessionsForOwner(id);
+
+        // ================= 6. 删除用户本身 =================
         int result = userMapper.deleteById(id);
 
-        // ================= 6. 清理各种 Redis 缓存 =================
+        // ================= 7. 清理各种 Redis 缓存 =================
         // 清理后台分页列表缓存
         evictUserCaches(id);
         // 🌟 强制将该用户踢下线
@@ -164,6 +172,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int updateUser(UserEntity user) {
         if (user == null || user.getId() <= 0 || user.getUserName() == null || user.getUserName().trim().isEmpty()) {
             throw new ServiceException("用户信息不完整", 400);
@@ -186,6 +195,7 @@ public class UserServiceImpl implements UserService {
            int memberRows = userMapper.updateUserNameInGroupMember(oldUserName, newUserName);
            int messageRows=userMapper.updateUserNameInMessage(oldUserName,newUserName);
            int conversationRows=userMapper.updateUserNameInConversation(oldUserName,newUserName);
+           int aiSessionRows=userMapper.updateUserNameInAiChatSession(oldUserName,newUserName);
        }
        int result = userMapper.updateUser(user);
 
@@ -193,6 +203,9 @@ public class UserServiceImpl implements UserService {
         evictUserCaches(user.getId());
         cacheClient.evict("users:path", oldUserName);
         cacheClient.evict("users:path", newUserName);
+        if (!oldUserName.equals(newUserName)) {
+            evictAiConversationCaches(oldUserName, newUserName);
+        }
         return result;
     }
 
@@ -276,7 +289,13 @@ public class UserServiceImpl implements UserService {
         if (!passwordEncoder.matches(user.getPassword(), loginUser.getPassword())) {
             return Result.error("用户名或密码错误");
         } else {
-            // 生成双 Token
+            UserEmailApplyEntity account = userMapper.getCurrentUserById(loginUser.getId());
+            if (account == null || !Integer.valueOf(1).equals(account.getStatus())) {
+                return Result.error(account != null && Integer.valueOf(0).equals(account.getStatus())
+                        ? "账号正在审核中，请耐心等待" : "账号已被封禁或不可用");
+            }
+            // 按平台安全策略签发双 Token。
+            configureJwtExpiry();
             String accessToken = JWTUtil.generateToken(loginUser.getId(), loginUser.getUserName());
             String refreshToken = JWTUtil.generateRefreshToken(loginUser.getId(), loginUser.getUserName());
 
@@ -286,7 +305,8 @@ public class UserServiceImpl implements UserService {
             UserVo userVo = new UserVo(accessToken, refreshToken, userEntity, email);
 
             // ✅ 将 refreshToken 存入 Redis
-            redisUtil.set("refreshToken:userId:" + loginUser.getId(), refreshToken, 7, TimeUnit.DAYS);
+            redisUtil.set("refreshToken:userId:" + loginUser.getId(), refreshToken,
+                    configuredRefreshTokenDays(), TimeUnit.DAYS);
 
             return Result.success(userVo);
         }
@@ -310,7 +330,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Map<String, String> refreshToken(String refreshToken) {
-        if (!JWTUtil.verifyToken(refreshToken)) {
+        if (!JWTUtil.verifyRefreshToken(refreshToken)) {
             throw new ServiceException("登录已失效，请重新登录", 401);
         }
 
@@ -321,17 +341,83 @@ public class UserServiceImpl implements UserService {
         }
 
         String username = JWTUtil.getUsername(refreshToken);
-        User user = new User().builder().id(userId).userName(username).build();
+        UserEmailApplyEntity account = userMapper.getCurrentUserById(userId);
+        if (account == null || !Integer.valueOf(1).equals(account.getStatus())
+                || !username.equals(account.getUserName())) {
+            redisUtil.delete("refreshToken:userId:" + userId);
+            throw new ServiceException("账号状态已变化，请重新登录", 401);
+        }
+        return issueTokenPair(account);
+    }
 
-        String accessToken = JWTUtil.generateToken(user.getId(), user.getUserName());
-        String newRefreshToken = JWTUtil.generateRefreshToken(user.getId(), user.getUserName());
+    @Override
+    public Map<String, String> rotateTokensAfterUsernameChange(Integer userId) {
+        if (userId == null || userId <= 0) {
+            throw new ServiceException("用户身份无效", 401);
+        }
+        UserEmailApplyEntity account = userMapper.getCurrentUserById(userId);
+        if (account == null || !Integer.valueOf(1).equals(account.getStatus())) {
+            throw new ServiceException("账号状态已变化，请重新登录", 401);
+        }
+        // 同一 Redis 键被新值覆盖后，旧 Refresh Token 将不再通过 refreshToken 的一致性校验。
+        return issueTokenPair(account);
+    }
 
-        redisUtil.set("refreshToken:userId:" + userId, newRefreshToken, 7, TimeUnit.DAYS);
+    @Override
+    public void revokeRefreshToken(Integer userId) {
+        if (userId != null && userId > 0) {
+            redisUtil.delete("refreshToken:userId:" + userId);
+        }
+    }
+
+    /** 基于已从数据库读取的账户生成并替换当前唯一有效的 Refresh Token。 */
+    private Map<String, String> issueTokenPair(UserEmailApplyEntity account) {
+        configureJwtExpiry();
+        String accessToken = JWTUtil.generateToken(account.getId(), account.getUserName());
+        String refreshToken = JWTUtil.generateRefreshToken(account.getId(), account.getUserName());
+        redisUtil.set("refreshToken:userId:" + account.getId(), refreshToken,
+                configuredRefreshTokenDays(), TimeUnit.DAYS);
 
         Map<String, String> map = new HashMap<>();
         map.put("accessToken", accessToken);
-        map.put("refreshToken", newRefreshToken);
+        map.put("refreshToken", refreshToken);
+        map.put("userName", account.getUserName());
         return map;
+    }
+
+    /** 读取系统配置并同步到无状态 JWT 工具；读取失败时使用默认值。 */
+    private void configureJwtExpiry() {
+        try {
+            Map<String, String> config = sysConfigService.getConfigMap();
+            long accessMinutes = SystemConfigUtils.longValue(
+                    config, "jwt_access_token_minutes", 120L, 5L, 10_080L);
+            long refreshDays = SystemConfigUtils.longValue(
+                    config, "jwt_refresh_token_days", 30L, 1L, 365L);
+            JWTUtil.configureTokenExpiry(accessMinutes, refreshDays);
+        } catch (RuntimeException exception) {
+            log.warn("读取 JWT 有效期配置失败，将使用默认值", exception);
+            JWTUtil.configureTokenExpiry(120L, 30L);
+        }
+    }
+
+    /** Redis 中 Refresh Token 的保留时间应与 JWT 的有效期保持一致。 */
+    private long configuredRefreshTokenDays() {
+        try {
+            return SystemConfigUtils.longValue(sysConfigService.getConfigMap(),
+                    "jwt_refresh_token_days", 30L, 1L, 365L);
+        } catch (RuntimeException exception) {
+            return 30L;
+        }
+    }
+
+    private boolean isRegistrationEnabled() {
+        try {
+            return SystemConfigUtils.booleanValue(sysConfigService.getConfigMap(),
+                    "registration_enabled", true);
+        } catch (RuntimeException exception) {
+            log.warn("读取开放注册配置失败，将按开放注册处理", exception);
+            return true;
+        }
     }
 
     @Override
@@ -448,6 +534,12 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int register(UserEmailDto userEmailDto, Integer applyRole) {
+        if (!isRegistrationEnabled()) {
+            throw new ServiceException("当前暂未开放注册", 403);
+        }
+        if (userEmailDto == null) {
+            throw new ServiceException("注册信息不能为空", 400);
+        }
         UserEmailApplyEntity userEmailApplyEntity1 = userMapper.selectUserByEmail(userEmailDto.getEmail());
         if (userEmailApplyEntity1 != null) {
             throw new ServiceException("该邮箱用户已存在", 400);
@@ -524,6 +616,7 @@ public class UserServiceImpl implements UserService {
         if (user.getStatus() == 2) return Result.error("账号已被封禁");
 
         // 4. 生成双 Token
+        configureJwtExpiry();
         String accessToken = JWTUtil.generateToken(user.getId(), user.getUserName());
         String refreshToken = JWTUtil.generateRefreshToken(user.getId(), user.getUserName());
 
@@ -533,7 +626,8 @@ public class UserServiceImpl implements UserService {
         UserVo userVo = new UserVo(accessToken, refreshToken, userEntity, email);
 
         // ✅ 将 refreshToken 存入 Redis
-        redisUtil.set("refreshToken:userId:" + user.getId(), refreshToken, 7, TimeUnit.DAYS);
+        redisUtil.set("refreshToken:userId:" + user.getId(), refreshToken,
+                configuredRefreshTokenDays(), TimeUnit.DAYS);
 
         return Result.success(userVo);
     }
@@ -589,12 +683,14 @@ public class UserServiceImpl implements UserService {
         int memberRows = userMapper.updateUserNameInGroupMember(oldUserName, newUserName);
         int messageRows=userMapper.updateUserNameInMessage(oldUserName,newUserName);
         int conversationRows=userMapper.updateUserNameInConversation(oldUserName,newUserName);
+        int aiSessionRows=userMapper.updateUserNameInAiChatSession(oldUserName,newUserName);
         // 🌟 打印日志：通过返回值，我们就能清楚地知道到底有没有数据被修改
-        log.info("【用户改名联级更新】[{}] 改为 [{}]: 更新群主表 {} 行, 好友表 {} 行, 群成员表 {} 行",
-                oldUserName, newUserName, ownerRows, friendRows, memberRows);
+        log.info("【用户改名联级更新】[{}] 改为 [{}]: 更新群主表 {} 行, 好友表 {} 行, 群成员表 {} 行, AI 会话 {} 行",
+                oldUserName, newUserName, ownerRows, friendRows, memberRows, aiSessionRows);
         cacheClient.evict("users:path", oldUserName);
         cacheClient.evict("users:path", newUserName);
         cacheClient.evictKey(cacheClient.buildKey("users:all", "all"));
+        evictAiConversationCaches(oldUserName, newUserName);
     }
 
     private String userQueryKey(UserQueryDTO query) {
@@ -615,5 +711,13 @@ public class UserServiceImpl implements UserService {
         cacheClient.evictByPrefix("manage:users:append");
         cacheClient.evictKey(cacheClient.buildKey("users:all", "all"));
         cacheClient.evictKey(cacheClient.buildKey("users:pending-admins", "all"));
+    }
+
+    /** 用户名是旧版 AI 会话的展示和索引字段，改名后必须清理相应缓存。 */
+    private void evictAiConversationCaches(String oldUserName, String newUserName) {
+        cacheClient.evict("ai:conversations:user", oldUserName);
+        cacheClient.evict("ai:conversations:user", newUserName);
+        cacheClient.evictByPrefix("ai:conversation-messages");
+        cacheClient.evictByPrefix("ai:sessions");
     }
 }

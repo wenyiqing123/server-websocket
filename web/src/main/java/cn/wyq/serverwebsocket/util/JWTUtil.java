@@ -2,31 +2,16 @@ package cn.wyq.serverwebsocket.util;
 
 
 import cn.wyq.serverwebsocket.pojo.User;
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.interfaces.DecodedJWT;
-
-import java.util.Date;
-
 /**
  * JWT 工具类
- * 用于生成、校验、解析 Token
- * <p>
- * 依赖库：com.auth0:java-jwt
+ *
+ * <p>Web 模块保留此兼容入口，实际签发与校验统一委托给 common 模块，
+ * 防止两套实现使用不同的签名密钥或校验规则。</p>
  */
 public class JWTUtil {
 
-    /**
-     * 签名密钥（必须保密，不要硬编码到代码里）
-     * 建议放到 application.yml 或环境变量中
-     */
-    private static final String SECRET = "secret_for_jwt2";
-
-    /**
-     * Token 过期时间（30min）
-     */
-    private static final long EXPIRE_TIME = 1000 * 60 * 30;
-    private static final long REFRESH_EXPIRE_TIME = 1000 * 60 * 60*24*7;
+    private JWTUtil() {
+    }
 
     /**
      * 生成 JWT Token
@@ -35,45 +20,10 @@ public class JWTUtil {
      * @return token 字符串
      */
     public static String generateToken(User user) {
-        return JWT.create()
-                // JWT 的 subject 一般用来存放用户唯一标识，这里用 userId
-                .withSubject(String.valueOf(user.getId()))
-
-                // 自定义 claim，可以存放用户名、角色等信息（不要放敏感数据，比如密码）
-                .withClaim("username", user.getUserName())
-
-                // 过期时间
-                .withExpiresAt(new Date(System.currentTimeMillis() + EXPIRE_TIME))
-
-                // 使用 HMAC256 算法签名（对称加密：同一个密钥签发和校验）
-                .sign(Algorithm.HMAC256(SECRET));
+        return cn.wyq.serverwebsocket.utils.JWTUtil.generateToken(user.getId(), user.getUserName());
     }
     public static String generateRefreshToken(User user) {
-        return JWT.create()
-                // JWT 的 subject 一般用来存放用户唯一标识，这里用 userId
-                .withSubject(String.valueOf(user.getId()))
-
-                // 自定义 claim，可以存放用户名、角色等信息（不要放敏感数据，比如密码）
-                .withClaim("username", user.getUserName())
-
-                // 过期时间
-                .withExpiresAt(new Date(System.currentTimeMillis() + REFRESH_EXPIRE_TIME))
-
-                // 使用 HMAC256 算法签名（对称加密：同一个密钥签发和校验）
-                .sign(Algorithm.HMAC256(SECRET));
-    }
-
-    /**
-     * 校验 Token 并返回解析后的 JWT 对象（辅助其他方法的使用，不直接返回给客户端）
-     *
-     * @param token 客户端传入的 token
-     * @return 解析后的 JWT（包含 payload 信息）
-     * @throws com.auth0.jwt.exceptions.JWTVerificationException 如果 token 非法或过期
-     */
-    private static DecodedJWT verify(String token) {
-        return JWT.require(Algorithm.HMAC256(SECRET))
-                .build()
-                .verify(token);
+        return cn.wyq.serverwebsocket.utils.JWTUtil.generateRefreshToken(user.getId(), user.getUserName());
     }
 
     /**
@@ -83,7 +33,7 @@ public class JWTUtil {
      * @return userId
      */
     public static int getUserId(String token) {
-        return Integer.parseInt(verify(token).getSubject());
+        return cn.wyq.serverwebsocket.utils.JWTUtil.getUserId(token);
     }
 
     /**
@@ -93,7 +43,7 @@ public class JWTUtil {
      * @return 用户名
      */
     public static String getUsername(String token) {
-        return verify(token).getClaim("username").asString();
+        return cn.wyq.serverwebsocket.utils.JWTUtil.getUsername(token);
     }
 
     /**
@@ -103,12 +53,16 @@ public class JWTUtil {
      * @return true = 有效，false = 无效
      */
     public static boolean verifyToken(String token) {
-        try {
-            verify(token);
-            return true;
-        } catch (Exception e) {
-            // token 非法或过期
-            return false;
-        }
+        return cn.wyq.serverwebsocket.utils.JWTUtil.verifyToken(token);
+    }
+
+    /**
+     * 校验可用于受保护接口与 WebSocket 的 access token。
+     *
+     * @param token access token
+     * @return true 表示令牌有效且用途正确
+     */
+    public static boolean verifyAccessToken(String token) {
+        return cn.wyq.serverwebsocket.utils.JWTUtil.verifyAccessToken(token);
     }
 }

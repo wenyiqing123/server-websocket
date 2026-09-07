@@ -5,7 +5,9 @@ D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsoc
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\service\RechargeOrderService.java
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\service\impl\IMessageServiceToolImpl.java
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\component\RedPacketAsyncComponent.java
+D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\mapper\AiServiceQuestionMapper.java
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\mapper\MessageMapper.java
+D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\service\impl\AiAgentServiceImpl.java
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\service\SysConfigService.java
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\mapper\AccountMapper.java
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\service\impl\FriendServiceImpl.java
@@ -31,6 +33,7 @@ D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsoc
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\service\impl\DocumentServiceImpl.java
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\util\MessageUtils.java
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\mapper\RedPacketRecordMapper.java
+D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\service\AiAgentService.java
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\mapper\UserMapper.java
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\service\TransactionLogService.java
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\service\DocumentSessionService.java
@@ -42,6 +45,7 @@ D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsoc
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\mapper\MessageStructMapper.java
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\mapper\RechargeOrderMapper.java
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\service\impl\TransactionLogServiceImpl.java
+D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\service\ServiceQuestionSuggestionService.java
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\service\impl\AIServiceImpl.java
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\mapper\TransactionLogMapper.java
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\annotation\AutoFill.java
@@ -56,7 +60,9 @@ D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsoc
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\service\DocumentService.java
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\service\FriendService.java
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\service\impl\FinanceServiceImpl.java
+D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\service\impl\ServiceQuestionSuggestionServiceImpl.java
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\mapper\MessageStatsMapper.java
+D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\mapper\AiAgentMapper.java
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\service\MessageService.java
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\mapper\SysConfigMapper.java
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\service\FinanceService.java

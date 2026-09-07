@@ -8,8 +8,10 @@ D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\vo\BreakdownVO.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\entity\ConversationMessage.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\dto\GroupCreateDTO.java
+D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\dto\AiAgentCreateDTO.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\dto\UserExportDTO.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\vo\FriendPathVO.java
+D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\dto\AiBuiltinAgentUpdateDTO.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\dto\MessageExportDTO.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\dto\UpdateEmailDto.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\dto\UserQueryDTO.java
@@ -17,10 +19,12 @@ D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\dto\SendRedPacketDTO.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\converter\RoleConverter.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\dto\TestDTO.java
+D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\dto\AiAgentUpdateDTO.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\enumeration\UserRoleEnum.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\entity\SysDocument.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\dto\UserUpdatePasswordDTO.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\dto\WalletQueryDTO.java
+D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\dto\AiChatRequestDTO.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\entity\ChatGroup.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\entity\Transfer.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\enumeration\OperationType.java
@@ -29,6 +33,7 @@ D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\dto\AiReplyDto.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\entity\MessageIntention.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\dto\UserEmailDto.java
+D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\entity\AiServiceQuestion.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\vo\GroupMemberQueryVo.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\vo\RencetSevenDayUsersAndMessageCount.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\vo\UserWalletVO.java
@@ -57,6 +62,7 @@ D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\vo\AccountLogVO.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\dto\UserEmailApplyDTO.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\dto\UserRoleLoginDTO.java
+D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\vo\AiServiceQuestionSuggestionVO.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\entity\UserEntity.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\entity\RechargeOrder.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\dto\UserImportDTO.java
@@ -70,7 +76,9 @@ D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\vo\ActiveUsersAndMessageCount.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\vo\TrendVO.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\dto\EmailLoginDto.java
+D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\entity\AiAgent.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\vo\WealthRankVO.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\enumeration\WsMessageTypeEnum.java
+D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\entity\BuiltinAiAgent.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\dto\ChatRequestDto.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\socket\MessageFull.java

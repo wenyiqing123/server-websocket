@@ -5,12 +5,14 @@ import cn.wyq.serverwebsocket.exception.ServiceException;
 import cn.wyq.serverwebsocket.mapper.ChatMapper;
 import cn.wyq.serverwebsocket.mapper.SysDocumentMapper;
 import cn.wyq.serverwebsocket.pojo.dto.AiReplyDto;
+import cn.wyq.serverwebsocket.pojo.entity.AiAgent;
 import cn.wyq.serverwebsocket.pojo.entity.Chat;
-import cn.wyq.serverwebsocket.pojo.entity.SysConfig;
 import cn.wyq.serverwebsocket.pojo.entity.SysDocument;
+import cn.wyq.serverwebsocket.service.AiAgentService;
 import cn.wyq.serverwebsocket.service.ChatService;
 import cn.wyq.serverwebsocket.service.SysConfigService;
 import cn.wyq.serverwebsocket.utils.CacheClient;
+import cn.wyq.serverwebsocket.utils.SystemConfigUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -46,6 +48,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ChatServiceImpl implements ChatService {
     private static final String ENGINEERING_KNOWLEDGE_FILTER = "knowledgeBase == 'engineering'";
+    private static final String REMOTE_CHAT_MODEL = "qwen3.8-max-0902";
 
     // 🌟 阿里云百炼平台的 OpenAI 兼容接口地址
     private static final String ALIYUN_API_URL = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions";
@@ -59,11 +62,12 @@ public class ChatServiceImpl implements ChatService {
     private final SysConfigService sysConfigService;
     private final CacheClient cacheClient;
     // 🌟 填入你在阿里云百炼平台申请的 API Key
-    @Value("${spring.ai.openai.api-key:sk-5fe3023e1e5643469ba7f17b32efc864}")
+    @Value("${spring.ai.openai.api-key:}")
     private String aliyunApiKey;
     // 🌟 正确：加上 ${} 占位符，并建议提供一个默认值（以防配置文件没写）
-    @Value("${spring.ai.openai.chat.options.model:qwen-plus}")
+    @Value("${spring.ai.openai.chat.options.model:qwen3.8-max-0902}")
     private String model;
+    private final AiAgentService aiAgentService;
 
     public ChatServiceImpl(
             @Qualifier("girlfriendChatClient") ChatClient girlfriendClient,
@@ -73,7 +77,8 @@ public class ChatServiceImpl implements ChatService {
             SysDocumentMapper sysDocumentMapper,
             VectorStore vectorStore,
             SysConfigService sysConfigService,
-            CacheClient cacheClient) {
+            CacheClient cacheClient,
+            AiAgentService aiAgentService) {
         this.girlfriendClient = girlfriendClient;
         this.serviceClient = serviceClient;
         this.chatMemory = chatMemory;
@@ -82,6 +87,7 @@ public class ChatServiceImpl implements ChatService {
         this.vectorStore = vectorStore;
         this.sysConfigService = sysConfigService;
         this.cacheClient = cacheClient;
+        this.aiAgentService = aiAgentService;
     }
 
     private String getIsolatedMemoryId(String agentType, String sessionId) {
@@ -89,28 +95,83 @@ public class ChatServiceImpl implements ChatService {
         return safeAgentType + ":" + sessionId;
     }
 
+    private String getCustomMemoryId(Long agentId, String sessionId) {
+        return "agent:" + agentId + ":session:" + sessionId;
+    }
+
     @Override
     public Flux<String> chatStream(String message, String sessionId, String userName, String agentType, List<String> docIds) {
+        return chatStream(message, sessionId, userName, agentType, null, null, docIds);
+    }
+
+    @Override
+    public Flux<String> chatStream(String message, String sessionId, String userName, String agentType,
+                                   Long agentId, Integer userId, List<String> docIds) {
         try {
-            String memoryId = getIsolatedMemoryId(agentType, sessionId);
-            boolean serviceAgent = "service".equalsIgnoreCase(agentType)
-                    || "document".equalsIgnoreCase(agentType);
-            ChatClient activeClient = serviceAgent ? serviceClient : girlfriendClient;
+            Map<String, String> configMap = loadConfigMap();
+            String defaultModel = resolveRemoteModel(
+                    SystemConfigUtils.stringValue(configMap, "ai_default_model", model));
+            int globalMaxTokens = SystemConfigUtils.intValue(configMap, "ai_max_tokens", 4096, 64, 8192);
+            int ragTopK = SystemConfigUtils.intValue(configMap, "rag_top_k", 6, 1, 50);
+            int ragChunkSize = SystemConfigUtils.intValue(configMap, "rag_chunk_size", 800, 100, 10_000);
+            int ragMaxContextChars = SystemConfigUtils.intValue(
+                    configMap, "rag_max_context_chars", 20_000, 100, 1_000_000);
+            // 一个切片约占 chunkSize 个字符，按上下文上限收紧检索数量，防止大段证据撑爆提示词。
+            int contextTopK = Math.max(1, ragMaxContextChars / Math.max(1, ragChunkSize));
+            int effectiveRagTopK = Math.min(ragTopK, contextTopK);
+            double ragSimilarityThreshold = SystemConfigUtils.doubleValue(
+                    configMap, "rag_similarity_threshold", 0.35D, 0D, 1D);
+            AiAgent customAgent = null;
+            String memoryId;
+            if (agentId != null) {
+                if (userId == null) {
+                    throw new ServiceException("用户身份无效", 401);
+                }
+                customAgent = aiAgentService.requireUsable(agentId, userId);
+                memoryId = getCustomMemoryId(agentId, sessionId);
+            } else {
+                memoryId = getIsolatedMemoryId(agentType, sessionId);
+            }
+            boolean serviceAgent = "service".equalsIgnoreCase(agentType);
+            // 自定义智能体与文档分析均使用不带数据库工具的客户端，
+            // 以免模型通过工具越过会话和文档的所有权边界。
+            ChatClient activeClient = customAgent != null
+                    ? girlfriendClient
+                    : (serviceAgent ? serviceClient : girlfriendClient);
 
             var promptSpec = activeClient.prompt()
                     .user(message)
                     .advisors(a -> a.param(AbstractChatMemoryAdvisor.CHAT_MEMORY_CONVERSATION_ID_KEY, memoryId));
 
-            if ("document".equalsIgnoreCase(agentType)) {
+            if (customAgent != null) {
+                // 自定义智能体只使用普通 ChatClient，明确不挂客服工具和工程知识库。
+                String customPrompt = StringUtils.hasText(customAgent.getSystemPrompt())
+                        ? customAgent.getSystemPrompt().trim()
+                        : "你是一个友善、可靠的 AI 助手，请结合上下文直接回答用户问题。";
+                promptSpec.system(customPrompt + "\n\n" + ModelConstant.MODEL_SYSTEM_PROMPT)
+                        .options(OpenAiChatOptions.builder()
+                                .model(resolveRemoteModel(StringUtils.hasText(customAgent.getModel())
+                                        ? customAgent.getModel() : defaultModel))
+                                .temperature(customAgent.getTemperature() == null
+                                        ? 0.7 : customAgent.getTemperature().doubleValue())
+                                .maxTokens(customAgent.getMaxTokens() == null
+                                        ? globalMaxTokens : customAgent.getMaxTokens())
+                                .build());
+            } else if ("document".equalsIgnoreCase(agentType)) {
                 List<String> normalizedDocIds = normalizeDocumentIds(docIds);
                 promptSpec.system(buildDocumentSystemPrompt(normalizedDocIds));
+                promptSpec.options(OpenAiChatOptions.builder()
+                        .model(defaultModel)
+                        .maxTokens(globalMaxTokens)
+                        .build());
                 if (!normalizedDocIds.isEmpty()) {
                     String filterExpression = normalizedDocIds.stream()
                             .map(id -> "docId == '" + id + "'")
                             .collect(Collectors.joining(" || "));
                     log.info("【文档分析】挂载 {} 个文档的知识库 RAG 增强，docIds={}", normalizedDocIds.size(), normalizedDocIds);
                     SearchRequest searchRequest = SearchRequest.builder()
-                            .topK(Math.min(normalizedDocIds.size() * 5, 20))
+                            .topK(Math.min(normalizedDocIds.size() * 5, effectiveRagTopK))
+                            .similarityThreshold(ragSimilarityThreshold)
                             .filterExpression(filterExpression)
                             .build();
                     promptSpec.advisors(new QuestionAnswerAdvisor(
@@ -123,10 +184,14 @@ public class ChatServiceImpl implements ChatService {
             } else if ("service".equalsIgnoreCase(agentType)) {
                 promptSpec.toolContext(Map.of("currentUserName", userName));
                 SearchRequest searchRequest = SearchRequest.builder()
-                        .topK(6)
-                        .similarityThreshold(0.35)
+                        .topK(effectiveRagTopK)
+                        .similarityThreshold(ragSimilarityThreshold)
                         .filterExpression(ENGINEERING_KNOWLEDGE_FILTER)
                         .build();
+                promptSpec.options(OpenAiChatOptions.builder()
+                        .model(defaultModel)
+                        .maxTokens(globalMaxTokens)
+                        .build());
                 promptSpec.advisors(new QuestionAnswerAdvisor(
                         vectorStore,
                         searchRequest,
@@ -134,28 +199,75 @@ public class ChatServiceImpl implements ChatService {
                 log.info("【智能客服】挂载工程知识库 RAG 增强，topK={}, similarityThreshold={}, filter={}",
                         searchRequest.getTopK(), searchRequest.getSimilarityThreshold(), ENGINEERING_KNOWLEDGE_FILTER);
             } else if ("girlfriend".equalsIgnoreCase(agentType)) {
-                // 👩‍🦰 女友模式：使用正确的 OpenAiChatOptions 设置温度
-                Map<String, String> configMap = sysConfigService.list().stream()
-                        .collect(Collectors.toMap(SysConfig::getConfigKey, SysConfig::getConfigValue));
-                String dynamicPrompt = configMap.getOrDefault("ai_system_prompt", ModelConstant.GirlFriend_SYSTEM_PROMPT);
-                double dynamicTemp = Double.parseDouble(configMap.getOrDefault("ai_temperature", "0.7"));
+                // 女友模式的配置由智能体管理页维护；保留旧键作为迁移期间的回退值。
+                String dynamicPrompt = firstNonBlank(configMap.get("ai_girlfriend_system_prompt"),
+                        configMap.get("ai_system_prompt"), ModelConstant.GirlFriend_SYSTEM_PROMPT);
+                double dynamicTemp = parseDoubleOrDefault(firstNonBlank(
+                        configMap.get("ai_girlfriend_temperature"), configMap.get("ai_temperature"), "0.7"), 0.7D);
+                int dynamicMaxTokens = SystemConfigUtils.intValue(
+                        configMap, "ai_girlfriend_max_tokens", globalMaxTokens, 64, 8192);
+                String dynamicModel = firstNonBlank(configMap.get("ai_girlfriend_model"), defaultModel);
                 String finalSystemPrompt = dynamicPrompt + "\n\n" + ModelConstant.MODEL_SYSTEM_PROMPT;
                 promptSpec.system(finalSystemPrompt)
                         .options(OpenAiChatOptions.builder()
-                                .model(model) // 也可以从配置读取
+                                .model(resolveRemoteModel(dynamicModel))
                                 .temperature(dynamicTemp)
+                                .maxTokens(dynamicMaxTokens)
                                 .build());
             }
 
-            return promptSpec.stream().content()
-                    .onErrorResume(Exception.class, e -> {
+            Flux<String> response = promptSpec.stream().content();
+            if (customAgent != null) {
+                response = response.doOnComplete(() -> aiAgentService.markUsed(agentId));
+            }
+            return response.onErrorResume(Exception.class, e -> {
                         log.error("流处理异常", e);
                         return Flux.just("\n\n[系统提示]：机甲大脑神经元连接中断，请稍后再试。");
                     });
 
+        } catch (ServiceException e) {
+            throw e;
         } catch (Exception e) {
             log.error("装配失败", e);
             throw new ServiceException("机甲大脑装配失败", 400);
+        }
+    }
+
+    private String firstNonBlank(String... values) {
+        for (String value : values) {
+            if (StringUtils.hasText(value)) {
+                return value.trim();
+            }
+        }
+        return "";
+    }
+
+    /** 云端模型白名单只有当前 Qwen 模型；Ollama 标签提取器不经过此链路。 */
+    private String resolveRemoteModel(String configured) {
+        String normalized = configured == null ? "" : configured.trim();
+        if (!normalized.isEmpty() && !REMOTE_CHAT_MODEL.equals(normalized)) {
+            log.warn("忽略未在云端白名单中的模型配置: {}", normalized);
+        }
+        return REMOTE_CHAT_MODEL;
+    }
+
+    /** 读取平台配置；配置表暂时不可用时回退到代码默认值。 */
+    private Map<String, String> loadConfigMap() {
+        try {
+            Map<String, String> values = sysConfigService.getConfigMap();
+            return values == null ? Collections.emptyMap() : values;
+        } catch (RuntimeException e) {
+            log.warn("读取系统 AI 配置失败，将使用默认值", e);
+            return Collections.emptyMap();
+        }
+    }
+
+    private double parseDoubleOrDefault(String value, double fallback) {
+        try {
+            double parsed = Double.parseDouble(value);
+            return parsed >= 0D && parsed <= 1D ? parsed : fallback;
+        } catch (NumberFormatException e) {
+            return fallback;
         }
     }
 
@@ -204,7 +316,14 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public List<Message> getHistory(String sessionId, String agentType) {
-        String memoryId = getIsolatedMemoryId(agentType, sessionId);
+        return getHistory(sessionId, agentType, null);
+    }
+
+    @Override
+    public List<Message> getHistory(String sessionId, String agentType, Long agentId) {
+        String memoryId = agentId == null
+                ? getIsolatedMemoryId(agentType, sessionId)
+                : getCustomMemoryId(agentId, sessionId);
 
         // 1. 获取最新 100 条消息
         List<Message> messages = chatMemory.get(memoryId, 100);
@@ -220,34 +339,102 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public List<Chat> getSessionList(String userId, String agentType) {
+    public List<Chat> getSessionList(Integer ownerUserId, String agentType) {
+        return getSessionList(ownerUserId, agentType, null);
+    }
+
+    @Override
+    public List<Chat> getSessionList(Integer ownerUserId, String agentType, Long agentId) {
+        if (ownerUserId == null || ownerUserId <= 0) {
+            throw new ServiceException("用户身份无效", 401);
+        }
         String normalizedAgentType = StringUtils.hasText(agentType) ? agentType.trim() : "girlfriend";
-        return cacheClient.queryWithMutex("ai:sessions", userId + "|" + normalizedAgentType,
+        String cacheId = ownerUserId + "|" + normalizedAgentType + "|" + String.valueOf(agentId);
+        return cacheClient.queryWithMutex("ai:sessions", cacheId,
                 new TypeReference<List<Chat>>() {}, ignored -> {
-                    List<Chat> allSessions = chatMapper.selectByUserId(userId);
+                    List<Chat> allSessions = chatMapper.selectByOwnerUserId(ownerUserId);
                     if (allSessions == null) return List.of();
                     return allSessions.stream()
-                            .filter(chat -> chat.getId() != null && chat.getId().startsWith(normalizedAgentType + "_"))
+                            .filter(chat -> agentId == null
+                                    ? chat.getAgentId() == null && chat.getId() != null
+                                        && chat.getId().startsWith(normalizedAgentType + "_")
+                                    : agentId.equals(chat.getAgentId()))
                             .toList();
                 }, 2, java.util.concurrent.TimeUnit.MINUTES);
     }
 
     @Override
-    public Chat createSession(String userId, String title, String agentType) {
+    public Chat getSession(String sessionId) {
+        if (!StringUtils.hasText(sessionId)) {
+            return null;
+        }
+        return chatMapper.selectById(sessionId);
+    }
+
+    @Override
+    public Chat createSession(String userName, Integer ownerUserId, String title, String agentType) {
+        return createSession(userName, ownerUserId, title, agentType, null, null);
+    }
+
+    @Override
+    public Chat createSession(String userName, Integer ownerUserId, String title, String agentType,
+                              Long agentId, Integer promptVersion) {
+        if (!StringUtils.hasText(userName) || ownerUserId == null || ownerUserId <= 0) {
+            throw new ServiceException("用户身份无效", 401);
+        }
         String prefix = StringUtils.hasText(agentType) ? agentType : "girlfriend";
-        String sessionId = prefix + "_session_" + UUID.randomUUID().toString().replace("-", "").substring(0, 10);
-        chatMapper.insertSession(sessionId, userId, title);
+        String sessionId = agentId == null
+                ? prefix + "_session_" + UUID.randomUUID().toString().replace("-", "").substring(0, 10)
+                : "agent_" + agentId + "_session_" + UUID.randomUUID().toString().replace("-", "").substring(0, 10);
+        if (agentId == null) {
+            chatMapper.insertSession(sessionId, userName, ownerUserId, title);
+        } else {
+            chatMapper.insertAgentSession(sessionId, userName, ownerUserId, title, agentId, promptVersion);
+        }
         cacheClient.evictByPrefix("ai:sessions");
-        return new Chat(sessionId, userId, title, LocalDate.now());
+        return Chat.builder().id(sessionId).ownerUserId(ownerUserId).userId(userName).title(title).agentId(agentId)
+                .promptVersion(promptVersion).createdAt(LocalDate.now()).build();
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void deleteSession(String sessionId) {
+        deleteSession(sessionId, null, null);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteSession(String sessionId, String agentType, Long agentId) {
         chatMapper.deleteById(sessionId);
-        chatMemory.clear(getIsolatedMemoryId("girlfriend", sessionId));
-        chatMemory.clear(getIsolatedMemoryId("service", sessionId));
-        chatMemory.clear(getIsolatedMemoryId("document", sessionId));
+        if (agentId != null) {
+            chatMemory.clear(getCustomMemoryId(agentId, sessionId));
+        } else {
+            chatMemory.clear(getIsolatedMemoryId("girlfriend", sessionId));
+            chatMemory.clear(getIsolatedMemoryId("service", sessionId));
+            chatMemory.clear(getIsolatedMemoryId("document", sessionId));
+        }
+        cacheClient.evictByPrefix("ai:sessions");
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteSessionsForOwner(Integer ownerUserId) {
+        if (ownerUserId == null || ownerUserId <= 0) {
+            return;
+        }
+        List<Chat> sessions = chatMapper.selectByOwnerUserId(ownerUserId);
+        chatMapper.deleteByOwnerUserId(ownerUserId);
+        if (sessions != null) {
+            for (Chat session : sessions) {
+                if (session.getAgentId() != null) {
+                    chatMemory.clear(getCustomMemoryId(session.getAgentId(), session.getId()));
+                } else {
+                    chatMemory.clear(getIsolatedMemoryId("girlfriend", session.getId()));
+                    chatMemory.clear(getIsolatedMemoryId("service", session.getId()));
+                    chatMemory.clear(getIsolatedMemoryId("document", session.getId()));
+                }
+            }
+        }
         cacheClient.evictByPrefix("ai:sessions");
     }
 
@@ -310,10 +497,13 @@ public class ChatServiceImpl implements ChatService {
         );
 
         JSONObject requestBody = new JSONObject();
-        // 🌟 指定阿里云的模型：强烈推荐使用 qwen-turbo
-        requestBody.put("model", model);
+        // 高情商回复与其他云端聊天功能统一使用当前配置的 Qwen 3.8 Max。
+        Map<String, String> configMap = loadConfigMap();
+        requestBody.put("model", resolveRemoteModel(
+                SystemConfigUtils.stringValue(configMap, "ai_default_model", model)));
         requestBody.put("temperature", 0.55);
-        requestBody.put("max_tokens", 160);
+        int maxTokens = SystemConfigUtils.intValue(configMap, "ai_max_tokens", 4096, 64, 8192);
+        requestBody.put("max_tokens", Math.min(160, maxTokens));
 
         JSONArray messages = new JSONArray();
 

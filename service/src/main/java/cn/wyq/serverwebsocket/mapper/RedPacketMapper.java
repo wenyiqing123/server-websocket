@@ -35,12 +35,12 @@ public interface RedPacketMapper extends BaseMapper<RedPacket> {
 
     @Select("SELECT id FROM u_red_packet " +
             "WHERE status = 0 AND remaining_amount > 0 " +
-            "AND create_time <= DATE_SUB(NOW(), INTERVAL 1 DAY)")
-    List<Long> selectExpiredRedPacketIds();
+            "AND create_time <= DATE_SUB(NOW(), INTERVAL #{expireHours} HOUR)")
+    List<Long> selectExpiredRedPacketIds(@Param("expireHours") int expireHours);
 
     @Update("UPDATE u_red_packet SET status = 2, remaining_amount = 0, " +
             "remaining_count = 0, finish_time = NOW() " +
             "WHERE id = #{id} AND status = 0 AND remaining_amount > 0 " +
-            "AND create_time <= DATE_SUB(NOW(), INTERVAL 1 DAY)")
-    int markRedPacketExpired(@Param("id") Long id);
+            "AND create_time <= DATE_SUB(NOW(), INTERVAL #{expireHours} HOUR)")
+    int markRedPacketExpired(@Param("id") Long id, @Param("expireHours") int expireHours);
 }

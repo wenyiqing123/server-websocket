@@ -16,6 +16,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -39,8 +40,8 @@ public class AlipayController {
     private RechargeOrderMapper orderMapper;
     @Autowired
     private CacheClient cacheClient;
-    // 🌟 优化：把回调地址写在 application.yml 里，比如: alipay.notify-url: http://xxx/alipay/notify
-    @Value("${alipay.notify-url:http://2affce96.r7.cpolar.cn/alipay/notify}")
+    /** 支付宝异步回调地址，只能由部署环境配置。 */
+    @Value("${alipay.notify-url:}")
     private String notifyUrl;
 
     @PostMapping("/alipay/cancel/{outTradeNo}")
@@ -62,6 +63,9 @@ public class AlipayController {
      */
     @GetMapping("/alipay/precreate")
     public Result precreate(@RequestParam String amount, @RequestParam String outTradeNo) throws Exception {
+        if (!StringUtils.hasText(notifyUrl)) {
+            return Result.error("未配置支付宝异步回调地址");
+        }
         Integer userId = BaseContext.getCurrentId().intValue();
 
         // 1. 先在本地数据库创建待支付订单

@@ -25,13 +25,13 @@ public interface TransferMapper extends BaseMapper<Transfer> {
     Transfer selectByIdForUpdate(@Param("id") Long id);
 
     @Select("SELECT id FROM u_transfer WHERE status = 0 " +
-            "AND create_time <= DATE_SUB(NOW(), INTERVAL 1 DAY)")
-    List<Long> selectExpiredTransferIds();
+            "AND create_time <= DATE_SUB(NOW(), INTERVAL #{expireHours} HOUR)")
+    List<Long> selectExpiredTransferIds(@Param("expireHours") int expireHours);
 
     @Update("UPDATE u_transfer SET status = 2, return_time = NOW() " +
             "WHERE id = #{id} AND status = 0 " +
-            "AND create_time <= DATE_SUB(NOW(), INTERVAL 1 DAY)")
-    int markTransferReturned(@Param("id") Long id);
+            "AND create_time <= DATE_SUB(NOW(), INTERVAL #{expireHours} HOUR)")
+    int markTransferReturned(@Param("id") Long id, @Param("expireHours") int expireHours);
 
     @Update("UPDATE u_transfer SET status = 1, accept_time = NOW() " +
             "WHERE id = #{id} AND status = 0")

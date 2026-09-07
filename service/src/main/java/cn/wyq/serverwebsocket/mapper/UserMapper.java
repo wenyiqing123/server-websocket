@@ -34,6 +34,10 @@ public interface UserMapper extends BaseMapper<User> {
     @Select("select path from user where user_name=#{username}")
     String getStatusAndPathByUserName(String username);
 
+    /** 创建用户级限额资源时锁定用户行，防止并发超额。 */
+    @Select("SELECT id FROM user WHERE id = #{id} FOR UPDATE")
+    Integer lockById(Integer id);
+
     //登录
 
     User login(User user, Integer applyRole);
@@ -70,7 +74,7 @@ public interface UserMapper extends BaseMapper<User> {
 
     UserEmailApplyEntity selectUserByEmail(String email);
 
-    @Select("SELECT * FROM user WHERE status = 0")
+    @Select("SELECT id, user_name, path, role, email, status FROM user WHERE status = 0")
     List<UserEmailApplyEntity> selectPendingAdminList();
 
     @Select("select  * from user where  id=#{currentId}")
@@ -108,5 +112,9 @@ public interface UserMapper extends BaseMapper<User> {
 
     @Update("update conversation set user_name=#{newUserName} where user_name=#{oldUserName}")
     int updateUserNameInConversation(String oldUserName, String newUserName);
+
+    /** 同步会话展示用用户名；实际授权使用 owner_user_id，不受改名影响。 */
+    @Update("update ai_chat_session set user_id=#{newUserName} where user_id=#{oldUserName}")
+    int updateUserNameInAiChatSession(String oldUserName, String newUserName);
 
     int insertBatch(@Param("list") List<UserEmailApplyEntity> list);}

@@ -27,7 +27,7 @@ public class ServletUtil {
 
         String jsonString = JSONObject.toJSONString(hashMap);
         try {
-            response.setStatus(200);
+            response.setStatus(code > 0 ? code : HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             response.setContentType("application/json");
             response.setCharacterEncoding("utf-8");
             response.getWriter().print(jsonString);

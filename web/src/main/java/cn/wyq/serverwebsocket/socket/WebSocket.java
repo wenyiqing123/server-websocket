@@ -57,6 +57,10 @@ public class WebSocket {
     private static Map<String, Session> onlineClientMap = new ConcurrentHashMap<>();
 
     private HttpSession httpSession;
+    /** 已通过握手验签的用户名，绝不从路径或消息正文重新信任。 */
+    private String authenticatedUsername;
+    /** 当前端点实例是否已完成在线会话注册。 */
+    private boolean onlineRegistered;
 
     /**
      * 初始化 Spring 管理的 Bean
@@ -72,37 +76,48 @@ public class WebSocket {
     @OnOpen
     public void onOpen(Session session, @PathParam("username") String username, EndpointConfig config) {
         initServices();
-        List<String> protocols = session.getRequestParameterMap().get("Sec-WebSocket-Protocol");
-        if (protocols != null && !protocols.isEmpty()) {
-            String token = protocols.get(0);
-            log.info("用户[{}]连接，携带 Token: {}", username, token);
+        Object identity = config == null ? null
+                : config.getUserProperties().get(WebSocketConfig.AUTHENTICATED_USERNAME);
+        if (!(identity instanceof String trustedUsername) || trustedUsername.isBlank()
+                || !trustedUsername.equals(username)) {
+            closeUnauthorizedConnection(session);
+            return;
         }
 
+        this.authenticatedUsername = trustedUsername;
         this.httpSession = (HttpSession) config.getUserProperties().get(HttpSession.class.getName());
-        onlineUsers.put(username, session);
+        // 供管理员改名或用户自身改名后的强制断连逻辑定位所有旧身份连接。
+        session.getUserProperties().put(WebSocketConfig.AUTHENTICATED_USERNAME, trustedUsername);
+        onlineUsers.put(authenticatedUsername, session);
         onlineClientMap.put(session.getId(), session);
         onlineClientNumber.incrementAndGet();
+        onlineRegistered = true;
 
         String message = MessageUtils.getMessage(true, null, getFriends());
         broadcastAllUsers(message);
 
         log.info("时间[{}]：用户[{}]连接成功，在线总数:[{}]",
                 LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
-                username, onlineClientNumber.get());
+                authenticatedUsername, onlineClientNumber.get());
     }
 
     @OnClose
     public void onClose(Session session, @PathParam("username") String username) {
-        onlineUsers.remove(username);
-        onlineClientMap.remove(session.getId());
-        onlineClientNumber.decrementAndGet();
+        if (!onlineRegistered || authenticatedUsername == null) {
+            return;
+        }
+
+        onlineUsers.remove(authenticatedUsername, session);
+        onlineClientMap.remove(session.getId(), session);
+        onlineClientNumber.updateAndGet(count -> Math.max(0, count - 1));
+        onlineRegistered = false;
 
         String message = MessageUtils.getMessage(true, null, getFriends());
         broadcastAllUsers(message);
 
         log.info("时间[{}]：用户[{}]连接关闭，在线总数:[{}]",
                 LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
-                username, onlineClientNumber.get());
+                authenticatedUsername, onlineClientNumber.get());
     }
 
     @OnError
@@ -140,6 +155,23 @@ public class WebSocket {
             log.info("用户 [{}] 离线，广播已存入 Redis 离线信箱", targetUsername);
         }
     }
+
+    /**
+     * 向所有在线用户同步当前系统公告。
+     *
+     * <p>公告正文仍由数据库持久化；此消息只用于让已打开聊天页的用户立即刷新展示。
+     * 空正文代表管理员已撤下公告。</p>
+     */
+    public static void broadcastSystemAnnouncement(String content) {
+        MessageFull announcement = new MessageFull();
+        announcement.setFromName("SYSTEM_ANNOUNCEMENT");
+        announcement.setMessage(content == null ? "" : content);
+        announcement.setTime(LocalDateTime.now());
+
+        String jsonMessage = JSON.toJSONString(announcement);
+        onlineUsers.forEach((username, session) -> sendMessageSafe(session, jsonMessage));
+    }
+
     // =======================================================
     // 🌟 新增：供外部(Service)调用的静态路由分发方法
     // =======================================================
@@ -195,12 +227,20 @@ public class WebSocket {
     @OnMessage
     public void onMsg(Session session, String message, @PathParam("username") String username) throws IOException {
         initServices();
-        log.info("收到来自[{}]的消息: {}", username, message);
+        if (!isAuthenticatedSession(username)) {
+            closeUnauthorizedConnection(session);
+            return;
+        }
+
+        String senderName = authenticatedUsername;
+        log.info("收到来自[{}]的消息: {}", senderName, message);
 
         // ==========================================================
         // 🌟 简便魔法：先解析成通用的 JSONObject
         // ==========================================================
         JSONObject jsonObject = JSON.parseObject(message);
+        // 客户端消息体不可信，所有下行信令和聊天消息均以握手身份作为发送者。
+        jsonObject.put("fromName", senderName);
         String type = jsonObject.getString("type");
 
         // ==========================================================
@@ -214,8 +254,8 @@ public class WebSocket {
             // 原封不动地把整串 JSON 转发给对方
             if (targetSession != null && targetSession.isOpen()) {
                 // ✅ 修改：使用线程安全方法
-                sendMessageSafe(targetSession, message);
-                log.info("【音视频信令】转发成功 | 类型: {} | {} -> {}", type, username, toName);
+                sendMessageSafe(targetSession, JSON.toJSONString(jsonObject));
+                log.info("【音视频信令】转发成功 | 类型: {} | {} -> {}", type, senderName, toName);
             } else {
                 // 对方不在线的情况
                 log.warn("【音视频信令】转发失败，对方不在线 | 类型: {} | 目标: {}", type, toName);
@@ -229,6 +269,7 @@ public class WebSocket {
         // 当走到这里，说明是普通聊天消息。
         // ==========================================================
         MessageInfo messageInfo = JSON.parseObject(message, MessageInfo.class);
+        messageInfo.setFromName(senderName);
 
         // 2. 保存到数据库
         messageService.addMessage(messageInfo);
@@ -240,10 +281,12 @@ public class WebSocket {
         // 3. 构建包含真实 ID 的完整消息对象
         MessageFull messageFull = JSON.parseObject(message, MessageFull.class);
         messageFull.setId(realId);
+        messageFull.setFromName(senderName);
+        messageFull.setFromPath(userService.getPath(senderName));
         String jsonResponse = JSON.toJSONString(messageFull);
 
         // 消息必须抄送给自己
-        Session mySession = onlineUsers.get(username);
+        Session mySession = onlineUsers.get(senderName);
         // ✅ 修改：使用线程安全方法 (内部自带判空验证)
         sendMessageSafe(mySession, jsonResponse);
 
@@ -254,7 +297,7 @@ public class WebSocket {
             List<String> groupMembers = groupService.getGroupMemberNames(toName);
             for (String memberName : groupMembers) {
                 // 不发给自己
-                if (!memberName.equals(username)) {
+                if (!memberName.equals(senderName)) {
                     Session targetSession = onlineUsers.get(memberName);
                     // ✅ 修改：使用线程安全方法
                     sendMessageSafe(targetSession, jsonResponse);
@@ -262,11 +305,65 @@ public class WebSocket {
             }
         } else {
             // 【私聊分发】
-            if (!toName.equals(username)) {
+            if (!toName.equals(senderName)) {
                 Session targetSession = onlineUsers.get(toName);
                 // ✅ 修改：使用线程安全方法
                 sendMessageSafe(targetSession, jsonResponse);
             }
+        }
+    }
+
+    /**
+     * 关闭仍以旧用户名注册的在线连接。
+     *
+     * <p>用户名变更后旧 Access Token 的 claim 不再匹配数据库身份。新连接必须使用
+     * 新令牌和新路径建立；遍历连接表可覆盖同一用户的多个浏览器标签页。</p>
+     */
+    public static void disconnectUser(String username) {
+        if (username == null || username.isBlank()) {
+            return;
+        }
+        for (Session session : new HashSet<>(onlineClientMap.values())) {
+            Object sessionUsername = session.getUserProperties()
+                    .get(WebSocketConfig.AUTHENTICATED_USERNAME);
+            if (!username.equals(sessionUsername)) {
+                continue;
+            }
+            onlineUsers.remove(username, session);
+            onlineClientMap.remove(session.getId(), session);
+            if (!session.isOpen()) {
+                continue;
+            }
+            try {
+                session.close(new CloseReason(CloseReason.CloseCodes.VIOLATED_POLICY,
+                        "Identity changed; reconnect required"));
+            } catch (IOException exception) {
+                log.warn("关闭用户名已变更的 WebSocket 连接失败, sessionId={}", session.getId(), exception);
+            }
+        }
+    }
+
+    /**
+     * 仅允许握手阶段已经认证、且路径仍与认证身份一致的端点实例发送消息。
+     */
+    private boolean isAuthenticatedSession(String pathUsername) {
+        return onlineRegistered
+                && authenticatedUsername != null
+                && authenticatedUsername.equals(pathUsername);
+    }
+
+    /**
+     * 对任何绕过握手认证的端点实例立即关闭连接。
+     */
+    private void closeUnauthorizedConnection(Session session) {
+        if (session == null || !session.isOpen()) {
+            return;
+        }
+        try {
+            session.close(new CloseReason(CloseReason.CloseCodes.VIOLATED_POLICY,
+                    "WebSocket authentication required"));
+        } catch (IOException exception) {
+            log.warn("关闭未认证 WebSocket 连接失败", exception);
         }
     }
 

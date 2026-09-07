@@ -2,10 +2,9 @@ package cn.wyq.serverwebsocket.resolver;
 
 
 import cn.wyq.serverwebsocket.annotation.CurrentUser;
+import cn.wyq.serverwebsocket.exception.ServiceException;
 import cn.wyq.serverwebsocket.pojo.entity.UserEntity;
-import cn.wyq.serverwebsocket.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.support.WebDataBinderFactory;
@@ -18,10 +17,6 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  */
 @Component
 public class CurrentUserHandlerMethodArgReslover implements HandlerMethodArgumentResolver {
-
-    // 建议注入 UserService 以获取完整信息
-    @Autowired
-    private UserService userService;
 
     @Override
     public boolean supportsParameter(MethodParameter methodParameter) {
@@ -46,15 +41,12 @@ public class CurrentUserHandlerMethodArgReslover implements HandlerMethodArgumen
             UserEntity userEntity = new UserEntity();
             userEntity.setId(Integer.parseInt(userId.toString()));
             userEntity.setUserName((String) username);
-            userEntity.setPassword((String) username);
             return userEntity;
             // 方案 B：如果你需要完整的用户信息（比如头像、角色），则调用 Service 查库
 //            return userService.findById(Integer.parseInt(userId.toString()));
         }
 
-        // 3. 【重点】不要抛出 MissingServletRequestPartException
-        // 如果允许用户未登录访问（白名单），则返回 null
-        // 如果强制要求登录，可以抛出自定义的异常，例如 UnAuthorizedException
-        return null;
+        // 标记了 @CurrentUser 的接口都需要登录，避免控制器解引用 null 后变成 500。
+        throw new ServiceException("请先登录", 401);
     }
 }

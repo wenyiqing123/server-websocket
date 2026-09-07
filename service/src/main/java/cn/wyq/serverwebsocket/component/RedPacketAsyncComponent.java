@@ -9,6 +9,8 @@ import cn.wyq.serverwebsocket.pojo.dto.WsMessage;
 import cn.wyq.serverwebsocket.pojo.entity.Account;
 import cn.wyq.serverwebsocket.pojo.entity.AccountLog;
 import cn.wyq.serverwebsocket.pojo.entity.RedPacket;
+import cn.wyq.serverwebsocket.service.SysConfigService;
+import cn.wyq.serverwebsocket.utils.SystemConfigUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +42,9 @@ public class RedPacketAsyncComponent {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private SysConfigService sysConfigService;
+
     /**
      * 在同一事务内完成红包校验、扣减、入账和流水记录。
      */
@@ -52,7 +57,7 @@ public class RedPacketAsyncComponent {
             throw new IllegalStateException("红包已结束，无法领取");
         }
         if (redPacket.getCreateTime() == null
-                || !redPacket.getCreateTime().isAfter(LocalDateTime.now().minusDays(1))) {
+                || !redPacket.getCreateTime().isAfter(LocalDateTime.now().minusHours(redPacketExpireHours()))) {
             throw new IllegalStateException("红包已过期，未领取金额将退回发送者");
         }
         if (redPacket.getRemainingAmount() == null
@@ -114,5 +119,16 @@ public class RedPacketAsyncComponent {
         }
 
         log.info("【红包落库成功】用户: {} 账目处理完毕", userId);
+    }
+
+    /** 读取平台配置中的红包过期时长，配置不可用时使用一天。 */
+    private int redPacketExpireHours() {
+        try {
+            return SystemConfigUtils.intValue(sysConfigService.getConfigMap(),
+                    "red_packet_expire_hours", 24, 1, 24 * 365);
+        } catch (RuntimeException e) {
+            log.warn("读取红包过期配置失败，将使用默认 24 小时", e);
+            return 24;
+        }
     }
 }

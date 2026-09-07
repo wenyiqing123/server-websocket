@@ -6,11 +6,14 @@ cn\wyq\serverwebsocket\service\impl\FinanceServiceImpl$5.class
 cn\wyq\serverwebsocket\service\impl\FinanceServiceImpl.class
 cn\wyq\serverwebsocket\service\impl\MessageServiceImpl$1.class
 cn\wyq\serverwebsocket\service\impl\MessageStatsImpl$3.class
+cn\wyq\serverwebsocket\service\impl\ServiceQuestionSuggestionServiceImpl$QuestionFeatures.class
 cn\wyq\serverwebsocket\mapper\SysDocumentMapper.class
 cn\wyq\serverwebsocket\service\impl\FriendServiceImpl.class
 cn\wyq\serverwebsocket\annotation\LoginNotRequired.class
 cn\wyq\serverwebsocket\mapper\DocumentSessionMapper.class
+cn\wyq\serverwebsocket\service\impl\DocumentServiceImpl$DocumentLimits.class
 cn\wyq\serverwebsocket\mapper\ChatGroupMapper.class
+cn\wyq\serverwebsocket\mapper\AiServiceQuestionMapper.class
 cn\wyq\serverwebsocket\mapper\FinanceMapper.class
 cn\wyq\serverwebsocket\service\impl\RechargeOrderServiceImpl$1.class
 cn\wyq\serverwebsocket\service\impl\SysConfigServiceImpl.class
@@ -24,6 +27,7 @@ cn\wyq\serverwebsocket\mapper\MessageStructMapperImpl.class
 cn\wyq\serverwebsocket\service\impl\FriendServiceImpl$1.class
 cn\wyq\serverwebsocket\service\impl\GroupServiceImpl$1.class
 cn\wyq\serverwebsocket\service\impl\IUserServiceToolImpl.class
+cn\wyq\serverwebsocket\service\impl\DocumentServiceImpl$2.class
 cn\wyq\serverwebsocket\service\impl\MessageStatsImpl$2.class
 cn\wyq\serverwebsocket\service\FinanceService.class
 cn\wyq\serverwebsocket\service\SysConfigService.class
@@ -54,6 +58,7 @@ cn\wyq\serverwebsocket\service\AIService.class
 cn\wyq\serverwebsocket\service\impl\AIServiceImpl.class
 cn\wyq\serverwebsocket\service\impl\MessageStatsImpl$1.class
 cn\wyq\serverwebsocket\mapper\RechargeOrderMapper.class
+cn\wyq\serverwebsocket\mapper\AiAgentMapper.class
 cn\wyq\serverwebsocket\mapper\MessageStatsMapper.class
 cn\wyq\serverwebsocket\service\impl\IMessageServiceToolImpl.class
 cn\wyq\serverwebsocket\service\impl\UserWalletServiceImpl$1.class
@@ -74,6 +79,9 @@ cn\wyq\serverwebsocket\mapper\IUserMapperTool.class
 cn\wyq\serverwebsocket\mapper\TransactionLogMapper.class
 cn\wyq\serverwebsocket\service\impl\MessageServiceImpl$2.class
 cn\wyq\serverwebsocket\service\TransferService.class
+cn\wyq\serverwebsocket\service\impl\AiAgentServiceImpl.class
+cn\wyq\serverwebsocket\service\ServiceQuestionSuggestionService.class
+cn\wyq\serverwebsocket\service\DocumentService$DownloadableDocument.class
 cn\wyq\serverwebsocket\mapper\MessageIntentionMapper.class
 cn\wyq\serverwebsocket\service\impl\TransactionLogServiceImpl.class
 cn\wyq\serverwebsocket\service\FriendService.class
@@ -85,10 +93,12 @@ cn\wyq\serverwebsocket\mapper\MessageMapper.class
 cn\wyq\serverwebsocket\service\RechargeService.class
 cn\wyq\serverwebsocket\component\RedPacketAsyncComponent.class
 cn\wyq\serverwebsocket\mapper\SysConfigMapper.class
+cn\wyq\serverwebsocket\service\impl\ServiceQuestionSuggestionServiceImpl.class
 cn\wyq\serverwebsocket\service\impl\UserServiceImpl$3.class
 cn\wyq\serverwebsocket\service\impl\UserServiceImpl.class
 cn\wyq\serverwebsocket\service\TransactionLogService.class
 cn\wyq\serverwebsocket\service\MessageStatsService.class
+cn\wyq\serverwebsocket\service\AiAgentService.class
 cn\wyq\serverwebsocket\service\RedPacketService.class
 cn\wyq\serverwebsocket\service\impl\GroupServiceImpl.class
 cn\wyq\serverwebsocket\util\MessageUtils.class

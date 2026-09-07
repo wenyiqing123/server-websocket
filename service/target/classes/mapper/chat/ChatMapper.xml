@@ -1,22 +1,38 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="cn.wyq.serverwebsocket.mapper.ChatMapper">
-    <select id="selectByUserId" resultType="cn.wyq.serverwebsocket.pojo.entity.Chat">
-        SELECT id, user_id, title, created_at
+    <select id="selectByOwnerUserId" resultType="cn.wyq.serverwebsocket.pojo.entity.Chat">
+        SELECT id, owner_user_id, user_id, title, agent_id, prompt_version, created_at
         FROM ai_chat_session
-        WHERE user_id = #{userId}
+        WHERE owner_user_id = #{ownerUserId}
         ORDER BY created_at DESC
     </select>
 
     <insert id="insertSession">
-        INSERT INTO ai_chat_session (id, user_id, title, created_at)
-        VALUES (#{id}, #{userId}, #{title}, NOW())
+        INSERT INTO ai_chat_session (id, owner_user_id, user_id, title, created_at)
+        VALUES (#{id}, #{ownerUserId}, #{userName}, #{title}, NOW())
+    </insert>
+
+    <insert id="insertAgentSession">
+        INSERT INTO ai_chat_session (id, owner_user_id, user_id, title, agent_id, prompt_version, created_at)
+        VALUES (#{id}, #{ownerUserId}, #{userName}, #{title}, #{agentId}, #{promptVersion}, NOW())
     </insert>
 
     <delete id="deleteById">
         DELETE FROM ai_chat_session
         WHERE id = #{id}
     </delete>
+
+    <delete id="deleteByOwnerUserId">
+        DELETE FROM ai_chat_session
+        WHERE owner_user_id = #{ownerUserId}
+    </delete>
+
+    <select id="selectById" resultType="cn.wyq.serverwebsocket.pojo.entity.Chat">
+        SELECT id, owner_user_id, user_id, title, agent_id, prompt_version, created_at
+        FROM ai_chat_session
+        WHERE id = #{id}
+    </select>
 
 
 </mapper>

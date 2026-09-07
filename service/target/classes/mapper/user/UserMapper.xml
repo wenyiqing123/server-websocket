@@ -32,7 +32,7 @@
     </select>
 
     <select id="selectAllUsers" resultType="cn.wyq.serverwebsocket.pojo.entity.UserEmailApplyEntity">
-        SELECT id, user_name, password,email, path, role
+        SELECT id, user_name, email, path, role, status
         FROM user
         <where>
             status='1'
@@ -139,7 +139,7 @@
     </select>
 
     <select id="findAllUsers" resultMap="User">
-        select *
+        select id, user_name, path, role
         from user
     </select>
     <select id="getPath" resultType="java.lang.String">

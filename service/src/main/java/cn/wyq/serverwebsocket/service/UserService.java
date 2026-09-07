@@ -54,6 +54,18 @@ public interface UserService {
 
     Map<String, String> refreshToken(String refreshToken);
 
+    /**
+     * 用户名变更已提交后，基于数据库中的当前身份签发新的令牌对。
+     *
+     * <p>调用方不得传入用户名，避免将客户端提供的身份数据写入 Token。</p>
+     */
+    Map<String, String> rotateTokensAfterUsernameChange(Integer userId);
+
+    /**
+     * 撤销指定用户当前的 Refresh Token；已签发的短期 Access Token 会自然过期。
+     */
+    void revokeRefreshToken(Integer userId);
+
     List<UserExportDTO> export(UserQueryExportDTO userQueryExportDTO) throws MalformedURLException;
 
     void updatePassword(UserUpdatePasswordDTO userUpdatePasswordDTO);

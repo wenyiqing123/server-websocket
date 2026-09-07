@@ -7,6 +7,7 @@ import cn.wyq.serverwebsocket.pojo.entity.*;
 import cn.wyq.serverwebsocket.pojo.vo.RedPacketDetailVO;
 import cn.wyq.serverwebsocket.utils.CacheClient;
 import cn.wyq.serverwebsocket.utils.RedPacketUtils;
+import cn.wyq.serverwebsocket.utils.SystemConfigUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +49,9 @@ public class RedPacketService {
     private RedPacketRecordMapper redPacketRecordMapper;
     @Autowired
     private CacheClient cacheClient;
+
+    @Autowired
+    private SysConfigService sysConfigService;
 
     /**
      * 查询红包详情与领取列表
@@ -263,7 +267,7 @@ public class RedPacketService {
             RedPacket current = redPacketMapper.selectById(redPacketId);
             if (current != null && current.getStatus() != null && current.getStatus() == 0
                     && current.getCreateTime() != null
-                    && current.getCreateTime().isAfter(LocalDateTime.now().minusDays(1))) {
+                    && !isExpired(current.getCreateTime(), redPacketExpireHours())) {
                 stringRedisTemplate.opsForList().leftPush(redisListKey, amountStr);
             }
             stringRedisTemplate.opsForSet().remove(redisSetKey, String.valueOf(userId));
@@ -279,17 +283,18 @@ public class RedPacketService {
 
     @Transactional(rollbackFor = Exception.class)
     public boolean refundExpiredRedPacket(Long redPacketId) {
+        int expireHours = redPacketExpireHours();
         RedPacket redPacket = redPacketMapper.selectByIdForUpdate(redPacketId);
         if (redPacket == null || redPacket.getStatus() == null || redPacket.getStatus() != 0
                 || redPacket.getRemainingAmount() == null
                 || redPacket.getRemainingAmount().compareTo(BigDecimal.ZERO) <= 0
                 || redPacket.getCreateTime() == null
-                || redPacket.getCreateTime().isAfter(LocalDateTime.now().minusDays(1))) {
+                || !isExpired(redPacket.getCreateTime(), expireHours)) {
             return false;
         }
 
         BigDecimal refundAmount = redPacket.getRemainingAmount();
-        if (redPacketMapper.markRedPacketExpired(redPacketId) != 1) {
+        if (redPacketMapper.markRedPacketExpired(redPacketId, expireHours) != 1) {
             return false;
         }
 
@@ -333,5 +338,20 @@ public class RedPacketService {
                 keyPrefix + RedPacketConstant.REDIS_KEY_COUNT_SUFFIX,
                 keyPrefix + RedPacketConstant.REDIS_KEY_GRABBED_SET_SUFFIX,
                 keyPrefix + RedPacketConstant.REDIS_KEY_RECEIVER_SUFFIX));
+    }
+
+    /** 从平台配置读取红包过期窗口，配置异常时回退到一天。 */
+    private int redPacketExpireHours() {
+        try {
+            return SystemConfigUtils.intValue(sysConfigService.getConfigMap(),
+                    "red_packet_expire_hours", 24, 1, 24 * 365);
+        } catch (RuntimeException e) {
+            log.warn("读取红包过期配置失败，将使用默认 24 小时", e);
+            return 24;
+        }
+    }
+
+    private boolean isExpired(LocalDateTime createTime, int expireHours) {
+        return createTime == null || !createTime.isAfter(LocalDateTime.now().minusHours(expireHours));
     }
 }

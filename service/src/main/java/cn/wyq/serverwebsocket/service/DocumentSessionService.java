@@ -3,6 +3,7 @@ package cn.wyq.serverwebsocket.service;
 import cn.wyq.serverwebsocket.exception.ServiceException;
 import cn.wyq.serverwebsocket.mapper.DocumentSessionMapper;
 import cn.wyq.serverwebsocket.mapper.SysDocumentMapper;
+import cn.wyq.serverwebsocket.pojo.entity.SysDocument;
 import cn.wyq.serverwebsocket.utils.CacheClient;
 import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.RequiredArgsConstructor;
@@ -28,27 +29,31 @@ public class DocumentSessionService {
     private final SysDocumentMapper sysDocumentMapper;
     private final CacheClient cacheClient;
 
-    public void assertOwned(String sessionId, String userName) {
+    public void assertOwned(String sessionId, Integer ownerUserId) {
         if (!StringUtils.hasText(sessionId) || !sessionId.startsWith("document_")
-                || !StringUtils.hasText(userName)
-                || documentSessionMapper.countOwnedSession(sessionId, userName) == 0) {
+                || ownerUserId == null || ownerUserId <= 0
+                || documentSessionMapper.countOwnedSession(sessionId, ownerUserId) == 0) {
             throw new ServiceException("无权访问该文档会话", 403);
         }
     }
 
-    public List<String> listDocumentIds(String sessionId, String userName) {
-        assertOwned(sessionId, userName);
-        return cacheClient.queryWithMutex("ai:document-session", sessionId,
+    public List<String> listDocumentIds(String sessionId, Integer ownerUserId) {
+        assertOwned(sessionId, ownerUserId);
+        validateDocumentOwner(ownerUserId);
+        String cacheId = cacheId(sessionId, ownerUserId);
+        return cacheClient.queryWithMutex("ai:document-session", cacheId,
                 new TypeReference<List<String>>() {},
                 ignored -> {
-                    List<String> ids = documentSessionMapper.selectDocumentIds(sessionId);
+                    List<String> ids = documentSessionMapper.selectDocumentIds(sessionId, ownerUserId);
                     return ids == null ? List.of() : ids;
                 }, 2, java.util.concurrent.TimeUnit.MINUTES);
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public List<String> replaceDocuments(String sessionId, String userName, List<String> documentIds) {
-        assertOwned(sessionId, userName);
+    public List<String> replaceDocuments(String sessionId, Integer ownerUserId,
+                                         List<String> documentIds) {
+        assertOwned(sessionId, ownerUserId);
+        validateDocumentOwner(ownerUserId);
 
         Set<String> normalizedIds = new LinkedHashSet<>();
         if (documentIds != null) {
@@ -64,8 +69,9 @@ public class DocumentSessionService {
         }
 
         for (String documentId : normalizedIds) {
-            if (sysDocumentMapper.selectById(documentId) == null) {
-                throw new ServiceException("文档不存在或已被删除: " + documentId, 400);
+            SysDocument document = sysDocumentMapper.selectById(documentId);
+            if (document == null || !ownerUserId.equals(document.getOwnerUserId())) {
+                throw new ServiceException("文档不存在或无权访问: " + documentId, 403);
             }
         }
 
@@ -73,7 +79,7 @@ public class DocumentSessionService {
         for (String documentId : normalizedIds) {
             documentSessionMapper.insertAssociation(sessionId, documentId);
         }
-        cacheClient.evict("ai:document-session", sessionId);
+        cacheClient.evict("ai:document-session", cacheId(sessionId, ownerUserId));
         return new ArrayList<>(normalizedIds);
     }
 
@@ -89,7 +95,17 @@ public class DocumentSessionService {
     public void removeSession(String sessionId) {
         if (StringUtils.hasText(sessionId)) {
             documentSessionMapper.deleteBySessionId(sessionId);
-            cacheClient.evict("ai:document-session", sessionId);
+            cacheClient.evictByPrefix("ai:document-session");
         }
+    }
+
+    private void validateDocumentOwner(Integer ownerUserId) {
+        if (ownerUserId == null || ownerUserId <= 0) {
+            throw new ServiceException("请先登录", 401);
+        }
+    }
+
+    private String cacheId(String sessionId, Integer ownerUserId) {
+        return ownerUserId + ":" + sessionId;
     }
 }

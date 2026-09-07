@@ -69,38 +69,39 @@ HTTP 服务默认监听 `8000` 端口。
      COLLATE utf8mb4_0900_ai_ci;
    ```
 
-2. 导入核心脚本：
+2. 新环境导入核心脚本：
 
    ```bash
    mysql -uroot -p chat < sql/chat.sql
    ```
 
-   `sql/chat.sql` 已包含用户、好友、群组、消息、AI 会话、文档、订单、钱包、红包和转账等核心表。
+   `sql/chat.sql` 已包含用户、好友、群组、消息、AI 会话、文档、订单、钱包、红包和转账等核心表。当前仓库的核心结构也已包含 `ai_agent`、`ai_service_question`、会话归属和文档归属字段；已有数据库升级应使用增量迁移脚本，不要重复导入带 `DROP TABLE` 的核心脚本。
 
-3. 以下脚本可按需要单独查看或补充执行：
+3. 升级已有数据库时，先备份后执行当前版本的幂等迁移脚本：
 
-   - `sql/ai_session_document.sql`
-   - `sql/recharge_order.sql`
-   - `sql/u_account.sql`
-   - `sql/u_account_log.sql`
-   - `sql/u_red_packet.sql`
-   - `sql/u_red_packet_record.sql`
-   - `sql/u_transfer.sql`
+    ```bash
+    mysql -uroot -p chat < sql/20260906_agent_and_system_settings_migration.sql
+    ```
 
-   注意：初始化脚本包含 `DROP TABLE` 和测试数据。不要在生产数据库上重复执行，正式部署前请先备份并审查脚本。
+    该脚本初始化内置 AI 女友、平台级系统设置，并兼容旧版 `ai_*` 配置键。脚本不会删除或重建业务表；除模型配置会按当前版本统一迁移为 `qwen3.8-max-0902` 外，其余已经存在的配置值会保留。红包/转账默认 24 小时未接收自动原路退回，充值订单默认 5 分钟未支付自动关闭。
+
+    `sql/chat.sql` 是完整初始化脚本，包含 `DROP TABLE` 和测试数据，仅适用于全新开发库；生产环境不要重复导入。
 
 ## 配置
 
-主配置文件为 `web/src/main/resources/application.yaml`。常用配置如下：
+主配置文件为 `web/src/main/resources/application.yaml`。真实凭据和部署地址均由环境变量或外部配置中心提供，仓库中不保存可用密钥。常用配置如下：
 
-- HTTP 端口：`server.port`，默认 `8000`。
-- MySQL：`spring.datasource.*`。
-- Redis：`spring.data.redis.*`，默认 database `1`。
-- RabbitMQ：`spring.rabbitmq.*`。
-- 上传目录：`image.location`，默认 `${user.dir}/upload/`。
-- 单文件和单次请求大小：均为 `10MB`。
-- Sentinel Dashboard：`spring.cloud.sentinel.transport.dashboard`。
-- 支付宝沙箱：`alipay.*`，异步回调地址为 `alipay.notify-url`。
+| 配置类别 | 环境变量 | 说明 |
+| --- | --- | --- |
+| JWT | `JWT_SECRET`、`APP_ENV` | 未注入 `JWT_SECRET` 时使用 `jwt_secret_for_server_websocket`；生产部署建议通过环境变量覆盖为随机高强度密钥。 |
+| MySQL | `DB_URL`、`DB_USERNAME`、`DB_PASSWORD` | 本地 URL 和用户名有无密码默认值；生产应使用专用最小权限账户。 |
+| Redis | `REDIS_HOST`、`REDIS_PORT`、`REDIS_DATABASE`、`REDIS_PASSWORD` | 默认连接本机的 database `1`，密码默认为空。 |
+| RabbitMQ | `RABBITMQ_HOST`、`RABBITMQ_PORT`、`RABBITMQ_USERNAME`、`RABBITMQ_PASSWORD` | 本机 `guest` 默认值只能用于未暴露到公网的开发环境。 |
+| 邮件 | `MAIL_HOST`、`MAIL_PORT`、`MAIL_USERNAME`、`MAIL_PASSWORD` | 邮件发送功能需显式配置。 |
+| 支付宝 | `ALIPAY_APP_ID`、`ALIPAY_PRIVATE_KEY`、`ALIPAY_PUBLIC_KEY`、`ALIPAY_GATEWAY_URL`、`ALIPAY_NOTIFY_URL` | 支付功能需显式配置，回调地址应为 HTTPS 公网地址。 |
+| 服务与文件 | `SERVER_PORT`、`APP_DOMAIN`、`IMAGE_LOCATION`、`AI_DOCUMENT_STORAGE_LOCATION` | HTTP 默认端口为 `8000`；AI 私有文档默认不落入公开图片目录。 |
+
+上传文件的单文件和单次请求上限均为 `10MB`。文档服务还额外限制页数、可提取字符数和切片数，具体数值在 `ai.document.limits.*` 配置。
 
 ### AI 配置
 
@@ -114,14 +115,14 @@ spring:
       base-url: https://dashscope.aliyuncs.com/compatible-mode
       chat:
         options:
-          model: qwen-plus
+          model: qwen3.8-max-0902
       embedding:
         enabled: true
         options:
           model: text-embedding-v3
 ```
 
-当前代码实际配置的聊天模型是 `qwen-plus`，聊天模型由 `spring.ai.openai.chat.options.model` 控制；文档 RAG 的向量模型是 `text-embedding-v3`。不要根据历史需求或旧文档假定项目已经使用其他模型。
+当前所有云端聊天功能统一使用 `qwen3.8-max-0902`，聊天模型由 `spring.ai.openai.chat.options.model` 控制；文档 RAG 的向量模型是 `text-embedding-v3`。自定义智能体的模型字段也只接受 `qwen3.8-max-0902`。
 
 `QwenTagExtractor` 使用本地 Ollama 的 `qwen2.5:3b` 做标签提取，这是独立的本地功能，不属于上述远程聊天模型配置。
 
@@ -132,10 +133,13 @@ spring:
 
 应用启动时由 `KnowledgeDataLoader` 加载或构建向量缓存。文档上传后会解析、切片并写入文档及向量存储。
 
-建议使用环境变量提供密钥。PowerShell 示例：
+建议通过部署平台的密钥管理或环境变量注入凭据。PowerShell 示例：
 
 ```powershell
-$env:DASHSCOPE_API_KEY = "your-api-key"
+$env:JWT_SECRET = "<strong-random-secret>"
+$env:APP_ENV = "production"
+$env:DASHSCOPE_API_KEY = "<api-key>"
+$env:DB_PASSWORD = "<database-password>"
 mvn -pl web -am spring-boot:run
 ```
 
@@ -177,9 +181,10 @@ Authorization: Bearer <access-token>
 - `/user/login`、`/user/register`、`/user/refresh`
 - `/user/path`、`/user/path-email`、`/user/email`
 - `/file/upload`
-- `/ai/uploadDoc`、`/ai/docList`、`/ai/document/{docId}`
 - `/alipay/notify`
 - Swagger/Knife4j 资源
+
+所有 `/ai/**` 接口（包括文档上传、列表、删除和下载）都需要有效的 Access Token。文档、文档会话和 AI 会话还会校验当前用户的所有权，不能通过猜测 ID 访问他人的内容。`/file/upload` 是保留的通用上传入口，生产部署应按业务需要收紧或移除其匿名访问。
 
 其余接口默认需要有效的 Bearer Token。具体放行规则以 `JWTInterceptor` 和 `@LoginNotRequired` 标注为准。
 
@@ -191,16 +196,16 @@ Authorization: Bearer <access-token>
 ws://localhost:8000/websocket/{username}
 ```
 
-浏览器连接时可将 Access Token 作为 `Sec-WebSocket-Protocol` 的第一个协议值传入：
+浏览器连接必须传入有效的 **Access Token**。推荐将原始 Token 作为 `Sec-WebSocket-Protocol` 传入；该位置不能添加 `Bearer ` 前缀：
 
 ```javascript
-const socket = new WebSocket(
-  `ws://localhost:8000/websocket/${username}`,
-  [accessToken]
-);
+const wsUrl = `ws://localhost:8000/websocket/${encodeURIComponent(username)}`;
+const socket = new WebSocket(wsUrl, accessToken);
 ```
 
-服务端会将消息保存到数据库，并按私聊或群聊路由给在线用户；离线系统消息会暂存到 Redis。当前 `WebSocketConfig` 主要负责握手时透传 Token，REST 的 JWT 拦截器不会自动替代 WebSocket 握手校验。生产环境应在握手阶段补充 Token 签名、过期时间和用户身份校验。
+服务端在握手阶段验证签名、过期时间和令牌用途，只接受 Access Token；Token 中的用户名必须与 `{username}` 路径完全一致。无效令牌、Refresh Token 或用户名不匹配的连接会被拒绝，客户端消息体中的发送者身份也会由服务端以认证身份覆盖。为兼容旧客户端，服务端仍支持 `?token=`，但 URL 更容易被访问日志记录，不应作为新客户端的常规方案。
+
+服务端会将消息保存到数据库，并按私聊或群聊路由给在线用户；离线系统消息会暂存到 Redis。
 
 ## 主要接口分组
 
@@ -227,14 +232,16 @@ const socket = new WebSocket(
 
 ### AI 流式聊天示例
 
-`/ai/chat` 返回 `text/event-stream`，常用参数为 `message`、`sessionId`、`agentType`，文档模式可额外传 `docId` 或 `docIds`：
+`/ai/chat` 返回 `text/event-stream`，并且只接受 `POST` JSON 请求体，避免聊天正文与会话标识出现在 URL、浏览器历史或代理日志中。`message` 和 `sessionId` 必填，`agentType` 默认为 `girlfriend`；文档模式可传 `docId` 或 `docIds`：
 
 ```bash
-curl -N "http://localhost:8000/ai/chat?message=请总结这份简历&sessionId=service_demo&agentType=document" \
-  -H "Authorization: Bearer <access-token>"
+curl -N -X POST "http://localhost:8000/ai/chat" \
+  -H "Authorization: Bearer <access-token>" \
+  -H "Content-Type: application/json" \
+  --data '{"message":"请总结这份简历","sessionId":"document_session_xxx","agentType":"document","docIds":["<document-id>"]}'
 ```
 
-实际使用时请将 `sessionId` 替换为已创建且属于当前用户的会话 ID，并对 URL 参数进行正确编码。
+实际使用时请将 `sessionId` 替换为已创建且属于当前用户的会话 ID。文档模式中传入的文档必须已经关联到该会话；未关联或不属于当前用户的文档会被拒绝。浏览器端应使用 `fetch` 读取 POST SSE 响应流，原生 `EventSource` 不支持自定义 Authorization 头和 POST 请求体。
 
 高情商回复接口：
 
@@ -263,13 +270,13 @@ Content-Type: application/json
 
 ## 安全与生产部署建议
 
-当前 `application.yaml` 中仍可能包含数据库、邮箱、支付宝和模型等敏感配置。部署前务必：
+`application.yaml` 不再保存真实数据库、邮箱、支付或模型凭据。部署前务必：
 
-- 不要将真实密码、私钥、API Key 和邮箱授权码提交到 Git。
-- 使用环境变量、外部配置中心或独立的生产 profile 覆盖敏感配置。
-- 立即更换已经在本地配置文件或日志中暴露过的数据库、邮箱、JWT、支付宝和模型密钥。
-- 限制 `/file/upload`、文档上传和文档删除接口的权限，并增加文件类型、文件名、内容大小和存储路径校验。
-- 为 WebSocket 握手增加 Token 校验、连接数限制和消息大小限制。
+- 通过环境变量、外部配置中心或独立的生产 profile 提供凭据；生产部署应覆盖默认的 `jwt_secret_for_server_websocket`，改用足够随机且未复用的 `JWT_SECRET`。
+- 立即轮换任何曾写入本地配置、日志、截图或版本控制历史的数据库、邮箱、JWT、支付宝和模型密钥。
+- 文档上传、列表、删除、下载和文档分析接口已经要求登录并校验资源归属；仍应在网关层设置请求体限制、审计和速率限制。
+- WebSocket 握手已经强制校验 Access Token、路径用户与令牌用户的一致性；生产环境仍应根据容量增加连接数、消息大小和频率限制。
+- `/file/upload` 仍是兼容性的匿名通用上传接口，应在公开部署前按实际需求收紧或关闭。
 - 支付宝异步通知必须校验签名、订单金额、商户号和订单状态，回调地址应使用 HTTPS 公网地址。
 - 生产环境关闭详细 SQL、调试日志和测试数据，定期备份数据库及上传目录。
 
@@ -284,4 +291,3 @@ Content-Type: application/json
   mvn -DskipTests compile
   mvn test
   ```
-

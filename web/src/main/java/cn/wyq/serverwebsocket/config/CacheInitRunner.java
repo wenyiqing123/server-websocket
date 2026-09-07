@@ -5,6 +5,7 @@ import cn.wyq.serverwebsocket.pojo.dto.MessageQueryDTO;
 import cn.wyq.serverwebsocket.pojo.dto.UserQueryDTO;
 import cn.wyq.serverwebsocket.service.MessageService;
 import cn.wyq.serverwebsocket.service.RealTimeRecommendService;
+import cn.wyq.serverwebsocket.service.ServiceQuestionSuggestionService;
 import cn.wyq.serverwebsocket.service.UserService;
 import cn.wyq.serverwebsocket.utils.MailUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +36,8 @@ public class CacheInitRunner {
     private RedisTemplate<String, Object> redisTemplate;
     @Autowired
     private RealTimeRecommendService recommendService;
+    @Autowired
+    private ServiceQuestionSuggestionService serviceQuestionSuggestionService;
     @Autowired
     private MailUtil mailUtil;
 
@@ -75,10 +78,22 @@ public class CacheInitRunner {
         }
 
         // ==========================================
-        // 模块 3：布隆过滤器（防穿透）安全名单预热
+        // 模块 3：智能客服问题提示题库预热
         // ==========================================
         try {
-            log.info("3. 开始初始化并预热【布隆过滤器】...");
+            log.info("3. 开始预热智能客服问题提示题库...");
+            serviceQuestionSuggestionService.warmUp();
+            log.info("智能客服问题提示题库预热成功");
+        } catch (Exception e) {
+            // 题库表未执行迁移或暂时不可用时，不应阻止应用启动和正常聊天。
+            log.warn("智能客服问题提示题库预热失败，输入联想将暂时不可用", e);
+        }
+
+        // ==========================================
+        // 模块 4：布隆过滤器（防穿透）安全名单预热
+        // ==========================================
+        try {
+            log.info("4. 开始初始化并预热【布隆过滤器】...");
             // 获取布隆过滤器对象
             RBloomFilter<Integer> bloomFilter = redissonClient.getBloomFilter("user:bloom:filter");
 

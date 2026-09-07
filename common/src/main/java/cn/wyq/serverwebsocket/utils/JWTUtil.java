@@ -16,16 +16,57 @@ import java.util.Date;
 public class JWTUtil {
 
     /**
-     * 签名密钥（必须保密，不要硬编码到代码里）
-     * 建议放到 application.yml 或环境变量中
+     * 由 Web 模块启动时从安全配置注入的签名算法。
+     *
+     * <p>公共模块不能直接读取 Spring 配置，因此不保留任何固定默认密钥。
+     * Web 模块启动时必须显式调用 {@link #configureSecret(String)}；本地临时密钥也由
+     * Web 配置层随机生成后注入。</p>
      */
-    private static final String SECRET = "secret_for_jwt2";
+    private static volatile Algorithm signingAlgorithm;
+
+    /** 默认 Access Token 有效期（30 分钟），启动时可由平台配置覆盖。 */
+    private static final long DEFAULT_EXPIRE_TIME = 1000L * 60 * 30;
+    /** 默认 Refresh Token 有效期（7 天），启动时可由平台配置覆盖。 */
+    private static final long DEFAULT_REFRESH_EXPIRE_TIME = 1000L * 60 * 60 * 24 * 7;
+    private static volatile long expireTime = DEFAULT_EXPIRE_TIME;
+    private static volatile long refreshExpireTime = DEFAULT_REFRESH_EXPIRE_TIME;
+    private static final String TOKEN_TYPE_CLAIM = "tokenType";
+    private static final String ACCESS_TOKEN_TYPE = "access";
+    private static final String REFRESH_TOKEN_TYPE = "refresh";
 
     /**
-     * Token 过期时间（30min）
+     * 配置 JWT 签名密钥。
+     *
+     * <p>仅由启动配置调用；密钥不会被记录到日志或返回给调用方。</p>
+     *
+     * @param secret 从受控配置或环境变量读取的密钥
      */
-    private static final long EXPIRE_TIME = 1000 * 60 * 30;
-    private static final long REFRESH_EXPIRE_TIME = 1000 * 60 * 60 * 24 * 7;
+    public static void configureSecret(String secret) {
+        if (secret == null || secret.isBlank()) {
+            throw new IllegalArgumentException("JWT signing secret must not be blank");
+        }
+        signingAlgorithm = Algorithm.HMAC256(secret);
+    }
+
+    /**
+     * 配置令牌有效期。单位分别为分钟和天，供 Web 层在启动及签发令牌前调用。
+     * 使用 long 计算并进行溢出保护，避免错误配置得到已经过期的令牌。
+     */
+    public static void configureTokenExpiry(long accessMinutes, long refreshDays) {
+        if (accessMinutes <= 0 || refreshDays <= 0) {
+            throw new IllegalArgumentException("JWT token expiry must be positive");
+        }
+        long accessMillis;
+        long refreshMillis;
+        try {
+            accessMillis = Math.multiplyExact(Math.multiplyExact(accessMinutes, 60_000L), 1L);
+            refreshMillis = Math.multiplyExact(Math.multiplyExact(refreshDays, 86_400_000L), 1L);
+        } catch (ArithmeticException exception) {
+            throw new IllegalArgumentException("JWT token expiry is too large", exception);
+        }
+        expireTime = accessMillis;
+        refreshExpireTime = refreshMillis;
+    }
 
     /**
      * 生成 JWT Token
@@ -43,11 +84,14 @@ public class JWTUtil {
                 // 自定义 claim，存放用户名、角色等信息（不要放敏感数据）
                 .withClaim("username", username)
 
+                // access token 只能用于受保护接口和 WebSocket 握手
+                .withClaim(TOKEN_TYPE_CLAIM, ACCESS_TOKEN_TYPE)
+
                 // 过期时间
-                .withExpiresAt(new Date(System.currentTimeMillis() + EXPIRE_TIME))
+                .withExpiresAt(new Date(System.currentTimeMillis() + expireTime))
 
                 // 使用 HMAC256 算法签名
-                .sign(Algorithm.HMAC256(SECRET));
+                .sign(getSigningAlgorithm());
     }
 
     /**
@@ -66,11 +110,14 @@ public class JWTUtil {
                 // 自定义 claim，存放用户名
                 .withClaim("username", username)
 
+                // refresh token 仅用于换取新的令牌对
+                .withClaim(TOKEN_TYPE_CLAIM, REFRESH_TOKEN_TYPE)
+
                 // 过期时间
-                .withExpiresAt(new Date(System.currentTimeMillis() + REFRESH_EXPIRE_TIME))
+                .withExpiresAt(new Date(System.currentTimeMillis() + refreshExpireTime))
 
                 // 使用 HMAC256 算法签名
-                .sign(Algorithm.HMAC256(SECRET));
+                .sign(getSigningAlgorithm());
     }
 
     /**
@@ -81,9 +128,22 @@ public class JWTUtil {
      * @throws com.auth0.jwt.exceptions.JWTVerificationException 如果 token 非法或过期
      */
     private static DecodedJWT verify(String token) {
-        return JWT.require(Algorithm.HMAC256(SECRET))
+        return JWT.require(getSigningAlgorithm())
                 .build()
                 .verify(token);
+    }
+
+    /**
+     * 获取当前已注入的签名算法。
+     *
+     * @return 已配置的签名算法
+     */
+    private static Algorithm getSigningAlgorithm() {
+        Algorithm algorithm = signingAlgorithm;
+        if (algorithm == null) {
+            throw new IllegalStateException("JWT signing secret has not been configured");
+        }
+        return algorithm;
     }
 
     /**
@@ -118,6 +178,38 @@ public class JWTUtil {
             return true;
         } catch (Exception e) {
             // token 非法或过期
+            return false;
+        }
+    }
+
+    /**
+     * 校验 access token。无用途标记的旧 Token 不可用于受保护接口，
+     * 防止历史 refresh token 被当作长效登录凭据使用。
+     *
+     * @param token access token
+     * @return true 表示签名、过期时间和用途均有效
+     */
+    public static boolean verifyAccessToken(String token) {
+        return verifyTokenType(token, ACCESS_TOKEN_TYPE, false);
+    }
+
+    /**
+     * 校验 refresh token。为平滑升级，短期兼容旧版本的无用途标记 Token；
+     * 旧 Token 本身最长七天过期，之后只接受显式 refresh 标记。
+     *
+     * @param token refresh token
+     * @return true 表示签名、过期时间和用途有效
+     */
+    public static boolean verifyRefreshToken(String token) {
+        return verifyTokenType(token, REFRESH_TOKEN_TYPE, true);
+    }
+
+    private static boolean verifyTokenType(String token, String expectedType, boolean allowLegacyToken) {
+        try {
+            String tokenType = verify(token).getClaim(TOKEN_TYPE_CLAIM).asString();
+            return expectedType.equals(tokenType)
+                    || (allowLegacyToken && (tokenType == null || tokenType.isBlank()));
+        } catch (Exception exception) {
             return false;
         }
     }

@@ -32,6 +32,10 @@ public interface AIMapper {
      */
     List<Conversation> findAllConversations(String userName);
 
+    /** 校验指定会话是否归属于当前用户名。 */
+    int countConversationByIdAndUserName(@Param("conversationId") Integer conversationId,
+                                         @Param("userName") String userName);
+
     /**
      * 插入新对话。
      * 对应 AiMapper.xml 中的 insertConversation，并利用 useGeneratedKeys 回填 ID
@@ -59,7 +63,8 @@ public interface AIMapper {
      * @param conversationId 对话ID
      * @return 消息列表
      */
-    List<ConversationMessage> selectMessagesByConversationId(@Param("conversationId") Integer conversationId);
+    List<ConversationMessage> selectMessagesByConversationIdAndUserName(
+            @Param("conversationId") Integer conversationId, @Param("userName") String userName);
 
     /**
      * 插入一条新消息（用户消息或 AI 消息）。
@@ -70,9 +75,11 @@ public interface AIMapper {
      */
     int insertMessage(ConversationMessageDTO conversationMessage);
 
-    void updateConversationName(@Param("updateConversationNameDTO") UpdateConversationNameDTO updateConversationNameDTO, LocalDateTime now);
+    int updateConversationName(@Param("updateConversationNameDTO") UpdateConversationNameDTO updateConversationNameDTO,
+                               @Param("now") LocalDateTime now, @Param("userName") String userName);
 
-    void deleteConversationById(int id);
+    int deleteConversationByIdAndUserName(@Param("conversationId") int conversationId,
+                                          @Param("userName") String userName);
 
     void deleteMessagesByConversationId(int id);
 }
