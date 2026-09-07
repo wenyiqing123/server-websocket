@@ -11,7 +11,7 @@
  Target Server Version : 80033 (8.0.33)
  File Encoding         : 65001
 
- Date: 06/09/2026 18:57:49
+ Date: 07/09/2026 20:44:58
 */
 
 SET NAMES utf8mb4;
@@ -44,7 +44,7 @@ CREATE TABLE `ai_agent`  (
   INDEX `idx_ai_agent_owner`(`owner_user_id` ASC, `deleted` ASC) USING BTREE,
   INDEX `idx_ai_agent_status`(`status` ASC, `deleted` ASC) USING BTREE,
   CONSTRAINT `fk_ai_agent_owner` FOREIGN KEY (`owner_user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '鐢ㄦ埛鑷?畾涔堿I鏅鸿兘浣' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '鐢ㄦ埛鑷?畾涔堿I鏅鸿兘浣' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for ai_chat_memory
@@ -58,7 +58,7 @@ CREATE TABLE `ai_chat_memory`  (
   `timestamp` datetime NOT NULL,
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_spring_ai_chat_memory_conversation_id`(`conversation_id` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 5486 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 5518 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for ai_chat_session
@@ -96,7 +96,7 @@ CREATE TABLE `ai_service_question`  (
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `uk_ai_service_question_source_hash`(`source_type` ASC, `question_hash` ASC) USING BTREE,
   INDEX `idx_ai_service_question_source_updated`(`source_type` ASC, `updated_at` ASC) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '智能客服问题提示题库' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '智能客服问题提示题库' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for ai_session_document
@@ -235,7 +235,7 @@ CREATE TABLE `sys_config`  (
   `update_time` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `uk_config_key`(`config_key` ASC) USING BTREE COMMENT '保证配置键不重复，加快查询速度'
-) ENGINE = InnoDB AUTO_INCREMENT = 8 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统全局动态配置表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 66 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统全局动态配置表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for sys_document
