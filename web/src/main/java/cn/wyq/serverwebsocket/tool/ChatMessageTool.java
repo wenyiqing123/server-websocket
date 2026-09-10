@@ -2,6 +2,7 @@ package cn.wyq.serverwebsocket.tool;
 
 import cn.wyq.serverwebsocket.service.FriendService;
 import cn.wyq.serverwebsocket.service.IUserServiceTool;
+import cn.wyq.serverwebsocket.service.SysConfigService;
 import cn.wyq.serverwebsocket.socket.WebSocket;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.model.ToolContext;
@@ -21,12 +22,22 @@ public class ChatMessageTool {
 
     private final IUserServiceTool userServiceTool;
     private final FriendService friendService;
+    private final SysConfigService sysConfigService;
 
     @Tool(description = "以当前登录用户本人的身份，给其好友发送一条私聊消息。仅当用户明确要求发送消息时调用；recipientName 必须是准确用户名，content 必须是最终要发送的正文。")
     public String sendPrivateMessage(
             @ToolParam(description = "接收消息的准确用户名") String recipientName,
             @ToolParam(description = "最终发送给对方的消息正文，不要附加解释") String content,
             ToolContext toolContext) {
+        try {
+            String enabled = sysConfigService.getConfigMap()
+                    .getOrDefault("ai_service_message_tool_enabled", "true");
+            if (!("true".equalsIgnoreCase(enabled) || "1".equals(enabled))) {
+                return "发送失败：管理员当前已关闭客服代发消息功能。";
+            }
+        } catch (RuntimeException exception) {
+            return "发送失败：暂时无法确认代发消息功能状态。";
+        }
         Object currentUserValue = toolContext.getContext().get(CURRENT_USER_NAME);
         String currentUserName = currentUserValue == null ? null : currentUserValue.toString();
         String targetName = recipientName == null ? null : recipientName.trim();

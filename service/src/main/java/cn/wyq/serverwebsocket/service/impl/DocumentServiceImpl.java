@@ -185,8 +185,10 @@ public class DocumentServiceImpl extends ServiceImpl<SysDocumentMapper, SysDocum
             }
 
             // 8. 写入向量库，并持久化缓存，避免服务重启后丢失上传文档的向量
-            vectorStore.accept(splitDocuments);
-            persistVectorStore();
+            synchronized (vectorStore) {
+                vectorStore.accept(splitDocuments);
+                persistVectorStore();
+            }
             evictDocumentListAfterCommit(ownerUserId);
 
             return docId;

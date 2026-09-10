@@ -103,7 +103,7 @@ public class ChatController {
         if (!org.springframework.util.StringUtils.hasText(query)) {
             return Result.success(List.of());
         }
-        int boundedLimit = Math.max(1, Math.min(limit, 5));
+        int boundedLimit = Math.max(1, Math.min(limit, 10));
         return Result.success(serviceQuestionSuggestionService.suggest(query, boundedLimit));
     }
 

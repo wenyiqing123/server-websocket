@@ -9,6 +9,7 @@ import cn.wyq.serverwebsocket.pojo.entity.AiAgent;
 import cn.wyq.serverwebsocket.pojo.entity.Chat;
 import cn.wyq.serverwebsocket.pojo.entity.SysDocument;
 import cn.wyq.serverwebsocket.service.AiAgentService;
+import cn.wyq.serverwebsocket.service.AiServiceManagementService;
 import cn.wyq.serverwebsocket.service.ChatService;
 import cn.wyq.serverwebsocket.service.SysConfigService;
 import cn.wyq.serverwebsocket.utils.CacheClient;
@@ -47,7 +48,6 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class ChatServiceImpl implements ChatService {
-    private static final String ENGINEERING_KNOWLEDGE_FILTER = "knowledgeBase == 'engineering'";
     private static final String REMOTE_CHAT_MODEL = "qwen3.8-max-0902";
 
     // 🌟 阿里云百炼平台的 OpenAI 兼容接口地址
@@ -68,6 +68,7 @@ public class ChatServiceImpl implements ChatService {
     @Value("${spring.ai.openai.chat.options.model:qwen3.8-max-0902}")
     private String model;
     private final AiAgentService aiAgentService;
+    private final AiServiceManagementService aiServiceManagementService;
 
     public ChatServiceImpl(
             @Qualifier("girlfriendChatClient") ChatClient girlfriendClient,
@@ -78,7 +79,8 @@ public class ChatServiceImpl implements ChatService {
             VectorStore vectorStore,
             SysConfigService sysConfigService,
             CacheClient cacheClient,
-            AiAgentService aiAgentService) {
+            AiAgentService aiAgentService,
+            AiServiceManagementService aiServiceManagementService) {
         this.girlfriendClient = girlfriendClient;
         this.serviceClient = serviceClient;
         this.chatMemory = chatMemory;
@@ -88,6 +90,7 @@ public class ChatServiceImpl implements ChatService {
         this.sysConfigService = sysConfigService;
         this.cacheClient = cacheClient;
         this.aiAgentService = aiAgentService;
+        this.aiServiceManagementService = aiServiceManagementService;
     }
 
     private String getIsolatedMemoryId(String agentType, String sessionId) {
@@ -182,22 +185,34 @@ public class ChatServiceImpl implements ChatService {
                     log.info("【文档分析】当前会话未挂载文档，不调用向量检索");
                 }
             } else if ("service".equalsIgnoreCase(agentType)) {
+                if (!parseBoolean(firstNonBlank(configMap.get("ai_service_status"), "true"), true)) {
+                    throw new ServiceException("智能客服当前已暂停服务", 503);
+                }
+                String servicePrompt = firstNonBlank(configMap.get("ai_service_system_prompt"),
+                        ModelConstant.SERVICE_SYSTEM_PROMPT);
+                double serviceTemperature = parseDoubleOrDefault(firstNonBlank(
+                        configMap.get("ai_service_temperature"), "0.4"), 0.4D);
+                int serviceMaxTokens = SystemConfigUtils.intValue(
+                        configMap, "ai_service_max_tokens", globalMaxTokens, 64, 8192);
+                String knowledgeFilter = aiServiceManagementService.resolveMountedKnowledgeFilter();
+                promptSpec.system(servicePrompt + "\n\n" + ModelConstant.MODEL_SYSTEM_PROMPT);
                 promptSpec.toolContext(Map.of("currentUserName", userName));
                 SearchRequest searchRequest = SearchRequest.builder()
                         .topK(effectiveRagTopK)
                         .similarityThreshold(ragSimilarityThreshold)
-                        .filterExpression(ENGINEERING_KNOWLEDGE_FILTER)
+                        .filterExpression(knowledgeFilter)
                         .build();
                 promptSpec.options(OpenAiChatOptions.builder()
                         .model(defaultModel)
-                        .maxTokens(globalMaxTokens)
+                        .temperature(serviceTemperature)
+                        .maxTokens(serviceMaxTokens)
                         .build());
                 promptSpec.advisors(new QuestionAnswerAdvisor(
                         vectorStore,
                         searchRequest,
                         ModelConstant.SERVICE_RAG_PROMPT));
                 log.info("【智能客服】挂载工程知识库 RAG 增强，topK={}, similarityThreshold={}, filter={}",
-                        searchRequest.getTopK(), searchRequest.getSimilarityThreshold(), ENGINEERING_KNOWLEDGE_FILTER);
+                        searchRequest.getTopK(), searchRequest.getSimilarityThreshold(), knowledgeFilter);
             } else if ("girlfriend".equalsIgnoreCase(agentType)) {
                 // 女友模式的配置由智能体管理页维护；保留旧键作为迁移期间的回退值。
                 String dynamicPrompt = firstNonBlank(configMap.get("ai_girlfriend_system_prompt"),
@@ -269,6 +284,13 @@ public class ChatServiceImpl implements ChatService {
         } catch (NumberFormatException e) {
             return fallback;
         }
+    }
+
+    private boolean parseBoolean(String value, boolean fallback) {
+        if (!StringUtils.hasText(value)) {
+            return fallback;
+        }
+        return "true".equalsIgnoreCase(value) || "1".equals(value);
     }
 
     private List<String> normalizeDocumentIds(List<String> docIds) {

@@ -11,7 +11,7 @@
  Target Server Version : 80033 (8.0.33)
  File Encoding         : 65001
 
- Date: 07/09/2026 20:44:58
+ Date: 10/09/2026 22:15:38
 */
 
 SET NAMES utf8mb4;
@@ -58,7 +58,7 @@ CREATE TABLE `ai_chat_memory`  (
   `timestamp` datetime NOT NULL,
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_spring_ai_chat_memory_conversation_id`(`conversation_id` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 5518 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 5548 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for ai_chat_session
@@ -73,10 +73,147 @@ CREATE TABLE `ai_chat_session`  (
   `created_at` datetime NULL DEFAULT CURRENT_TIMESTAMP,
   `agent_id` bigint NULL DEFAULT NULL COMMENT '鑷?畾涔夋櫤鑳戒綋缂栧彿',
   `prompt_version` int NULL DEFAULT NULL COMMENT '鍒涘缓浼氳瘽鏃剁殑鎻愮ず璇嶇増鏈',
+  `ticket_status` varchar(20) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL DEFAULT 'OPEN' COMMENT 'OPEN/PROCESSING/CLOSED',
+  `admin_remark` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '客服管理员备注',
+  `closed_at` datetime NULL DEFAULT NULL COMMENT '工单关闭时间',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_ai_chat_session_agent`(`agent_id` ASC) USING BTREE,
   INDEX `idx_ai_chat_session_owner`(`owner_user_id` ASC, `created_at` ASC) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for ai_knowledge_base
+-- ----------------------------
+DROP TABLE IF EXISTS `ai_knowledge_base`;
+CREATE TABLE `ai_knowledge_base`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '知识库编号',
+  `name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '知识库名称',
+  `description` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '知识库说明',
+  `status` tinyint NOT NULL DEFAULT 1 COMMENT '1启用，0停用',
+  `source_type` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'UPLOAD' COMMENT 'LEGACY或UPLOAD',
+  `current_version` int NOT NULL DEFAULT 0 COMMENT '最近发布版本',
+  `document_count` int NOT NULL DEFAULT 0 COMMENT '已发布文档数',
+  `chunk_count` int NOT NULL DEFAULT 0 COMMENT '已发布向量切片数',
+  `created_by` int NULL DEFAULT NULL COMMENT '创建管理员编号',
+  `deleted` tinyint NOT NULL DEFAULT 0 COMMENT '软删除标记',
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uk_ai_knowledge_base_name`(`name` ASC) USING BTREE,
+  INDEX `idx_ai_knowledge_base_status`(`status` ASC, `deleted` ASC) USING BTREE,
+  INDEX `fk_ai_knowledge_base_creator`(`created_by` ASC) USING BTREE,
+  CONSTRAINT `fk_ai_knowledge_base_creator` FOREIGN KEY (`created_by`) REFERENCES `user` (`id`) ON DELETE SET NULL ON UPDATE RESTRICT
+) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '智能客服公共知识库' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for ai_knowledge_chunk_hash
+-- ----------------------------
+DROP TABLE IF EXISTS `ai_knowledge_chunk_hash`;
+CREATE TABLE `ai_knowledge_chunk_hash`  (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `knowledge_base_id` bigint NOT NULL COMMENT '知识库编号',
+  `document_id` bigint NOT NULL COMMENT '文档编号',
+  `document_version` int NOT NULL COMMENT '文档发布版本',
+  `chunk_index` int NOT NULL COMMENT '文档内切片序号',
+  `content_hash` char(64) CHARACTER SET ascii COLLATE ascii_bin NOT NULL COMMENT '规范化切片SHA-256',
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uk_ai_knowledge_chunk_hash`(`knowledge_base_id` ASC, `content_hash` ASC) USING BTREE,
+  INDEX `idx_ai_knowledge_chunk_document`(`document_id` ASC, `document_version` ASC) USING BTREE,
+  CONSTRAINT `fk_ai_knowledge_chunk_base` FOREIGN KEY (`knowledge_base_id`) REFERENCES `ai_knowledge_base` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT,
+  CONSTRAINT `fk_ai_knowledge_chunk_document` FOREIGN KEY (`document_id`) REFERENCES `ai_knowledge_document` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT
+) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '知识库切片去重索引' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for ai_knowledge_document
+-- ----------------------------
+DROP TABLE IF EXISTS `ai_knowledge_document`;
+CREATE TABLE `ai_knowledge_document`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '文档编号',
+  `document_uuid` char(32) CHARACTER SET ascii COLLATE ascii_bin NOT NULL COMMENT '私有随机存储标识',
+  `knowledge_base_id` bigint NOT NULL COMMENT '所属知识库',
+  `file_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '展示文件名',
+  `storage_key` varchar(64) CHARACTER SET ascii COLLATE ascii_bin NOT NULL COMMENT '私有目录中的随机文件名',
+  `file_size` bigint NOT NULL DEFAULT 0 COMMENT '原文件字节数',
+  `content_hash` char(64) CHARACTER SET ascii COLLATE ascii_bin NOT NULL COMMENT '文件SHA-256',
+  `deleted` tinyint NOT NULL DEFAULT 0 COMMENT '软删除标记',
+  `active_content_hash` char(64) CHARACTER SET ascii COLLATE ascii_bin GENERATED ALWAYS AS (if((`deleted` = 0),`content_hash`,NULL)) STORED COMMENT '仅未删除文档参与唯一校验' NULL,
+  `file_type` varchar(10) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL COMMENT 'PDF/TXT/MD',
+  `process_status` varchar(20) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL DEFAULT 'PARSING' COMMENT 'PARSING/VECTORIZING/PUBLISHED/FAILED/DELETED',
+  `current_version` int NOT NULL DEFAULT 0 COMMENT '当前成功发布版本',
+  `chunk_count` int NOT NULL DEFAULT 0 COMMENT '当前版本切片数',
+  `duplicate_count` int NOT NULL DEFAULT 0 COMMENT '索引时排除的重复片段数',
+  `error_message` varchar(2000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '最近处理错误',
+  `created_by` int NULL DEFAULT NULL COMMENT '上传管理员编号',
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uk_ai_knowledge_document_uuid`(`document_uuid` ASC) USING BTREE,
+  UNIQUE INDEX `uk_ai_knowledge_document_storage`(`storage_key` ASC) USING BTREE,
+  UNIQUE INDEX `uk_ai_knowledge_document_hash`(`knowledge_base_id` ASC, `active_content_hash` ASC) USING BTREE,
+  INDEX `idx_ai_knowledge_document_status`(`knowledge_base_id` ASC, `process_status` ASC, `deleted` ASC) USING BTREE,
+  INDEX `fk_ai_knowledge_document_creator`(`created_by` ASC) USING BTREE,
+  CONSTRAINT `fk_ai_knowledge_document_base` FOREIGN KEY (`knowledge_base_id`) REFERENCES `ai_knowledge_base` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT `fk_ai_knowledge_document_creator` FOREIGN KEY (`created_by`) REFERENCES `user` (`id`) ON DELETE SET NULL ON UPDATE RESTRICT
+) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '智能客服知识库文档及索引状态' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for ai_service_feedback
+-- ----------------------------
+DROP TABLE IF EXISTS `ai_service_feedback`;
+CREATE TABLE `ai_service_feedback`  (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `session_id` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '客服工单编号',
+  `message_id` bigint NULL DEFAULT NULL COMMENT 'ai_chat_memory消息编号，实时回答可能为空',
+  `message_key` bigint GENERATED ALWAYS AS (coalesce(`message_id`,0)) STORED COMMENT '用于保证实时回答反馈唯一' NULL,
+  `user_id` int NOT NULL COMMENT '反馈用户',
+  `helpful` tinyint NOT NULL COMMENT '1有用，0无用',
+  `reason` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '无用原因或补充说明',
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uk_ai_service_feedback_message`(`session_id` ASC, `message_key` ASC, `user_id` ASC) USING BTREE,
+  INDEX `idx_ai_service_feedback_quality`(`helpful` ASC, `updated_at` ASC) USING BTREE,
+  INDEX `fk_ai_service_feedback_user`(`user_id` ASC) USING BTREE,
+  CONSTRAINT `fk_ai_service_feedback_session` FOREIGN KEY (`session_id`) REFERENCES `ai_chat_session` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT,
+  CONSTRAINT `fk_ai_service_feedback_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT
+) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '智能客服回答反馈' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for ai_service_knowledge_binding
+-- ----------------------------
+DROP TABLE IF EXISTS `ai_service_knowledge_binding`;
+CREATE TABLE `ai_service_knowledge_binding`  (
+  `knowledge_base_id` bigint NOT NULL COMMENT '知识库编号',
+  `mounted` tinyint NOT NULL DEFAULT 1 COMMENT '是否挂载到官方客服',
+  `priority` int NOT NULL DEFAULT 0 COMMENT '检索优先级',
+  `updated_by` int NULL DEFAULT NULL COMMENT '最近操作管理员',
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`knowledge_base_id`) USING BTREE,
+  INDEX `fk_ai_service_binding_operator`(`updated_by` ASC) USING BTREE,
+  CONSTRAINT `fk_ai_service_binding_base` FOREIGN KEY (`knowledge_base_id`) REFERENCES `ai_knowledge_base` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT,
+  CONSTRAINT `fk_ai_service_binding_operator` FOREIGN KEY (`updated_by`) REFERENCES `user` (`id`) ON DELETE SET NULL ON UPDATE RESTRICT
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '官方客服知识库挂载关系' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for ai_service_operation_log
+-- ----------------------------
+DROP TABLE IF EXISTS `ai_service_operation_log`;
+CREATE TABLE `ai_service_operation_log`  (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `operator_id` int NULL DEFAULT NULL COMMENT '操作管理员',
+  `action` varchar(80) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL COMMENT '动作编码',
+  `target_type` varchar(40) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL COMMENT '对象类型',
+  `target_id` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '对象编号',
+  `change_summary` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '变更摘要，不记录完整系统提示词',
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_ai_service_operation_log_time`(`created_at` ASC) USING BTREE,
+  INDEX `idx_ai_service_operation_log_target`(`target_type` ASC, `target_id` ASC) USING BTREE,
+  INDEX `fk_ai_service_operation_log_user`(`operator_id` ASC) USING BTREE,
+  CONSTRAINT `fk_ai_service_operation_log_user` FOREIGN KEY (`operator_id`) REFERENCES `user` (`id`) ON DELETE SET NULL ON UPDATE RESTRICT
+) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '智能客服后台操作审计' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for ai_service_question
@@ -91,12 +228,33 @@ CREATE TABLE `ai_service_question`  (
   `use_count` int NOT NULL DEFAULT 1 COMMENT '问题累计使用次数',
   `last_user_id` int NULL DEFAULT NULL COMMENT '最近一次提交问题的用户编号',
   `last_used_at` datetime NULL DEFAULT NULL COMMENT '最近一次使用时间',
+  `enabled` tinyint NOT NULL DEFAULT 1 COMMENT '是否参与输入联想',
+  `review_status` varchar(20) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL DEFAULT 'APPROVED' COMMENT 'PENDING/APPROVED/REJECTED',
+  `admin_remark` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '管理员备注',
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '首次创建时间',
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最近更新时间',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `uk_ai_service_question_source_hash`(`source_type` ASC, `question_hash` ASC) USING BTREE,
   INDEX `idx_ai_service_question_source_updated`(`source_type` ASC, `updated_at` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '智能客服问题提示题库' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '智能客服问题提示题库' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for ai_service_question_log
+-- ----------------------------
+DROP TABLE IF EXISTS `ai_service_question_log`;
+CREATE TABLE `ai_service_question_log`  (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `user_id` int NULL DEFAULT NULL COMMENT '提问用户',
+  `question` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '实际发送的问题',
+  `matched_question` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '发送前匹配到的题库问题',
+  `similarity` decimal(6, 5) NULL DEFAULT NULL COMMENT '匹配相似度',
+  `matched` tinyint NOT NULL DEFAULT 0 COMMENT '是否匹配到提示问题',
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_ai_service_question_log_match`(`matched` ASC, `created_at` ASC) USING BTREE,
+  INDEX `fk_ai_service_question_log_user`(`user_id` ASC) USING BTREE,
+  CONSTRAINT `fk_ai_service_question_log_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE SET NULL ON UPDATE RESTRICT
+) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '客服实际问题匹配日志' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for ai_session_document
@@ -235,7 +393,7 @@ CREATE TABLE `sys_config`  (
   `update_time` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `uk_config_key`(`config_key` ASC) USING BTREE COMMENT '保证配置键不重复，加快查询速度'
-) ENGINE = InnoDB AUTO_INCREMENT = 66 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统全局动态配置表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 77 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统全局动态配置表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for sys_document

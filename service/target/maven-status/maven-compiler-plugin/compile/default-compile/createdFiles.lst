@@ -20,12 +20,14 @@ cn\wyq\serverwebsocket\service\impl\SysConfigServiceImpl.class
 cn\wyq\serverwebsocket\service\GroupService.class
 cn\wyq\serverwebsocket\service\UserService.class
 cn\wyq\serverwebsocket\service\RealTimeRecommendService.class
+cn\wyq\serverwebsocket\service\AiServiceManagementService.class
 cn\wyq\serverwebsocket\service\impl\AIServiceImpl$1.class
 cn\wyq\serverwebsocket\service\impl\FinanceServiceImpl$2.class
 cn\wyq\serverwebsocket\mapper\IMessageMapperTool.class
 cn\wyq\serverwebsocket\mapper\MessageStructMapperImpl.class
 cn\wyq\serverwebsocket\service\impl\FriendServiceImpl$1.class
 cn\wyq\serverwebsocket\service\impl\GroupServiceImpl$1.class
+cn\wyq\serverwebsocket\service\AiServiceManagementService$DownloadableKnowledgeDocument.class
 cn\wyq\serverwebsocket\service\impl\IUserServiceToolImpl.class
 cn\wyq\serverwebsocket\service\impl\DocumentServiceImpl$2.class
 cn\wyq\serverwebsocket\service\impl\MessageStatsImpl$2.class
@@ -92,6 +94,7 @@ cn\wyq\serverwebsocket\service\impl\DocumentServiceImpl.class
 cn\wyq\serverwebsocket\mapper\MessageMapper.class
 cn\wyq\serverwebsocket\service\RechargeService.class
 cn\wyq\serverwebsocket\component\RedPacketAsyncComponent.class
+cn\wyq\serverwebsocket\service\impl\AiServiceManagementServiceImpl.class
 cn\wyq\serverwebsocket\mapper\SysConfigMapper.class
 cn\wyq\serverwebsocket\service\impl\ServiceQuestionSuggestionServiceImpl.class
 cn\wyq\serverwebsocket\service\impl\UserServiceImpl$3.class
