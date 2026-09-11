@@ -7,21 +7,6 @@
     <list default="true" id="68dfcc89-984c-4e29-8ce5-b393bae2b8b7" name="Changes" comment="2026-9-10">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logs/mylog.log" beforeDir="false" afterPath="$PROJECT_DIR$/logs/mylog.log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/src/main/java/cn/wyq/serverwebsocket/service/impl/ChatServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/service/src/main/java/cn/wyq/serverwebsocket/service/impl/ChatServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/src/main/java/cn/wyq/serverwebsocket/service/impl/DocumentServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/service/src/main/java/cn/wyq/serverwebsocket/service/impl/DocumentServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/service/impl/AIServiceImpl$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/service/impl/AIServiceImpl$1.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/service/impl/AIServiceImpl$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/service/impl/AIServiceImpl$2.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/service/impl/AIServiceImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/service/impl/AIServiceImpl.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/service/impl/ChatServiceImpl$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/service/impl/ChatServiceImpl$1.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/service/impl/ChatServiceImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/service/impl/ChatServiceImpl.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/service/impl/DocumentServiceImpl$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/service/impl/DocumentServiceImpl$1.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/service/impl/DocumentServiceImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/service/impl/DocumentServiceImpl.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/target/generated-sources/annotations/cn/wyq/serverwebsocket/mapper/MessageStructMapperImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/service/target/generated-sources/annotations/cn/wyq/serverwebsocket/mapper/MessageStructMapperImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/service/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sql/chat.sql" beforeDir="false" afterPath="$PROJECT_DIR$/sql/chat.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/main/java/cn/wyq/serverwebsocket/controller/ChatController.java" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/main/java/cn/wyq/serverwebsocket/controller/ChatController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/main/java/cn/wyq/serverwebsocket/tool/ChatMessageTool.java" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/main/java/cn/wyq/serverwebsocket/tool/ChatMessageTool.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/main/resources/static/dataset/mecha_vector_cache.json" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/main/resources/static/dataset/mecha_vector_cache.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -583,15 +568,8 @@
       <workItem from="1788689817941" duration="6134000" />
       <workItem from="1788746558190" duration="3536000" />
       <workItem from="1788784837284" duration="345000" />
-      <workItem from="1789043599039" duration="5546000" />
-    </task>
-    <task id="LOCAL-00020" summary="2026-3-16">
-      <option name="closed" value="true" />
-      <created>1773641001648</created>
-      <option name="number" value="00020" />
-      <option name="presentableId" value="LOCAL-00020" />
-      <option name="project" value="LOCAL" />
-      <updated>1773641001648</updated>
+      <workItem from="1789043599039" duration="5666000" />
+      <workItem from="1789099429442" duration="40000" />
     </task>
     <task id="LOCAL-00021" summary="2026-3-16-17：57">
       <option name="closed" value="true" />
@@ -977,7 +955,15 @@
       <option name="project" value="LOCAL" />
       <updated>1789044476671</updated>
     </task>
-    <option name="localTasksCounter" value="69" />
+    <task id="LOCAL-00069" summary="2026-9-10">
+      <option name="closed" value="true" />
+      <created>1789053530874</created>
+      <option name="number" value="00069" />
+      <option name="presentableId" value="LOCAL-00069" />
+      <option name="project" value="LOCAL" />
+      <updated>1789053530874</updated>
+    </task>
+    <option name="localTasksCounter" value="70" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
