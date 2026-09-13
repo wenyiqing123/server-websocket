@@ -4682,3 +4682,96 @@ Caused by: com.rabbitmq.client.ShutdownSignalException: connection error; protoc
 15:52:58.711 [org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#1-4] INFO  org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer.lambda$shutdownAndWaitOrCallback$2(SimpleMessageListenerContainer.java:690) - Successfully waited for workers to finish.
 15:52:58.900 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource.close(HikariDataSource.java:349) - HikariPool-1 - Shutdown initiated...
 15:52:58.907 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource.close(HikariDataSource.java:351) - HikariPool-1 - Shutdown completed.
+21:37:43.377 [background-preinit] INFO  org.hibernate.validator.internal.util.Version.<clinit>(Version.java:21) - HV000001: Hibernate Validator 8.0.1.Final
+21:37:43.431 [restartedMain] INFO  org.springframework.boot.StartupInfoLogger.logStarting(StartupInfoLogger.java:50) - Starting ServerWebsocketApplication using Java 17.0.8 with PID 33784 (D:\javawork\websocket\server-websocket\web\target\classes started by 24023 in D:\javawork\websocket\server-websocket)
+21:37:43.437 [restartedMain] INFO  org.springframework.boot.SpringApplication.logStartupProfileInfo(SpringApplication.java:654) - No active profile set, falling back to 1 default profile: "default"
+21:37:43.690 [restartedMain] INFO  org.springframework.boot.logging.DeferredLog.logTo(DeferredLog.java:252) - Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+21:37:43.690 [restartedMain] INFO  org.springframework.boot.logging.DeferredLog.logTo(DeferredLog.java:252) - For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+21:37:45.386 [restartedMain] INFO  org.springframework.data.repository.config.RepositoryConfigurationDelegate.multipleStoresDetected(RepositoryConfigurationDelegate.java:295) - Multiple Spring Data modules found, entering strict repository configuration mode
+21:37:45.390 [restartedMain] INFO  org.springframework.data.repository.config.RepositoryConfigurationDelegate.registerRepositoriesIn(RepositoryConfigurationDelegate.java:143) - Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+21:37:45.434 [restartedMain] INFO  org.springframework.data.repository.config.RepositoryConfigurationDelegate.registerRepositoriesIn(RepositoryConfigurationDelegate.java:211) - Finished Spring Data repository scanning in 28 ms. Found 0 Redis repository interfaces.
+21:37:46.337 [restartedMain] WARN  org.springframework.context.support.PostProcessorRegistrationDelegate$BeanPostProcessorChecker.postProcessAfterInitialization(PostProcessorRegistrationDelegate.java:437) - Bean 'redisConfig' of type [cn.wyq.serverwebsocket.config.RedisConfig$$SpringCGLIB$$0] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [meterRegistryPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.
+21:37:46.850 [restartedMain] INFO  org.springframework.boot.web.embedded.tomcat.TomcatWebServer.initialize(TomcatWebServer.java:111) - Tomcat initialized with port 8000 (http)
+21:37:46.855 [restartedMain] INFO  org.apache.juli.logging.DirectJDKLog.log(DirectJDKLog.java:173) - An older version [1.3.5] of the Apache Tomcat Native library is installed, while Tomcat recommends a minimum version of [2.0.5]
+21:37:46.855 [restartedMain] INFO  org.apache.juli.logging.DirectJDKLog.log(DirectJDKLog.java:173) - Loaded Apache Tomcat Native library [1.3.5] using APR version [1.7.6].
+21:37:46.859 [restartedMain] INFO  org.apache.juli.logging.DirectJDKLog.log(DirectJDKLog.java:173) - OpenSSL successfully initialized [OpenSSL 3.0.18 30 Sep 2025]
+21:37:46.869 [restartedMain] INFO  org.apache.juli.logging.DirectJDKLog.log(DirectJDKLog.java:173) - Initializing ProtocolHandler ["http-nio-8000"]
+21:37:46.875 [restartedMain] INFO  org.apache.juli.logging.DirectJDKLog.log(DirectJDKLog.java:173) - Starting service [Tomcat]
+21:37:46.875 [restartedMain] INFO  org.apache.juli.logging.DirectJDKLog.log(DirectJDKLog.java:173) - Starting Servlet engine: [Apache Tomcat/10.1.30]
+21:37:46.963 [restartedMain] INFO  org.apache.juli.logging.DirectJDKLog.log(DirectJDKLog.java:173) - Initializing Spring embedded WebApplicationContext
+21:37:46.963 [restartedMain] INFO  org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.prepareWebApplicationContext(ServletWebServerApplicationContext.java:296) - Root WebApplicationContext: initialization completed in 3272 ms
+21:37:47.732 [restartedMain] WARN  com.baomidou.mybatisplus.core.metadata.TableInfoHelper.initTableIdWithoutAnnotation(TableInfoHelper.java:544) - This primary key of "id" is primitive !不建议如此请使用包装类 in Class: "cn.wyq.serverwebsocket.pojo.User"
+21:37:47.739 [restartedMain] WARN  com.baomidou.mybatisplus.core.injector.AbstractMethod.addMappedStatement(AbstractMethod.java:407) - [cn.wyq.serverwebsocket.mapper.UserMapper.deleteById] Has been loaded by XML or SqlProvider or Mybatis's Annotation, so ignoring this injection for [class com.baomidou.mybatisplus.core.injector.methods.DeleteById]
+21:37:48.154 [restartedMain] INFO  org.redisson.Version.logVersion(Version.java:41) - Redisson 3.23.0
+21:37:48.555 [redisson-netty-2-5] INFO  org.redisson.connection.pool.ConnectionPool.lambda$createConnection$0(ConnectionPool.java:140) - 1 connections initialized for localhost/127.0.0.1:6379
+21:37:48.611 [redisson-netty-2-20] INFO  org.redisson.connection.pool.ConnectionPool.lambda$createConnection$0(ConnectionPool.java:140) - 24 connections initialized for localhost/127.0.0.1:6379
+21:37:49.171 [restartedMain] WARN  com.zaxxer.hikari.HikariConfig.validateNumerics(HikariConfig.java:1095) - HikariPool-1 - idleTimeout has been set but has no effect because the pool is operating as a fixed size pool.
+21:37:49.171 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource.getConnection(HikariDataSource.java:109) - HikariPool-1 - Starting...
+21:37:49.758 [restartedMain] INFO  com.zaxxer.hikari.pool.HikariPool.checkFailFast(HikariPool.java:554) - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@350aeeb2
+21:37:49.759 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource.getConnection(HikariDataSource.java:122) - HikariPool-1 - Start completed.
+21:37:49.768 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: SELECT id,config_key,config_value,config_name,remark,create_time,update_time FROM sys_config
+21:37:49.789 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: 
+21:37:49.835 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 74
+21:37:50.879 [restartedMain] INFO  cn.wyq.serverwebsocket.config.KnowledgeDataLoader.init(KnowledgeDataLoader.java:38) - 🔍 准备操作缓存文件，它的真实物理路径是: D:\javawork\websocket\server-websocket\web\src\main\resources\static\dataset\mecha_vector_cache.json
+21:37:50.880 [restartedMain] INFO  cn.wyq.serverwebsocket.config.KnowledgeDataLoader.init(KnowledgeDataLoader.java:48) - ⚡ 发现本地机甲知识库缓存文件，正在从 web/src/main/resources/static/dataset/mecha_vector_cache.json 光速加载...
+21:37:51.542 [restartedMain] INFO  cn.wyq.serverwebsocket.config.KnowledgeDataLoader.init(KnowledgeDataLoader.java:50) - ✅ 缓存加载完毕！
+21:37:51.929 [restartedMain] INFO  cn.wyq.serverwebsocket.config.CommonConfiguration.customChatMemory(CommonConfiguration.java:33) - 【系统加载】启动 Spring AI M8 官方正式版 JDBC 记忆引擎 (自定义窗口版)！
+21:37:51.933 [restartedMain] INFO  cn.wyq.serverwebsocket.config.CommonConfiguration.girlfriendChatClient(CommonConfiguration.java:52) - 【系统加载】启动仿真女友（Qwen 3.8 Max 驱动版）装载完毕！
+21:37:51.940 [restartedMain] INFO  cn.wyq.serverwebsocket.config.CommonConfiguration.serviceChatClient(CommonConfiguration.java:68) - 【系统加载】启动官方客服（Qwen 3.8 Max 驱动版），装载受限代发消息工具！
+21:37:53.051 [restartedMain] INFO  cn.wyq.serverwebsocket.config.WebConfig.extendMessageConverters(WebConfig.java:124) - 扩展消息转换器：应用 JacksonObjectMapper 统一日期格式
+21:37:54.345 [restartedMain] WARN  org.springframework.boot.devtools.autoconfigure.OptionalLiveReloadServer.startServer(OptionalLiveReloadServer.java:62) - Unable to start LiveReload server
+21:37:54.355 [restartedMain] INFO  org.springframework.boot.actuate.endpoint.web.EndpointLinksResolver.<init>(EndpointLinksResolver.java:60) - Exposing 1 endpoint beneath base path '/actuator'
+21:37:54.519 [restartedMain] INFO  org.apache.juli.logging.DirectJDKLog.log(DirectJDKLog.java:173) - Starting ProtocolHandler ["http-nio-8000"]
+21:37:54.531 [restartedMain] INFO  org.springframework.boot.web.embedded.tomcat.TomcatWebServer.start(TomcatWebServer.java:243) - Tomcat started on port 8000 (http) with context path '/'
+21:37:54.535 [restartedMain] INFO  org.springframework.amqp.rabbit.connection.AbstractConnectionFactory.connectAddresses(AbstractConnectionFactory.java:666) - Attempting to connect to: [localhost:5672]
+21:37:54.602 [restartedMain] INFO  org.springframework.amqp.rabbit.connection.AbstractConnectionFactory.createBareConnection(AbstractConnectionFactory.java:608) - Created new connection: rabbitConnectionFactory#7f1e6379:0/SimpleConnection@60dfbac5 [delegate=amqp://websocket@127.0.0.1:5672//websocket, localPort=58340]
+21:37:54.687 [restartedMain] INFO  org.springframework.boot.StartupInfoLogger.logStarted(StartupInfoLogger.java:56) - Started ServerWebsocketApplication in 11.839 seconds (process running for 13.637)
+21:37:54.693 [restartedMain] INFO  cn.wyq.serverwebsocket.config.CacheInitRunner.initCache(CacheInitRunner.java:53) - 项目启动成功，开始执行全局缓存预热
+21:37:54.693 [restartedMain] INFO  cn.wyq.serverwebsocket.config.CacheInitRunner.initCache(CacheInitRunner.java:59) - 1. 开始缓存管理页面用户信息和消息记录信息...
+21:37:54.752 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: SELECT count(0) FROM message
+21:37:54.753 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: 
+21:37:54.762 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 1
+21:37:54.763 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: select id, message, from_name, to_name, send_at from message LIMIT ?
+21:37:54.764 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: 9(Integer)
+21:37:54.766 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 9
+21:37:54.785 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: SELECT count(0) FROM user WHERE status = '1'
+21:37:54.786 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: 
+21:37:54.789 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 1
+21:37:54.789 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: SELECT id, user_name, email, path, role, status FROM user WHERE status='1' ORDER BY id DESC LIMIT ?
+21:37:54.789 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: 9(Integer)
+21:37:54.790 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 5
+21:37:54.794 [restartedMain] INFO  cn.wyq.serverwebsocket.config.CacheInitRunner.initCache(CacheInitRunner.java:64) - 基础业务数据缓存成功
+21:37:54.794 [restartedMain] INFO  cn.wyq.serverwebsocket.config.CacheInitRunner.initCache(CacheInitRunner.java:73) - 2. 开始缓存 AI 对话页面矩阵消息信息...
+21:37:54.794 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: select * from message_intention ORDER BY create_time ASC;
+21:37:54.795 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: 
+21:37:54.799 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 23
+21:37:54.809 [restartedMain] INFO  cn.wyq.serverwebsocket.service.RealTimeRecommendService.rebuildCacheIfEmpty(RealTimeRecommendService.java:118) - ✅ 内容推荐题库预热完毕！成功加载 23 条历史数据。
+21:37:54.809 [restartedMain] INFO  cn.wyq.serverwebsocket.config.CacheInitRunner.initCache(CacheInitRunner.java:75) - 矩阵消息信息缓存成功
+21:37:54.809 [restartedMain] INFO  cn.wyq.serverwebsocket.config.CacheInitRunner.initCache(CacheInitRunner.java:84) - 3. 开始预热智能客服问题提示题库...
+21:37:54.810 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: SELECT id, question_hash, question, normalized_question, source_type, use_count, last_user_id, last_used_at, created_at, updated_at, enabled, review_status, admin_remark FROM ai_service_question WHERE source_type = 'service' AND enabled = 1 AND review_status = 'APPROVED' ORDER BY use_count DESC, updated_at DESC, id DESC LIMIT ?
+21:37:54.810 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: 20000(Integer)
+21:37:54.815 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 3
+21:37:54.816 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: SELECT content FROM ai_chat_memory WHERE type = 'USER' AND conversation_id LIKE 'service:%' AND content IS NOT NULL AND CHAR_LENGTH(TRIM(content)) > 0 ORDER BY timestamp DESC, id DESC LIMIT ?
+21:37:54.817 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: 19997(Integer)
+21:37:54.820 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 34
+21:37:54.823 [restartedMain] INFO  cn.wyq.serverwebsocket.service.impl.ServiceQuestionSuggestionServiceImpl.warmUp(ServiceQuestionSuggestionServiceImpl.java:118) - 智能客服问题题库预热完成，加载 17 条记录
+21:37:54.823 [restartedMain] INFO  cn.wyq.serverwebsocket.config.CacheInitRunner.initCache(CacheInitRunner.java:86) - 智能客服问题提示题库预热成功
+21:37:54.823 [restartedMain] INFO  cn.wyq.serverwebsocket.config.CacheInitRunner.initCache(CacheInitRunner.java:96) - 4. 开始初始化并预热【布隆过滤器】...
+21:37:54.842 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==>  Preparing: select id from user;
+21:37:54.843 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - ==> Parameters: 
+21:37:54.844 [restartedMain] DEBUG org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug(BaseJdbcLogger.java:135) - <==      Total: 5
+21:37:54.901 [restartedMain] INFO  cn.wyq.serverwebsocket.config.CacheInitRunner.initCache(CacheInitRunner.java:110) - 布隆过滤器预热完成，共加载了 5 个安全用户 ID
+21:37:54.901 [restartedMain] INFO  cn.wyq.serverwebsocket.config.CacheInitRunner.initCache(CacheInitRunner.java:118) - 全局缓存预热流程执行结束
+21:37:54.902 [restartedMain] INFO  cn.wyq.serverwebsocket.ServerWebsocketApplication.main(ServerWebsocketApplication.java:30) - 当前时间：2026-09-13 21:37:54
+21:37:54.902 [restartedMain] INFO  cn.wyq.serverwebsocket.ServerWebsocketApplication.main(ServerWebsocketApplication.java:31) - server started
+21:37:55.021 [RMI TCP Connection(1)-198.18.0.1] INFO  org.apache.juli.logging.DirectJDKLog.log(DirectJDKLog.java:173) - Initializing Spring DispatcherServlet 'dispatcherServlet'
+21:37:55.022 [RMI TCP Connection(1)-198.18.0.1] INFO  org.springframework.web.servlet.FrameworkServlet.initServletBean(FrameworkServlet.java:532) - Initializing Servlet 'dispatcherServlet'
+21:37:55.024 [RMI TCP Connection(1)-198.18.0.1] INFO  org.springframework.web.servlet.FrameworkServlet.initServletBean(FrameworkServlet.java:554) - Completed initialization in 2 ms
+21:37:59.487 [org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#0-4] INFO  org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer.lambda$shutdownAndWaitOrCallback$2(SimpleMessageListenerContainer.java:686) - Waiting for workers to finish.
+21:37:59.488 [org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#1-4] INFO  org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer.lambda$shutdownAndWaitOrCallback$2(SimpleMessageListenerContainer.java:686) - Waiting for workers to finish.
+21:37:59.488 [org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#2-4] INFO  org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer.lambda$shutdownAndWaitOrCallback$2(SimpleMessageListenerContainer.java:686) - Waiting for workers to finish.
+21:37:59.709 [org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#0-4] INFO  org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer.lambda$shutdownAndWaitOrCallback$2(SimpleMessageListenerContainer.java:690) - Successfully waited for workers to finish.
+21:37:59.724 [org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#1-4] INFO  org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer.lambda$shutdownAndWaitOrCallback$2(SimpleMessageListenerContainer.java:690) - Successfully waited for workers to finish.
+21:37:59.724 [org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#2-4] INFO  org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer.lambda$shutdownAndWaitOrCallback$2(SimpleMessageListenerContainer.java:690) - Successfully waited for workers to finish.
+21:37:59.866 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource.close(HikariDataSource.java:349) - HikariPool-1 - Shutdown initiated...
+21:37:59.872 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource.close(HikariDataSource.java:351) - HikariPool-1 - Shutdown completed.

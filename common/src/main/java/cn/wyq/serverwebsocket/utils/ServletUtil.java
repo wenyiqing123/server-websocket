@@ -1,7 +1,7 @@
 package cn.wyq.serverwebsocket.utils;
 
 
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONObject;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;

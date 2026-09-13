@@ -6,7 +6,16 @@
   <component name="ChangeListManager">
     <list default="true" id="68dfcc89-984c-4e29-8ce5-b393bae2b8b7" name="Changes" comment="2026-9-13">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/common/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/java/cn/wyq/serverwebsocket/utils/ServletUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/cn/wyq/serverwebsocket/utils/ServletUtil.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/target/classes/cn/wyq/serverwebsocket/utils/ServletUtil.class" beforeDir="false" afterPath="$PROJECT_DIR$/common/target/classes/cn/wyq/serverwebsocket/utils/ServletUtil.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logs/mylog.log" beforeDir="false" afterPath="$PROJECT_DIR$/logs/mylog.log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/service/src/main/java/cn/wyq/serverwebsocket/service/impl/ChatServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/service/src/main/java/cn/wyq/serverwebsocket/service/impl/ChatServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/service/src/main/java/cn/wyq/serverwebsocket/util/MessageUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/service/src/main/java/cn/wyq/serverwebsocket/util/MessageUtils.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/service/impl/ChatServiceImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/service/impl/ChatServiceImpl.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/util/MessageUtils.class" beforeDir="false" afterPath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/util/MessageUtils.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/service/target/generated-sources/annotations/cn/wyq/serverwebsocket/mapper/MessageStructMapperImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/service/target/generated-sources/annotations/cn/wyq/serverwebsocket/mapper/MessageStructMapperImpl.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -571,15 +580,7 @@
       <workItem from="1789043599039" duration="5666000" />
       <workItem from="1789099429442" duration="1596000" />
       <workItem from="1789197496564" duration="1396000" />
-      <workItem from="1789280130843" duration="8829000" />
-    </task>
-    <task id="LOCAL-00024" summary="2026-3-19&#10;缓存空值，需修改为手动操作缓存，添加缓存空值和布隆过滤器">
-      <option name="closed" value="true" />
-      <created>1773890357253</created>
-      <option name="number" value="00024" />
-      <option name="presentableId" value="LOCAL-00024" />
-      <option name="project" value="LOCAL" />
-      <updated>1773890357253</updated>
+      <workItem from="1789280130843" duration="12552000" />
     </task>
     <task id="LOCAL-00025" summary="2026-3-19&#10;修改为缓存空值">
       <option name="closed" value="true" />
@@ -965,7 +966,15 @@
       <option name="project" value="LOCAL" />
       <updated>1789282905510</updated>
     </task>
-    <option name="localTasksCounter" value="73" />
+    <task id="LOCAL-00073" summary="2026-9-13">
+      <option name="closed" value="true" />
+      <created>1789299980110</created>
+      <option name="number" value="00073" />
+      <option name="presentableId" value="LOCAL-00073" />
+      <option name="project" value="LOCAL" />
+      <updated>1789299980110</updated>
+    </task>
+    <option name="localTasksCounter" value="74" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
