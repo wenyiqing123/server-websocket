@@ -1,9 +1,10 @@
 package cn.wyq.serverwebsocket.utils;
 
 import cn.wyq.serverwebsocket.exception.ServiceException;
+import cn.wyq.serverwebsocket.messaging.MailMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Lazy;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -25,10 +26,8 @@ public class MailUtil {
     @Autowired
     private StringRedisTemplate redisTemplate;
 
-    // 🌟 破局关键：自己注入自己（配合 @Lazy 延迟加载防止循环依赖），用于调用自身的 @Async 方法
     @Autowired
-    @Lazy
-    private MailUtil self;
+    private ApplicationEventPublisher eventPublisher;
 
     @Value("${spring.mail.username}")
     private String fromEmail;
@@ -55,8 +54,14 @@ public class MailUtil {
         redisTemplate.opsForValue().set(CODE_PREFIX + toEmail, code, 5, TimeUnit.MINUTES);
         redisTemplate.opsForValue().set(cooldownKey, "locked", 60, TimeUnit.SECONDS);
 
-        // 4. 真正耗时的发邮件动作，通过代理对象交给子线程异步去干！极速响应前端。
-        self.executeSendMailAsync(toEmail, code);
+        // 4. 邮件进入登录模块事件，由 Web 模块投递到 RabbitMQ 后异步发送。
+        eventPublisher.publishEvent(MailMessage.builder()
+                .eventId(java.util.UUID.randomUUID().toString())
+                .toEmail(toEmail)
+                .subject("【你的聊天系统】账户验证码")
+                .content("尊敬的用户您好，您的验证码是：" + code + "，有效期为 5 分钟。请勿将此验证码泄露给他人。")
+                .templateType("VERIFICATION_CODE")
+                .build());
     }
 
     /**
@@ -64,12 +69,24 @@ public class MailUtil {
      */
     @Async
     public void executeSendMailAsync(String toEmail, String code) {
+        sendMailAsync(toEmail, "【你的聊天系统】账户验证码",
+                "尊敬的用户您好，您的验证码是：" + code + "，有效期为 5 分钟。请勿将此验证码泄露给他人。");
+    }
+
+    /** RabbitMQ 不可用时的异步兜底发信。 */
+    @Async
+    public void sendMailAsync(String toEmail, String subject, String content) {
+        sendMailNow(toEmail, subject, content);
+    }
+
+    /** RabbitMQ 消费者调用的同步发信方法。 */
+    public void sendMailNow(String toEmail, String subject, String content) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom(fromEmail);
             message.setTo(toEmail);
-            message.setSubject("【你的聊天系统】账户验证码");
-            message.setText("尊敬的用户您好，您的验证码是：" + code + "，有效期为 5 分钟。请勿将此验证码泄露给他人。");
+            message.setSubject(subject);
+            message.setText(content);
 
             mailSender.send(message);
         } catch (Exception e) {

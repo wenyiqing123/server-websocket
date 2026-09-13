@@ -12,6 +12,7 @@ cn\wyq\serverwebsocket\pojo\vo\FriendPathVO.class
 cn\wyq\serverwebsocket\pojo\vo\UserWalletVO.class
 cn\wyq\serverwebsocket\pojo\dto\RechargeDTO.class
 cn\wyq\serverwebsocket\pojo\dto\UserRoleLoginDTO$UserRoleLoginDTOBuilder.class
+cn\wyq\serverwebsocket\pojo\entity\LoginAuditLog$LoginAuditLogBuilder.class
 cn\wyq\serverwebsocket\pojo\entity\MessageIntention$MessageIntentionBuilder.class
 cn\wyq\serverwebsocket\pojo\dto\EmailLoginDto.class
 cn\wyq\serverwebsocket\pojo\entity\Message.class
@@ -72,6 +73,7 @@ cn\wyq\serverwebsocket\pojo\vo\AiServiceQuestionSuggestionVO$AiServiceQuestionSu
 cn\wyq\serverwebsocket\pojo\dto\UserEmailApplyDTO$UserEmailApplyDTOBuilder.class
 cn\wyq\serverwebsocket\pojo\dto\UserQueryDTO.class
 cn\wyq\serverwebsocket\pojo\entity\ConversationMessage.class
+cn\wyq\serverwebsocket\pojo\vo\LoginAuditStatsVO.class
 cn\wyq\serverwebsocket\pojo\entity\UserEntity.class
 cn\wyq\serverwebsocket\pojo\dto\SendRedPacketDTO.class
 cn\wyq\serverwebsocket\pojo\vo\RedPacketDetailVO$RecordItem.class
@@ -92,7 +94,9 @@ cn\wyq\serverwebsocket\pojo\entity\Conversation$ConversationBuilder.class
 cn\wyq\serverwebsocket\enumeration\UserRoleEnum.class
 cn\wyq\serverwebsocket\pojo\vo\RedPacketDetailVO.class
 cn\wyq\serverwebsocket\pojo\vo\AiServiceQuestionSuggestionVO.class
+cn\wyq\serverwebsocket\pojo\vo\LoginAuditQueryDTO.class
 cn\wyq\serverwebsocket\pojo\socket\MessageInfo.class
+cn\wyq\serverwebsocket\pojo\entity\LoginAuditLog.class
 cn\wyq\serverwebsocket\pojo\vo\AccountLogVO.class
 cn\wyq\serverwebsocket\pojo\dto\UserExportDTO.class
 cn\wyq\serverwebsocket\pojo\socket\MessageFull.class

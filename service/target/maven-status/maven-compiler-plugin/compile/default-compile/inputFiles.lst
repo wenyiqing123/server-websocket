@@ -1,5 +1,6 @@
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\service\UserWalletService.java
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\mapper\RedPacketMapper.java
+D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\service\AiServiceManagementService.java
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\mapper\AccountLogMapper.java
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\service\impl\UserWalletServiceImpl.java
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\service\RechargeOrderService.java
@@ -11,6 +12,7 @@ D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsoc
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\service\SysConfigService.java
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\mapper\AccountMapper.java
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\service\impl\FriendServiceImpl.java
+D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\service\impl\AiServiceManagementServiceImpl.java
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\mapper\IUserMapperTool.java
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\annotation\CurrentUser.java
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\mapper\FinanceMapper.java
@@ -34,6 +36,7 @@ D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsoc
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\util\MessageUtils.java
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\mapper\RedPacketRecordMapper.java
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\service\AiAgentService.java
+D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\service\LoginAuditService.java
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\mapper\UserMapper.java
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\service\TransactionLogService.java
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\service\DocumentSessionService.java
@@ -51,7 +54,9 @@ D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsoc
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\annotation\AutoFill.java
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\service\impl\ChatServiceImpl.java
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\service\impl\IUserServiceToolImpl.java
+D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\service\impl\LoginAuditServiceImpl.java
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\service\MessageStatsService.java
+D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\mapper\LoginAuditLogMapper.java
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\service\TransferService.java
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\service\impl\SysConfigServiceImpl.java
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\mapper\AIMapper.java

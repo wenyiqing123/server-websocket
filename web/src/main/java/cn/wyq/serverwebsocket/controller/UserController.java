@@ -7,6 +7,7 @@ import cn.wyq.serverwebsocket.common.PageResult;
 import cn.wyq.serverwebsocket.common.Result;
 import cn.wyq.serverwebsocket.exception.ServiceException;
 import cn.wyq.serverwebsocket.mapper.UserMapper;
+import cn.wyq.serverwebsocket.messaging.LoginEventPublisher;
 import cn.wyq.serverwebsocket.pojo.User;
 import cn.wyq.serverwebsocket.pojo.dto.*;
 import cn.wyq.serverwebsocket.pojo.entity.UserEmailApplyEntity;
@@ -26,6 +27,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.extensions.Extension;
 import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -63,6 +65,7 @@ public class UserController {
     private final MailUtil mailUtil;
     private final UserMapper userMapper;
     private final CacheClient cacheClient;
+    private final LoginEventPublisher loginEventPublisher;
 
     @GetMapping("/hello")
     @LoginNotRequired
@@ -102,27 +105,56 @@ public class UserController {
     @Operation(summary = "用户登录", description = "用户登录接口", extensions = {
             @Extension(properties = {@ExtensionProperty(name = "x-order", value = "1")})
     })
-    public Result login(@RequestBody User user, @RequestParam Integer applyRole) {
+    public Result login(@RequestBody User user, @RequestParam Integer applyRole, HttpServletRequest request) {
         log.info("请求用户登录，用户名: {}", user == null ? null : user.getUserName());
-        Result login = userService.login(user, applyRole);
-        if (login.get("code").equals(200)) {
-            List<String> friendNames = friendService.getMyFriendsNameByUsername(user.getUserName());
-
-            if (friendNames != null && !friendNames.isEmpty()) {
-                for (String friendName : friendNames) {
-                    WebSocket.sendSystemBroadcast(friendName, "你的好友 [" + user.getUserName() + "] 刚刚上线了！");
+        String username = user == null ? null : user.getUserName();
+        try {
+            Result login = userService.login(user, applyRole);
+            User loginUser = username == null ? null : userMapper.findByUsername(username);
+            if (isSuccess(login) && loginUser != null) {
+                loginEventPublisher.publishLoginSuccess(loginUser.getId(), loginUser.getUserName(),
+                        userMapper.findEmailByUsername(loginUser.getUserName()), "PASSWORD_LOGIN_SUCCESS",
+                        clientIp(request), request.getHeader("User-Agent"));
+                List<String> friendNames = friendService.getMyFriendsNameByUsername(username);
+                if (friendNames != null && !friendNames.isEmpty()) {
+                    for (String friendName : friendNames) {
+                        WebSocket.sendSystemBroadcast(friendName, "你的好友 [" + username + "] 刚刚上线了！");
+                    }
                 }
+            } else {
+                loginEventPublisher.publishLoginFailure(loginUser == null ? null : loginUser.getId(), username,
+                        "PASSWORD_LOGIN_FAILURE", clientIp(request), request.getHeader("User-Agent"),
+                        String.valueOf(login.get("msg")));
             }
+            return login;
+        } catch (ServiceException e) {
+            loginEventPublisher.publishLoginFailure(null, username, "PASSWORD_LOGIN_FAILURE",
+                    clientIp(request), request.getHeader("User-Agent"), e.getMessage());
+            throw e;
         }
-        return login;
     }
 
     /**
      * 注册
      */
     @PostMapping("/register")
-    public Result register(@RequestBody UserEmailDto userEmailDto, @RequestParam Integer applyRole) {
-        return Result.success(userService.register(userEmailDto, applyRole));
+    public Result register(@RequestBody UserEmailDto userEmailDto, @RequestParam Integer applyRole,
+                           HttpServletRequest request) {
+        try {
+            int result = userService.register(userEmailDto, applyRole);
+            UserEmailApplyEntity registered = userEmailDto == null ? null
+                    : userMapper.selectUserByEmail(userEmailDto.getEmail());
+            if (registered != null) {
+                loginEventPublisher.publishRegistration(registered.getId(), registered.getUserName(),
+                        registered.getEmail(), clientIp(request), request.getHeader("User-Agent"));
+            }
+            return Result.success(result);
+        } catch (ServiceException e) {
+            loginEventPublisher.publishLoginFailure(null,
+                    userEmailDto == null ? null : userEmailDto.getUserName(), "REGISTER_FAILURE",
+                    clientIp(request), request.getHeader("User-Agent"), e.getMessage());
+            throw e;
+        }
     }
 
     /**
@@ -267,9 +299,12 @@ public class UserController {
     @PostMapping("/email")
     @LoginNotRequired
     @Operation(summary = "向指定邮箱发送验证码", description = "向指定邮箱发送注册/找回验证码")
-    public Result getEmail(@RequestBody UserEmailDto userEmailDto) {
+    public Result getEmail(@RequestBody UserEmailDto userEmailDto, HttpServletRequest request) {
         log.info("请求向邮箱发送验证码，目标邮箱: {}", userEmailDto.getEmail());
         mailUtil.sendVerificationCode(userEmailDto.getEmail());
+        UserEmailApplyEntity existing = userMapper.selectUserByEmail(userEmailDto.getEmail());
+        loginEventPublisher.publishVerificationRequested(existing == null ? null : existing.getId(),
+                userEmailDto.getEmail(), clientIp(request), request.getHeader("User-Agent"));
         return Result.success();
     }
 
@@ -516,36 +551,51 @@ public class UserController {
     @PostMapping("/login-email")
     @Operation(summary = "邮箱验证码登录")
     @LoginNotRequired
-    public Result loginByEmail(@RequestBody EmailLoginDto dto) {
+    public Result loginByEmail(@RequestBody EmailLoginDto dto, HttpServletRequest request) {
         // 1. 先执行原本的登录逻辑
         Result result = userService.loginByEmail(dto);
+        UserEmailApplyEntity user = dto == null ? null : userMapper.selectUserByEmail(dto.getEmail());
 
         // 🌟 2. 新增广播逻辑：只有登录成功，才向好友广播上线通知
-        if (result.get("code").equals(200)) {
+        if (isSuccess(result) && user != null) {
+            loginEventPublisher.publishLoginSuccess(user.getId(), user.getUserName(), user.getEmail(),
+                    "EMAIL_LOGIN_SUCCESS", clientIp(request), request.getHeader("User-Agent"));
             try {
                 // 因为 dto 里只有邮箱没有用户名，需要先通过邮箱查出具体的实体对象
-                UserEmailApplyEntity user = userMapper.selectUserByEmail(dto.getEmail());
-
-                if (user != null) {
-                    String userName = user.getUserName();
-
-                    // 查出该用户的所有好友名称
-                    List<String> friendsname = friendService.getMyFriendsNameByUsername(userName);
-
-                    // 遍历好友列表，挨个发送上线广播
-                    if (friendsname != null && !friendsname.isEmpty()) {
-                        for (String friendName : friendsname) {
-                            // 这里可以稍微改改文案，和密码登录做个区分，显得系统更有细节
-                            WebSocket.sendSystemBroadcast(friendName, "你的好友 [" + userName + "] 刚刚上线了！");
-                        }
+                String userName = user.getUserName();
+                List<String> friendsname = friendService.getMyFriendsNameByUsername(userName);
+                if (friendsname != null && !friendsname.isEmpty()) {
+                    for (String friendName : friendsname) {
+                        WebSocket.sendSystemBroadcast(friendName, "你的好友 [" + userName + "] 刚刚上线了！");
                     }
                 }
             } catch (Exception e) {
                 log.error("发送邮箱登录上线广播失败", e); // 捕获异常，绝不让次要的广播功能阻塞核心的登录逻辑
             }
+        } else {
+            loginEventPublisher.publishLoginFailure(user == null ? null : user.getId(),
+                    user == null ? (dto == null ? null : dto.getEmail()) : user.getUserName(),
+                    "EMAIL_LOGIN_FAILURE", clientIp(request), request.getHeader("User-Agent"),
+                    String.valueOf(result.get("msg")));
         }
 
         return result;
+    }
+
+    private boolean isSuccess(Result result) {
+        return result != null && Integer.valueOf(200).equals(result.get("code"));
+    }
+
+    private String clientIp(HttpServletRequest request) {
+        if (request == null) {
+            return null;
+        }
+        String forwarded = request.getHeader("X-Forwarded-For");
+        if (forwarded != null && !forwarded.isBlank()) {
+            return forwarded.split(",")[0].trim();
+        }
+        String realIp = request.getHeader("X-Real-IP");
+        return realIp == null || realIp.isBlank() ? request.getRemoteAddr() : realIp.trim();
     }
 
     @PostMapping("/forgot-password")

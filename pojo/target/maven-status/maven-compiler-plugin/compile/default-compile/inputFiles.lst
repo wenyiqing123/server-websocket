@@ -1,9 +1,11 @@
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\dto\AdjustBalanceDTO.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\entity\Friend.java
+D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\entity\LoginAuditLog.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\entity\Message.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\UserInfo.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\dto\WsMessage.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\vo\OrderHealthVO.java
+D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\vo\LoginAuditStatsVO.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\entity\Conversation.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\vo\BreakdownVO.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\entity\ConversationMessage.java
@@ -57,6 +59,7 @@ D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\entity\AccountLog.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\dto\GrabRedPacketDTO.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\dto\UserQueryExportDTO.java
+D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\vo\LoginAuditQueryDTO.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\entity\UserEmailApplyEntity.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\entity\Account.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\vo\AccountLogVO.java

@@ -2,6 +2,7 @@ cn\wyq\serverwebsocket\mapper\TransferMapper.class
 cn\wyq\serverwebsocket\service\impl\UserServiceImpl$2.class
 cn\wyq\serverwebsocket\mapper\RedPacketRecordMapper.class
 cn\wyq\serverwebsocket\mapper\UserMapper.class
+cn\wyq\serverwebsocket\mapper\LoginAuditLogMapper.class
 cn\wyq\serverwebsocket\service\impl\FinanceServiceImpl$5.class
 cn\wyq\serverwebsocket\service\impl\FinanceServiceImpl.class
 cn\wyq\serverwebsocket\service\impl\MessageServiceImpl$1.class
@@ -43,6 +44,7 @@ cn\wyq\serverwebsocket\service\impl\UserWalletServiceImpl.class
 cn\wyq\serverwebsocket\service\impl\FinanceServiceImpl$3.class
 cn\wyq\serverwebsocket\service\impl\UserServiceImpl$1.class
 cn\wyq\serverwebsocket\service\impl\RechargeOrderServiceImpl.class
+cn\wyq\serverwebsocket\service\LoginAuditService.class
 cn\wyq\serverwebsocket\mapper\AccountLogMapper.class
 cn\wyq\serverwebsocket\service\IMessageServiceTool.class
 cn\wyq\serverwebsocket\mapper\ChatMapper.class
@@ -75,6 +77,7 @@ cn\wyq\serverwebsocket\service\impl\MessageStatsImpl.class
 cn\wyq\serverwebsocket\annotation\CurrentUser.class
 cn\wyq\serverwebsocket\service\AccountService.class
 cn\wyq\serverwebsocket\service\impl\ChatServiceImpl.class
+cn\wyq\serverwebsocket\service\impl\LoginAuditServiceImpl.class
 cn\wyq\serverwebsocket\mapper\AccountMapper.class
 cn\wyq\serverwebsocket\service\impl\TransactionLogServiceImpl$1.class
 cn\wyq\serverwebsocket\mapper\IUserMapperTool.class

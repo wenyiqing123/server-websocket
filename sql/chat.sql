@@ -531,4 +531,30 @@ CREATE TABLE `user`  (
   UNIQUE INDEX `email`(`email` ASC) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 67 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户表' ROW_FORMAT = Dynamic;
 
+-- ----------------------------
+-- Table structure for login_audit_log
+-- ----------------------------
+DROP TABLE IF EXISTS `login_audit_log`;
+CREATE TABLE `login_audit_log` (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '日志编号',
+  `event_id` varchar(64) CHARACTER SET ascii COLLATE ascii_bin NOT NULL COMMENT 'RabbitMQ 事件编号，用于幂等去重',
+  `user_id` int NULL DEFAULT NULL COMMENT '用户编号，未知用户的失败登录为空',
+  `username` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '用户名或请求邮箱',
+  `event_type` varchar(64) CHARACTER SET ascii COLLATE ascii_bin NOT NULL COMMENT '事件类型',
+  `success` tinyint NOT NULL DEFAULT 0 COMMENT '是否成功',
+  `remote_login` tinyint NOT NULL DEFAULT 0 COMMENT '是否来自此前未记录的 IP',
+  `previous_ip` varchar(64) CHARACTER SET ascii COLLATE ascii_bin NULL DEFAULT NULL COMMENT '此前登录 IP',
+  `ip_address` varchar(64) CHARACTER SET ascii COLLATE ascii_bin NULL DEFAULT NULL COMMENT '本次请求 IP',
+  `user_agent` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '客户端 User-Agent',
+  `failure_reason` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '失败原因',
+  `occurred_at` datetime NOT NULL COMMENT '事件发生时间',
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '日志入库时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uk_login_audit_event_id` (`event_id` ASC) USING BTREE,
+  INDEX `idx_login_audit_user_time` (`user_id` ASC, `occurred_at` DESC) USING BTREE,
+  INDEX `idx_login_audit_type_time` (`event_type` ASC, `occurred_at` DESC) USING BTREE,
+  INDEX `idx_login_audit_success_time` (`success` ASC, `occurred_at` DESC) USING BTREE,
+  CONSTRAINT `fk_login_audit_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE SET NULL ON UPDATE RESTRICT
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户登录与认证审计日志' ROW_FORMAT = Dynamic;
+
 SET FOREIGN_KEY_CHECKS = 1;

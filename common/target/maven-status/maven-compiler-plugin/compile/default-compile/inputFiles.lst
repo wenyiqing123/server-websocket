@@ -1,13 +1,16 @@
 D:\javawork\websocket\server-websocket\common\src\main\java\cn\wyq\serverwebsocket\common\ApplicationHelper.java
 D:\javawork\websocket\server-websocket\common\src\main\java\cn\wyq\serverwebsocket\constant\AutoFillConstant.java
 D:\javawork\websocket\server-websocket\common\src\main\java\cn\wyq\serverwebsocket\utils\RedPacketUtils.java
+D:\javawork\websocket\server-websocket\common\src\main\java\cn\wyq\serverwebsocket\messaging\LoginNotificationMessage.java
 D:\javawork\websocket\server-websocket\common\src\main\java\cn\wyq\serverwebsocket\common\ImagePropertis.java
 D:\javawork\websocket\server-websocket\common\src\main\java\cn\wyq\serverwebsocket\utils\ServletUtil.java
+D:\javawork\websocket\server-websocket\common\src\main\java\cn\wyq\serverwebsocket\messaging\LoginMessagingConstants.java
 D:\javawork\websocket\server-websocket\common\src\main\java\cn\wyq\serverwebsocket\utils\RedisUtil.java
 D:\javawork\websocket\server-websocket\common\src\main\java\cn\wyq\serverwebsocket\utils\ImageNetClassLoader.java
 D:\javawork\websocket\server-websocket\common\src\main\java\cn\wyq\serverwebsocket\constant\RedisKeyConstants.java
 D:\javawork\websocket\server-websocket\common\src\main\java\cn\wyq\serverwebsocket\constant\BloomConstant.java
 D:\javawork\websocket\server-websocket\common\src\main\java\cn\wyq\serverwebsocket\common\JacksonObjectMapper.java
+D:\javawork\websocket\server-websocket\common\src\main\java\cn\wyq\serverwebsocket\messaging\LoginAuditMessage.java
 D:\javawork\websocket\server-websocket\common\src\main\java\cn\wyq\serverwebsocket\utils\SystemConfigUtils.java
 D:\javawork\websocket\server-websocket\common\src\main\java\cn\wyq\serverwebsocket\constant\RedPacketConstant.java
 D:\javawork\websocket\server-websocket\common\src\main\java\cn\wyq\serverwebsocket\common\AjaxResult.java
@@ -16,6 +19,7 @@ D:\javawork\websocket\server-websocket\common\src\main\java\cn\wyq\serverwebsock
 D:\javawork\websocket\server-websocket\common\src\main\java\cn\wyq\serverwebsocket\utils\JWTUtil.java
 D:\javawork\websocket\server-websocket\common\src\main\java\cn\wyq\serverwebsocket\common\PageResult.java
 D:\javawork\websocket\server-websocket\common\src\main\java\cn\wyq\serverwebsocket\constant\ResultConstant.java
+D:\javawork\websocket\server-websocket\common\src\main\java\cn\wyq\serverwebsocket\messaging\MailMessage.java
 D:\javawork\websocket\server-websocket\common\src\main\java\cn\wyq\serverwebsocket\utils\BaseContext.java
 D:\javawork\websocket\server-websocket\common\src\main\java\cn\wyq\serverwebsocket\utils\MailUtil.java
 D:\javawork\websocket\server-websocket\common\src\main\java\cn\wyq\serverwebsocket\utils\ImageUtils.java
