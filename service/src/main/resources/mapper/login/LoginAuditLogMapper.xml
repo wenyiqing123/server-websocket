@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.wyq.serverwebsocket.mapper.LoginAuditLogMapper">
+    <insert id="insertIgnore" parameterType="cn.wyq.serverwebsocket.pojo.entity.LoginAuditLog">
+        INSERT IGNORE INTO login_audit_log
+        (event_id, user_id, username, event_type, success, remote_login, previous_ip,
+         ip_address, user_agent, failure_reason, occurred_at, created_at)
+        VALUES
+        (#{eventId}, #{userId}, #{username}, #{eventType}, #{success}, #{remoteLogin}, #{previousIp},
+         #{ipAddress}, #{userAgent}, #{failureReason}, #{occurredAt}, NOW())
+    </insert>
+
+    <select id="selectPage" resultType="cn.wyq.serverwebsocket.pojo.entity.LoginAuditLog">
+        SELECT id, event_id AS eventId, user_id AS userId, username, event_type AS eventType,
+               success, remote_login AS remoteLogin, previous_ip AS previousIp,
+               ip_address AS ipAddress, user_agent AS userAgent, failure_reason AS failureReason,
+               occurred_at AS occurredAt, created_at AS createdAt
+        FROM login_audit_log
+        <where>
+            <if test="userId != null">AND user_id = #{userId}</if>
+            <if test="username != null and username != ''">AND username LIKE CONCAT('%', #{username}, '%')</if>
+            <if test="eventType != null and eventType != ''">AND event_type = #{eventType}</if>
+            <if test="success != null">AND success = #{success}</if>
+            <if test="remoteLogin != null">AND remote_login = #{remoteLogin}</if>
+            <if test="startDate != null and startDate != ''">AND occurred_at &gt;= CONCAT(#{startDate}, ' 00:00:00')</if>
+            <if test="endDate != null and endDate != ''">AND occurred_at &lt;= CONCAT(#{endDate}, ' 23:59:59')</if>
+        </where>
+        ORDER BY occurred_at DESC, id DESC
+    </select>
+
+    <select id="selectStats" resultType="cn.wyq.serverwebsocket.pojo.vo.LoginAuditStatsVO">
+        SELECT
+            COUNT(*) AS total,
+            COALESCE(SUM(CASE WHEN success = 1 THEN 1 ELSE 0 END), 0) AS success,
+            COALESCE(SUM(CASE WHEN success = 0 THEN 1 ELSE 0 END), 0) AS failure,
+            COALESCE(SUM(CASE WHEN remote_login = 1 THEN 1 ELSE 0 END), 0) AS remoteLogin,
+            COALESCE(SUM(CASE WHEN occurred_at &gt;= CURDATE() THEN 1 ELSE 0 END), 0) AS today
+        FROM login_audit_log
+        <where>
+            <if test="userId != null">AND user_id = #{userId}</if>
+            <if test="username != null and username != ''">AND username LIKE CONCAT('%', #{username}, '%')</if>
+            <if test="eventType != null and eventType != ''">AND event_type = #{eventType}</if>
+            <if test="success != null">AND success = #{success}</if>
+            <if test="remoteLogin != null">AND remote_login = #{remoteLogin}</if>
+            <if test="startDate != null and startDate != ''">AND occurred_at &gt;= CONCAT(#{startDate}, ' 00:00:00')</if>
+            <if test="endDate != null and endDate != ''">AND occurred_at &lt;= CONCAT(#{endDate}, ' 23:59:59')</if>
+        </where>
+    </select>
+</mapper>

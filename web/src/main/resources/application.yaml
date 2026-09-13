@@ -37,11 +37,12 @@ spring:
           ssl:
             enable: true
   rabbitmq:
-    # localhost/guest 仅作为未暴露到公网的本地开发默认值；生产环境必须覆盖。
+    # localhost/websocket 仅作为未暴露到公网的本地开发默认值；生产环境必须覆盖。
     host: ${RABBITMQ_HOST:localhost}
     port: ${RABBITMQ_PORT:5672}
-    username: ${RABBITMQ_USERNAME:guest}
-    password: ${RABBITMQ_PASSWORD:guest}
+    username: ${RABBITMQ_USERNAME:websocket}
+    password: ${RABBITMQ_PASSWORD:websocket}
+    virtual-host: /websocket
     publisher-confirm-type: correlated
     publisher-returns: true
     listener:

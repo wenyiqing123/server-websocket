@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.wyq.serverwebsocket.mapper.AiServiceQuestionMapper">
+
+    <insert id="upsert">
+        INSERT INTO ai_service_question
+            (question_hash, question, normalized_question, source_type,
+             use_count, last_user_id, last_used_at, created_at, updated_at)
+        VALUES
+            (#{questionHash}, #{question}, #{normalizedQuestion}, 'service',
+             1, #{lastUserId,jdbcType=INTEGER}, NOW(), NOW(), NOW())
+        ON DUPLICATE KEY UPDATE
+            use_count = IF(use_count &lt; 2147483647, use_count + 1, use_count),
+            last_user_id = VALUES(last_user_id),
+            last_used_at = NOW(),
+            updated_at = NOW()
+    </insert>
+
+    <select id="selectForWarmup" resultType="cn.wyq.serverwebsocket.pojo.entity.AiServiceQuestion">
+        SELECT id, question_hash, question, normalized_question, source_type,
+               use_count, last_user_id, last_used_at, created_at, updated_at,
+               enabled, review_status, admin_remark
+        FROM ai_service_question
+        WHERE source_type = 'service'
+          AND enabled = 1
+          AND review_status = 'APPROVED'
+        ORDER BY use_count DESC, updated_at DESC, id DESC
+        LIMIT #{limit}
+    </select>
+
+    <select id="selectHistoricalServiceQuestions" resultType="string">
+        SELECT content
+        FROM ai_chat_memory
+        WHERE type = 'USER'
+          AND conversation_id LIKE 'service:%'
+          AND content IS NOT NULL
+          AND CHAR_LENGTH(TRIM(content)) &gt; 0
+        ORDER BY timestamp DESC, id DESC
+        LIMIT #{limit}
+    </select>
+
+    <insert id="insertQuestionLog">
+        INSERT INTO ai_service_question_log
+            (user_id, question, matched_question, similarity, matched, created_at)
+        VALUES
+            (#{userId,jdbcType=INTEGER}, #{question}, #{matchedQuestion,jdbcType=LONGVARCHAR},
+             #{similarity,jdbcType=DOUBLE}, #{matched}, NOW())
+    </insert>
+</mapper>

@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.wyq.serverwebsocket.mapper.AiAgentMapper">
+    <resultMap id="AiAgentMap" type="cn.wyq.serverwebsocket.pojo.entity.AiAgent">
+        <id property="id" column="id"/>
+        <result property="ownerUserId" column="owner_user_id"/>
+        <result property="ownerUserName" column="owner_user_name"/>
+        <result property="name" column="name"/>
+        <result property="avatarUrl" column="avatar_url"/>
+        <result property="systemPrompt" column="system_prompt"/>
+        <result property="welcomeMessage" column="welcome_message"/>
+        <result property="model" column="model"/>
+        <result property="temperature" column="temperature"/>
+        <result property="maxTokens" column="max_tokens"/>
+        <result property="visibility" column="visibility"/>
+        <result property="status" column="status"/>
+        <result property="isBuiltin" column="is_builtin"/>
+        <result property="promptVersion" column="prompt_version"/>
+        <result property="deleted" column="deleted"/>
+        <result property="useCount" column="use_count"/>
+        <result property="lastUsedAt" column="last_used_at"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <sql id="columns">
+        a.id, a.owner_user_id, u.user_name AS owner_user_name, a.name, a.avatar_url,
+        a.system_prompt, a.welcome_message, a.model, a.temperature, a.max_tokens,
+        a.visibility, a.status, a.is_builtin, a.prompt_version, a.deleted,
+        a.use_count, a.last_used_at, a.created_at, a.updated_at
+    </sql>
+
+    <select id="selectByOwner" resultMap="AiAgentMap">
+        SELECT <include refid="columns"/>
+        FROM ai_agent a LEFT JOIN user u ON u.id = a.owner_user_id
+        WHERE a.owner_user_id = #{ownerUserId}
+          AND (
+              a.deleted = 0
+              OR (
+                  a.deleted = 1
+                  AND EXISTS (
+                      SELECT 1
+                      FROM ai_chat_session s
+                      WHERE s.agent_id = a.id
+                        AND s.owner_user_id = a.owner_user_id
+                  )
+              )
+          )
+        ORDER BY a.updated_at DESC, a.id DESC
+    </select>
+
+    <select id="selectById" resultMap="AiAgentMap">
+        SELECT <include refid="columns"/>
+        FROM ai_agent a LEFT JOIN user u ON u.id = a.owner_user_id
+        WHERE a.id = #{id} AND a.deleted = 0
+    </select>
+
+    <select id="selectOwned" resultMap="AiAgentMap">
+        SELECT <include refid="columns"/>
+        FROM ai_agent a LEFT JOIN user u ON u.id = a.owner_user_id
+        WHERE a.id = #{id} AND a.owner_user_id = #{ownerUserId} AND a.deleted = 0
+    </select>
+
+    <select id="selectOwnedIncludingDeleted" resultMap="AiAgentMap">
+        SELECT <include refid="columns"/>
+        FROM ai_agent a LEFT JOIN user u ON u.id = a.owner_user_id
+        WHERE a.id = #{id} AND a.owner_user_id = #{ownerUserId}
+    </select>
+
+    <select id="countByOwner" resultType="int">
+        SELECT COUNT(*) FROM ai_agent WHERE owner_user_id = #{ownerUserId} AND deleted = 0
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO ai_agent
+        (owner_user_id, name, avatar_url, system_prompt, welcome_message, model,
+         temperature, max_tokens, visibility, status, is_builtin, prompt_version, deleted,
+         use_count, created_at, updated_at)
+        VALUES
+        (#{ownerUserId}, #{name}, #{avatarUrl}, #{systemPrompt}, #{welcomeMessage}, #{model},
+         #{temperature}, #{maxTokens}, #{visibility}, #{status}, #{isBuiltin}, #{promptVersion}, 0,
+         0, NOW(), NOW())
+    </insert>
+
+    <update id="updateOwned">
+        UPDATE ai_agent
+        <set>
+            <if test="name != null">name = #{name},</if>
+            <if test="avatarUrl != null">avatar_url = #{avatarUrl},</if>
+            <if test="systemPrompt != null">system_prompt = #{systemPrompt},</if>
+            <if test="welcomeMessage != null">welcome_message = #{welcomeMessage},</if>
+            <if test="model != null">model = #{model},</if>
+            <if test="temperature != null">temperature = #{temperature},</if>
+            <if test="maxTokens != null">max_tokens = #{maxTokens},</if>
+            <if test="visibility != null">visibility = #{visibility},</if>
+            <if test="systemPrompt != null or model != null or temperature != null or maxTokens != null">
+                prompt_version = prompt_version + 1,
+            </if>
+            updated_at = NOW()
+        </set>
+        WHERE id = #{id} AND owner_user_id = #{ownerUserId} AND deleted = 0
+    </update>
+
+    <update id="softDeleteOwned">
+        UPDATE ai_agent SET deleted = 1, updated_at = NOW()
+        WHERE id = #{id} AND owner_user_id = #{ownerUserId} AND deleted = 0
+    </update>
+
+    <update id="incrementUseCount">
+        UPDATE ai_agent SET use_count = use_count + 1, last_used_at = NOW()
+        WHERE id = #{id} AND deleted = 0 AND status = 1
+    </update>
+
+    <select id="selectForAdmin" resultMap="AiAgentMap">
+        SELECT <include refid="columns"/>
+        FROM ai_agent a LEFT JOIN user u ON u.id = a.owner_user_id
+        WHERE a.deleted = 0
+        <if test="ownerUserName != null and ownerUserName != ''">
+            AND u.user_name LIKE CONCAT('%', #{ownerUserName}, '%')
+        </if>
+        <if test="name != null and name != ''">
+            AND a.name LIKE CONCAT('%', #{name}, '%')
+        </if>
+        <if test="status != null">
+            AND a.status = #{status}
+        </if>
+        ORDER BY a.updated_at DESC, a.id DESC
+    </select>
+
+    <update id="updateByAdmin">
+        UPDATE ai_agent
+        <set>
+            <if test="name != null">name = #{name},</if>
+            <if test="avatarUrl != null">avatar_url = #{avatarUrl},</if>
+            <if test="systemPrompt != null">system_prompt = #{systemPrompt},</if>
+            <if test="welcomeMessage != null">welcome_message = #{welcomeMessage},</if>
+            <if test="model != null">model = #{model},</if>
+            <if test="temperature != null">temperature = #{temperature},</if>
+            <if test="maxTokens != null">max_tokens = #{maxTokens},</if>
+            <if test="visibility != null">visibility = #{visibility},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="systemPrompt != null or model != null or temperature != null or maxTokens != null">
+                prompt_version = prompt_version + 1,
+            </if>
+            updated_at = NOW()
+        </set>
+        WHERE id = #{id} AND deleted = 0
+    </update>
+
+    <update id="updateStatus">
+        UPDATE ai_agent SET status = #{status}, updated_at = NOW()
+        WHERE id = #{id} AND deleted = 0
+    </update>
+
+    <update id="softDeleteByAdmin">
+        UPDATE ai_agent SET deleted = 1, updated_at = NOW()
+        WHERE id = #{id} AND deleted = 0
+    </update>
+</mapper>

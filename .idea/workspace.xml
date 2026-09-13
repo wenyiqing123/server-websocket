@@ -4,28 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="68dfcc89-984c-4e29-8ce5-b393bae2b8b7" name="Changes" comment="2026-9-11">
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
+    <list default="true" id="68dfcc89-984c-4e29-8ce5-b393bae2b8b7" name="Changes" comment="2026-9-13">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/java/cn/wyq/serverwebsocket/utils/CacheClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/cn/wyq/serverwebsocket/utils/CacheClient.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/java/cn/wyq/serverwebsocket/utils/MailUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/cn/wyq/serverwebsocket/utils/MailUtil.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/target/classes/cn/wyq/serverwebsocket/utils/CacheClient$CacheRead.class" beforeDir="false" afterPath="$PROJECT_DIR$/common/target/classes/cn/wyq/serverwebsocket/utils/CacheClient$CacheRead.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/target/classes/cn/wyq/serverwebsocket/utils/CacheClient.class" beforeDir="false" afterPath="$PROJECT_DIR$/common/target/classes/cn/wyq/serverwebsocket/utils/CacheClient.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/target/classes/cn/wyq/serverwebsocket/utils/MailUtil.class" beforeDir="false" afterPath="$PROJECT_DIR$/common/target/classes/cn/wyq/serverwebsocket/utils/MailUtil.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/target/common-0.0.1.jar" beforeDir="false" afterPath="$PROJECT_DIR$/common/target/common-0.0.1.jar" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/common/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/common/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logs/mylog.log" beforeDir="false" afterPath="$PROJECT_DIR$/logs/mylog.log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pojo/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/pojo/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pojo/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/pojo/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pojo/target/pojo-0.0.1.jar" beforeDir="false" afterPath="$PROJECT_DIR$/pojo/target/pojo-0.0.1.jar" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/target/generated-sources/annotations/cn/wyq/serverwebsocket/mapper/MessageStructMapperImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/service/target/generated-sources/annotations/cn/wyq/serverwebsocket/mapper/MessageStructMapperImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/service/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/service/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/target/service-0.0.1.jar" beforeDir="false" afterPath="$PROJECT_DIR$/service/target/service-0.0.1.jar" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sql/chat.sql" beforeDir="false" afterPath="$PROJECT_DIR$/sql/chat.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/main/java/cn/wyq/serverwebsocket/config/RabbitConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/main/java/cn/wyq/serverwebsocket/config/RabbitConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/main/java/cn/wyq/serverwebsocket/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/main/java/cn/wyq/serverwebsocket/controller/UserController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/main/resources/application.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -590,15 +572,7 @@
       <workItem from="1789043599039" duration="5666000" />
       <workItem from="1789099429442" duration="1596000" />
       <workItem from="1789197496564" duration="1396000" />
-      <workItem from="1789280130843" duration="1792000" />
-    </task>
-    <task id="LOCAL-00023" summary="2026-3-16&#10;新增导出">
-      <option name="closed" value="true" />
-      <created>1773663996750</created>
-      <option name="number" value="00023" />
-      <option name="presentableId" value="LOCAL-00023" />
-      <option name="project" value="LOCAL" />
-      <updated>1773663996750</updated>
+      <workItem from="1789280130843" duration="5343000" />
     </task>
     <task id="LOCAL-00024" summary="2026-3-19&#10;缓存空值，需修改为手动操作缓存，添加缓存空值和布隆过滤器">
       <option name="closed" value="true" />
@@ -984,7 +958,15 @@
       <option name="project" value="LOCAL" />
       <updated>1789102409743</updated>
     </task>
-    <option name="localTasksCounter" value="72" />
+    <task id="LOCAL-00072" summary="2026-9-13">
+      <option name="closed" value="true" />
+      <created>1789282905510</created>
+      <option name="number" value="00072" />
+      <option name="presentableId" value="LOCAL-00072" />
+      <option name="project" value="LOCAL" />
+      <updated>1789282905510</updated>
+    </task>
+    <option name="localTasksCounter" value="73" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -1002,7 +984,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="2026-3-25&#10;新增智能客服，优化优化再优化" />
     <MESSAGE value="2026-3-30&#10;即将引入向量模型" />
     <MESSAGE value="2026-3-30&#10;即将引入向量模型111" />
     <MESSAGE value="2026-3-31 添加新功能" />
@@ -1027,7 +1008,8 @@
     <MESSAGE value="2026-9-7" />
     <MESSAGE value="2026-9-10" />
     <MESSAGE value="2026-9-11" />
-    <option name="LAST_COMMIT_MESSAGE" value="2026-9-11" />
+    <MESSAGE value="2026-9-13" />
+    <option name="LAST_COMMIT_MESSAGE" value="2026-9-13" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
   <component name="XDebuggerManager">
