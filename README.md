@@ -1,6 +1,6 @@
 # 云聊后端（server-websocket）
 
-云聊是一个基于 Spring Boot 的即时通讯后端，提供用户与好友管理、群聊、WebSocket 实时消息、AI 对话、文档分析/RAG、红包与转账、钱包及充值、后台统计等能力。`web` 模块同时承载 Spring Boot 启动入口和打包后的静态前端资源。
+云聊是一个基于 Spring Boot 的模块化单体后端，提供用户与好友管理、群聊、WebSocket 实时消息、AI 对话、文档分析/RAG、红包与转账、钱包及充值、后台运营管理等能力。`web` 模块承载 Spring Boot 启动入口和 Controller/配置/WebSocket，`service` 负责业务编排，`pojo` 负责数据模型，`common` 负责跨模块基础能力。部署时可以独立提供 REST/WebSocket，也可以由 `web` 模块同时托管构建后的前端静态资源。
 
 ## 功能概览
 
@@ -9,11 +9,13 @@
 - 群聊创建、成员管理、群资料修改、踢人、退群和解散。
 - 基于 WebSocket 的私聊、群聊、消息撤回和离线消息。
 - AI 多会话聊天：女友、智能客服、文档分析等模式。
+- 用户自定义智能体：创建、编辑提示词/头像/欢迎语/模型参数；管理员可按用户查询、编辑、启停和软删除。
 - 文档上传、解析、向量化和基于知识库的问答（RAG）。
-- 聊天页“高情商回复”建议接口。
+- 智能客服工单：会话状态、客服设置、知识库挂载、文档发布/重建索引、检索测试、问题提示题库、回答反馈和运营审计。
+- 聊天页“高情商回复”建议接口，服务端按发送者身份整理上下文后再请求模型。
 - 红包、转账、钱包余额、充值订单、资金流水和支付宝沙箱支付。
-- 管理端消息、活跃用户及财务数据统计。
-- Redis 缓存、RabbitMQ 异步消息、Sentinel 流量保护和定时任务。
+- 管理端消息、活跃用户、财务、智能客服、智能体和用户登录审计统计。
+- Redis 缓存、RabbitMQ 异步消息、Sentinel 流量保护、布隆过滤器和定时任务。
 
 ## 技术栈
 
@@ -25,8 +27,28 @@
 - RabbitMQ、Sentinel 1.8.6
 - MapStruct、Hutool、FastJSON、EasyExcel
 - Knife4j / OpenAPI
-- Apache Tika、PDF 文档解析相关组件
+- Spring AI PDF Document Reader、Apache PDFBox、文本读取与 TokenTextSplitter
 - 支付宝 Java SDK
+
+## 架构与关键链路
+
+```text
+浏览器 / Vue 2
+     │ Axios REST、Fetch POST SSE、WebSocket
+     ▼
+web（Controller、JWT 拦截器、WebSocket、配置）
+     │
+     ├── service（业务服务、MyBatis Mapper、AI/RAG、事务）
+     ├── pojo（Entity、DTO、VO、WebSocket 消息模型）
+     └── common（统一响应、异常、JWT、缓存、邮件和消息模型）
+          │
+          ├── MySQL：业务数据、AI 会话记忆、文档元数据、登录审计
+          ├── Redis/Redisson：缓存、Refresh Token、验证码、离线消息、布隆过滤器
+          ├── RabbitMQ：登录审计、邮件和登录通知异步事件
+          └── SimpleVectorStore：工程知识库与用户/客服文档向量快照
+```
+
+启动完成后，`CacheInitRunner` 会预热管理端消息/用户缓存、AI 推荐矩阵、客服问题提示题库和用户布隆过滤器；`KnowledgeDataLoader` 会加载 `kg.txt` 或已有向量快照。
 
 ## 项目结构
 
@@ -54,7 +76,7 @@ server-websocket/
 | Maven | 3.8+ | 用于多模块构建 |
 | MySQL | `127.0.0.1:3306` | 默认数据库名 `chat` |
 | Redis | `127.0.0.1:6379` | 默认使用 database `1` |
-| RabbitMQ | `localhost:5672` | 默认账号为 `guest/guest` |
+| RabbitMQ | `localhost:5672` | 默认虚拟主机为 `/websocket`，账号为 `websocket`，密码为 `websocket`；仅适用于本地开发 |
 | Sentinel Dashboard | `localhost:8090` | 可选，用于查看流控状态 |
 
 HTTP 服务默认监听 `8000` 端口。
@@ -69,39 +91,42 @@ HTTP 服务默认监听 `8000` 端口。
      COLLATE utf8mb4_0900_ai_ci;
    ```
 
-2. 新环境导入核心脚本：
+2. 新环境导入完整初始化脚本：
 
    ```bash
    mysql -uroot -p chat < sql/chat.sql
    ```
 
-   `sql/chat.sql` 已包含用户、好友、群组、消息、AI 会话、文档、订单、钱包、红包和转账等核心表。当前仓库的核心结构也已包含 `ai_agent`、`ai_service_question`、会话归属和文档归属字段；已有数据库升级应使用增量迁移脚本，不要重复导入带 `DROP TABLE` 的核心脚本。
+   `sql/chat.sql` 当前包含用户、好友、群组、消息、AI 会话、用户智能体、客服知识库、文档、订单、钱包、红包、转账和 `login_audit_log` 等表，并包含初始化配置/测试数据。
 
-3. 升级已有数据库时，先备份后执行当前版本的幂等迁移脚本：
+3. 升级已有数据库时不要直接重新导入 `chat.sql`：该文件是完整初始化脚本，包含 `DROP TABLE`，只适合全新开发库。生产或已有数据环境应先备份，再根据 `SHOW CREATE TABLE` 与当前脚本做差异迁移；迁移脚本应保持幂等并单独归档。当前仓库的 `sql` 目录以 `chat.sql` 为主，不会在应用启动时自动修改表结构。
 
-    ```bash
-    mysql -uroot -p chat < sql/20260906_agent_and_system_settings_migration.sql
-    ```
+关键数据表按领域划分如下：
 
-    该脚本初始化内置 AI 女友、平台级系统设置，并兼容旧版 `ai_*` 配置键。脚本不会删除或重建业务表；除模型配置会按当前版本统一迁移为 `qwen3.8-max-0902` 外，其余已经存在的配置值会保留。红包/转账默认 24 小时未接收自动原路退回，充值订单默认 5 分钟未支付自动关闭。
-
-    `sql/chat.sql` 是完整初始化脚本，包含 `DROP TABLE` 和测试数据，仅适用于全新开发库；生产环境不要重复导入。
+| 领域 | 主要表 |
+| --- | --- |
+| AI 与 RAG | `ai_agent`、`ai_chat_session`、`ai_chat_memory`、`ai_knowledge_base`、`ai_knowledge_document`、`ai_knowledge_chunk_hash`、`ai_session_document` |
+| 客服运营 | `ai_service_question`、`ai_service_question_log`、`ai_service_feedback`、`ai_service_knowledge_binding`、`ai_service_operation_log` |
+| 即时通讯 | `user`、`friend`、`chat_group`、`group_member`、`message`、`conversation`、`conversation_message` |
+| 资金 | `u_account`、`u_account_log`、`u_red_packet`、`u_red_packet_record`、`u_transfer`、`recharge_order` |
+| 平台管理 | `sys_config`、`sys_document`、`login_audit_log` |
 
 ## 配置
 
-主配置文件为 `web/src/main/resources/application.yaml`。真实凭据和部署地址均由环境变量或外部配置中心提供，仓库中不保存可用密钥。常用配置如下：
+主配置文件为 `web/src/main/resources/application.yaml`。当前文件包含便于本地开发的默认值，生产环境必须通过环境变量、外部配置中心或 Secret 覆盖，不能直接沿用开发凭据。常用配置如下：
 
 | 配置类别 | 环境变量 | 说明 |
 | --- | --- | --- |
 | JWT | `JWT_SECRET`、`APP_ENV` | 未注入 `JWT_SECRET` 时使用 `jwt_secret_for_server_websocket`；生产部署建议通过环境变量覆盖为随机高强度密钥。 |
 | MySQL | `DB_URL`、`DB_USERNAME`、`DB_PASSWORD` | 本地 URL 和用户名有无密码默认值；生产应使用专用最小权限账户。 |
 | Redis | `REDIS_HOST`、`REDIS_PORT`、`REDIS_DATABASE`、`REDIS_PASSWORD` | 默认连接本机的 database `1`，密码默认为空。 |
-| RabbitMQ | `RABBITMQ_HOST`、`RABBITMQ_PORT`、`RABBITMQ_USERNAME`、`RABBITMQ_PASSWORD` | 本机 `guest` 默认值只能用于未暴露到公网的开发环境。 |
+| RabbitMQ | `RABBITMQ_HOST`、`RABBITMQ_PORT`、`RABBITMQ_USERNAME`、`RABBITMQ_PASSWORD` | 默认连接 `/websocket` 虚拟主机和 `websocket/websocket` 开发账号；生产环境必须覆盖并限制权限。 |
 | 邮件 | `MAIL_HOST`、`MAIL_PORT`、`MAIL_USERNAME`、`MAIL_PASSWORD` | 邮件发送功能需显式配置。 |
 | 支付宝 | `ALIPAY_APP_ID`、`ALIPAY_PRIVATE_KEY`、`ALIPAY_PUBLIC_KEY`、`ALIPAY_GATEWAY_URL`、`ALIPAY_NOTIFY_URL` | 支付功能需显式配置，回调地址应为 HTTPS 公网地址。 |
+| 模型服务 | `DASHSCOPE_API_KEY`、`DASHSCOPE_BASE_URL` | 云端聊天使用 OpenAI 兼容接口；密钥不要写入前端。 |
 | 服务与文件 | `SERVER_PORT`、`APP_DOMAIN`、`IMAGE_LOCATION`、`AI_DOCUMENT_STORAGE_LOCATION` | HTTP 默认端口为 `8000`；AI 私有文档默认不落入公开图片目录。 |
 
-上传文件的单文件和单次请求上限均为 `10MB`。文档服务还额外限制页数、可提取字符数和切片数，具体数值在 `ai.document.limits.*` 配置。
+Spring Multipart 的传输安全上限默认是 `1GB`，普通文件和 RAG 文档的业务上限默认由 `sys_config` 控制为 `10MB`；文档服务还额外限制 PDF 页数、可提取字符数和向量切片数，具体数值在 `ai.document.limits.*` 与 `rag_*` 配置中。
 
 ### AI 配置
 
@@ -122,16 +147,16 @@ spring:
           model: text-embedding-v3
 ```
 
-当前所有云端聊天功能统一使用 `qwen3.8-max-0902`，聊天模型由 `spring.ai.openai.chat.options.model` 控制；文档 RAG 的向量模型是 `text-embedding-v3`。自定义智能体的模型字段也只接受 `qwen3.8-max-0902`。
+当前所有云端聊天功能统一使用 `qwen3.8-max-0902`，聊天模型由 `spring.ai.openai.chat.options.model` 和数据库 `ai_default_model`/`ai_girlfriend_model` 配置共同控制；后端会校验远程模型白名单，自定义智能体也只接受 `qwen3.8-max-0902`。文档 RAG 的向量模型是 `text-embedding-v3`。
 
-`QwenTagExtractor` 使用本地 Ollama 的 `qwen2.5:3b` 做标签提取，这是独立的本地功能，不属于上述远程聊天模型配置。
+`QwenTagExtractor` 使用本地 Ollama 的 `qwen2.5:3b` 做标签提取，这是独立的本地功能，不属于上述远程聊天模型配置；没有 Ollama 时该功能会返回兜底标签，不会替换云端聊天模型。
 
 工程知识库文件位于：
 
 - `web/src/main/resources/static/dataset/kg.txt`
 - `web/src/main/resources/static/dataset/mecha_vector_cache.json`
 
-应用启动时由 `KnowledgeDataLoader` 加载或构建向量缓存。文档上传后会解析、切片并写入文档及向量存储。
+应用启动时由 `KnowledgeDataLoader` 加载或构建向量缓存。用户文档保存在 `private-ai-documents/`，客服运营知识库默认保存在 `private-ai-knowledge/`，均与公开 `/file/**` 上传目录隔离；文档上传后会进行扩展名、大小、内容 SHA-256、PDF 页数、文本长度、切片数量校验，再写入向量存储。
 
 建议通过部署平台的密钥管理或环境变量注入凭据。PowerShell 示例：
 
@@ -173,8 +198,10 @@ Authorization: Bearer <access-token>
 
 当前 Token 有效期：
 
-- Access Token：30 分钟
-- Refresh Token：7 天
+- Access Token：默认 120 分钟，可由 `sys_config.jwt_access_token_minutes` 调整
+- Refresh Token：默认 30 天，可由 `sys_config.jwt_refresh_token_days` 调整
+
+Access Token 是无状态 JWT；Refresh Token 会按用户 ID 保存在 Redis 中，同一用户重新登录或修改密码后旧 Refresh Token 会失效。生产环境必须覆盖默认的 `jwt_secret_for_server_websocket`，并避免在日志、截图或前端代码中输出 Token。
 
 主要无需登录接口包括：
 
@@ -187,6 +214,18 @@ Authorization: Bearer <access-token>
 所有 `/ai/**` 接口（包括文档上传、列表、删除和下载）都需要有效的 Access Token。文档、文档会话和 AI 会话还会校验当前用户的所有权，不能通过猜测 ID 访问他人的内容。`/file/upload` 是保留的通用上传入口，生产部署应按业务需要收紧或移除其匿名访问。
 
 其余接口默认需要有效的 Bearer Token。具体放行规则以 `JWTInterceptor` 和 `@LoginNotRequired` 标注为准。
+
+### RabbitMQ 登录事件
+
+登录模块使用持久化 Direct Exchange `login.events`，当前绑定关系如下：
+
+| 路由键 | 队列 | 消费内容 |
+| --- | --- | --- |
+| `login.audit` | `login.audit.queue` | 登录/注册/验证码请求审计，按 `event_id` 幂等写入 `login_audit_log` |
+| `login.mail` | `login.mail.queue` | 验证码、注册欢迎邮件、异地登录提醒 |
+| `login.notification` | `login.notification.queue` | 登录成功和异地登录的 WebSocket 系统通知 |
+
+登录成功后，服务端会把最近 IP 保存在 Redis `login:last-ip:{userId}`（保留 30 天），发现新 IP 时标记异地登录并发送提醒。RabbitMQ 暂不可用时不会阻断登录主流程，邮件会走本地异步兜底；审计和通知则记录告警日志，恢复 MQ 后再继续消费新事件。审计 IP 是后端观察到的连接地址：本机访问通常是 `127.0.0.1` 或 IPv6 回环地址，反向代理部署时应正确转发 `X-Real-IP`/`X-Forwarded-For`。
 
 ## WebSocket
 
@@ -214,7 +253,9 @@ const socket = new WebSocket(wsUrl, accessToken);
 | 前缀 | 用途 |
 | --- | --- |
 | `/user` | 登录注册、用户资料、分页、邮箱、密码和管理员审批 |
-| `/ai` | AI 会话、SSE 聊天、文档分析、文档上传、高情商回复 |
+| `/ai` | AI 会话、SSE 聊天、内置/自定义智能体、文档分析、文档上传、高情商回复 |
+| `/ai-service` | 用户客服设置/反馈；管理员知识库、客服工单、问题题库、检索测试和运营日志 |
+| `/login-audit` | 管理端登录审计分页和统计 |
 | `/message` | 聊天记录查询、筛选、撤回、分页和导出 |
 | `/friend` | 好友申请、同意、删除和好友列表 |
 | `/group` | 群聊创建、成员、群信息、踢人、退群和解散 |
@@ -227,8 +268,8 @@ const socket = new WebSocket(wsUrl, accessToken);
 | `/redpacket` | 发红包、抢红包和红包详情 |
 | `/transfer` | 发起转账、接收转账和转账详情 |
 | `/alipay` | 支付宝预创建、状态查询、取消和异步通知 |
-| `/sys-config` | 系统配置查询和批量更新 |
 | `/message-stats` | 消息量和活跃用户统计 |
+| `/sys-config` | 系统公告、站点信息、模型/RAG、登录、文件、维护模式等平台配置 |
 
 ### AI 流式聊天示例
 
@@ -253,11 +294,40 @@ Content-Type: application/json
 
 请求体使用项目中的 `AiReplyDto`，服务端会结合当前聊天上下文生成建议文本。
 
+### 智能体与客服权限边界
+
+- 用户智能体接口为 `/ai/agents`，每个用户最多创建 30 个；智能体会记录提示词版本、使用次数和软删除状态。
+- 用户可以修改名称、头像、系统提示词、欢迎语、温度、最大输出 Token 和可见范围，但不能自行修改启用状态；管理员通过 `/ai/admin/agents/**` 管理状态和内容。
+- `/ai/session/create`、`/ai/chat`、历史记录和删除接口都会校验会话所属用户、智能体所属用户以及智能体当前是否可用，避免通过猜测会话或智能体编号越权。
+- 官方客服的代发消息能力通过服务端工具执行，工具会以当前认证用户为发送者，模型提示词不能绕过收件人和消息权限校验。
+- 客服问题提示接口 `/ai/service/question-suggestions` 只查询本地题库，用户问题在请求模型前先持久化；应用启动时题库会预热到内存，模型请求失败不会丢失问题记录。
+
+### RAG 文档链路
+
+1. 用户或管理员上传 `pdf`、`txt`、`md`，后端校验扩展名、大小、内容哈希和归属。
+2. PDF 先进行页数和加密检查，文本经过 Spring AI Reader 提取后使用 `TokenTextSplitter` 分块，并根据 `rag_chunk_size`、`rag_chunk_overlap`、`rag_max_slices` 限制规模。
+3. 向量写入 `SimpleVectorStore` 并持久化 JSON 快照；客服知识库同时记录版本、片段哈希和发布状态，用于重复片段过滤和重建索引。
+4. 检索阶段按当前会话关联的文档/已挂载客服知识库过滤，不把其他用户文档混入上下文；无证据时由提示词约束模型明确说明未找到内容。
+
 ## 缓存与定时任务
 
 - 公共 `CacheClient` 提供空值缓存防穿透、随机 TTL 防雪崩、带 Token 的互斥锁防击穿、有限重试和缓存损坏回源。
 - 缓存清理使用 Redis `SCAN`，避免生产环境使用 `KEYS` 阻塞 Redis。
-- `MoneyExpiryScheduleTask` 等定时任务负责处理资金相关的过期状态；部署多实例时请确认任务是否需要分布式锁或只允许运行一个实例。
+- Redisson 布隆过滤器在启动时预热用户 ID，用于拦截明显不存在的用户查询；验证码、Refresh Token、最近登录 IP、离线通知和推荐缓存使用 Redis。
+- `MoneyExpiryScheduleTask` 每分钟扫描一次，默认将 24 小时未领取红包的剩余金额、24 小时未接受转账原路退回；过期小时数由 `red_packet_expire_hours` 和 `transfer_expire_hours` 控制。
+- `OrderScheduleTask` 每 10 秒扫描一次，默认 5 分钟未支付的充值订单自动关闭，窗口由 `recharge_close_minutes` 控制。
+- 部署多实例时应为定时任务增加分布式锁，或只允许运行一个调度实例，避免重复扫描。
+
+## 平台运行配置
+
+`/sys-config` 管理端接口将可变策略保存在 `sys_config`，常用配置包括：
+
+- AI：模型白名单、请求超时/重试、并发、最大 Token、服务客服温度和问题相似度阈值。
+- RAG：允许类型、分块大小/重叠、Top-K、上下文字符数、最大切片数、上传大小和启动/上传刷新策略。
+- 会话与安全：消息长度、单用户会话数、历史保留、登录失败次数、密码最小长度、JWT 有效期和 WebSocket 心跳。
+- 运营与资金：站点名称、默认首页、系统公告、维护模式、红包/转账过期时长、充值订单关闭时长、文件重复策略。
+
+配置接口会对模型、数值范围、布尔值、RAG 分块关系和文件类型做服务端校验；前端表单校验不能替代这些检查。
 
 ## 接口文档
 
@@ -270,7 +340,7 @@ Content-Type: application/json
 
 ## 安全与生产部署建议
 
-`application.yaml` 不再保存真实数据库、邮箱、支付或模型凭据。部署前务必：
+当前代码库的 `application.yaml` 仍包含本地开发默认值，不能视为生产安全配置。部署前务必：
 
 - 通过环境变量、外部配置中心或独立的生产 profile 提供凭据；生产部署应覆盖默认的 `jwt_secret_for_server_websocket`，改用足够随机且未复用的 `JWT_SECRET`。
 - 立即轮换任何曾写入本地配置、日志、截图或版本控制历史的数据库、邮箱、JWT、支付宝和模型密钥。
@@ -279,6 +349,24 @@ Content-Type: application/json
 - `/file/upload` 仍是兼容性的匿名通用上传接口，应在公开部署前按实际需求收紧或关闭。
 - 支付宝异步通知必须校验签名、订单金额、商户号和订单状态，回调地址应使用 HTTPS 公网地址。
 - 生产环境关闭详细 SQL、调试日志和测试数据，定期备份数据库及上传目录。
+
+## 验证命令
+
+在后端目录执行：
+
+```bash
+# 仅编译
+mvn -pl web -am -DskipTests compile
+
+# 运行后端单元测试
+mvn -pl web -am test
+
+# 打包可运行 JAR
+mvn -pl web -am -DskipTests package
+java -jar web/target/web-0.0.1.jar
+```
+
+启动验收至少应确认：MySQL、Redis、RabbitMQ 可连接；启动日志出现缓存/题库/布隆过滤器预热；`POST /user/login` 的成功或失败事件最终能在 `login_audit_log` 查询到。前端项目的构建和测试命令见前端 README。
 
 ## 开发提示
 
