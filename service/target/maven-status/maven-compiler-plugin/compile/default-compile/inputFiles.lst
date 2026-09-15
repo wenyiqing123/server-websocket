@@ -27,6 +27,7 @@ D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsoc
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\mapper\TransferMapper.java
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\service\ChatService.java
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\mapper\ChatMapper.java
+D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\mapper\LocalMessageLogMapper.java
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\service\impl\UserServiceImpl.java
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\service\RedPacketService.java
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\mapper\ChatGroupMapper.java
@@ -56,6 +57,7 @@ D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsoc
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\service\impl\IUserServiceToolImpl.java
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\service\impl\LoginAuditServiceImpl.java
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\service\MessageStatsService.java
+D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\service\LocalMessageService.java
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\mapper\LoginAuditLogMapper.java
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\service\TransferService.java
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\service\impl\SysConfigServiceImpl.java
@@ -71,6 +73,7 @@ D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsoc
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\service\MessageService.java
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\mapper\SysConfigMapper.java
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\service\FinanceService.java
+D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\service\impl\LocalMessageServiceImpl.java
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\service\GroupService.java
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\mapper\GroupMemberMapper.java
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\service\impl\GroupServiceImpl.java

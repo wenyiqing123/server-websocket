@@ -12,6 +12,8 @@ import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -66,6 +68,27 @@ public class RechargeOrderServiceImpl implements RechargeOrderService {
 
         // 5. 插入资金流水表 (u_account_log), type=1 代表充值
         orderMapper.insertAccountLog(order.getUserId(), 1, order.getAmount(), currentBalance, outTradeNo, "管理员手动补单");
-        cacheClient.evictByPrefix("finance");
+        evictPaymentCachesAfterCommit(order.getUserId(), outTradeNo);
+    }
+
+    /**
+     * 手动补单也必须在事务提交后失效缓存，避免并发查询重新缓存旧订单和旧余额。
+     */
+    private void evictPaymentCachesAfterCommit(Integer userId, String outTradeNo) {
+        Runnable eviction = () -> {
+            cacheClient.evict("account:balance", userId);
+            cacheClient.evict("finance:recharge-status", outTradeNo);
+            cacheClient.evictByPrefix("finance");
+        };
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    eviction.run();
+                }
+            });
+        } else {
+            eviction.run();
+        }
     }
 }

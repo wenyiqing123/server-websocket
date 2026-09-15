@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.wyq.serverwebsocket.mapper.LocalMessageLogMapper">
+    <resultMap id="LocalMessageLogMap" type="cn.wyq.serverwebsocket.pojo.entity.LocalMessageLog">
+        <id property="id" column="id"/>
+        <result property="messageId" column="message_id"/>
+        <result property="messageType" column="message_type"/>
+        <result property="exchangeName" column="exchange_name"/>
+        <result property="routingKey" column="routing_key"/>
+        <result property="payload" column="payload"/>
+        <result property="status" column="status"/>
+        <result property="attemptCount" column="attempt_count"/>
+        <result property="nextRetryAt" column="next_retry_at"/>
+        <result property="lastAttemptAt" column="last_attempt_at"/>
+        <result property="confirmedAt" column="confirmed_at"/>
+        <result property="returnedAt" column="returned_at"/>
+        <result property="lastError" column="last_error"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <sql id="columns">
+        id, message_id, message_type, exchange_name, routing_key, payload, status,
+        attempt_count, next_retry_at, last_attempt_at, confirmed_at, returned_at,
+        last_error, created_at, updated_at
+    </sql>
+
+    <insert id="insertPending" parameterType="cn.wyq.serverwebsocket.pojo.entity.LocalMessageLog">
+        INSERT INTO message_log
+        (message_id, message_type, exchange_name, routing_key, payload, status,
+         attempt_count, next_retry_at, created_at, updated_at)
+        VALUES
+        (#{messageId}, #{messageType}, #{exchangeName}, #{routingKey}, #{payload}, #{status},
+         #{attemptCount}, #{nextRetryAt}, NOW(), NOW())
+    </insert>
+
+    <select id="selectDispatchable" resultMap="LocalMessageLogMap">
+        SELECT <include refid="columns"/>
+        FROM message_log
+        WHERE (
+            (status IN ('PENDING', 'RETRY') AND next_retry_at &lt;= NOW())
+            OR (status = 'SENDING' AND last_attempt_at &lt;= DATE_SUB(NOW(), INTERVAL 10 MINUTE))
+        )
+        ORDER BY id ASC
+        LIMIT #{limit}
+    </select>
+
+    <update id="claim">
+        UPDATE message_log
+        SET status = 'SENDING',
+            attempt_count = attempt_count + 1,
+            last_attempt_at = NOW(),
+            returned_at = NULL,
+            updated_at = NOW()
+        WHERE id = #{id}
+          AND status IN ('PENDING', 'RETRY')
+          AND next_retry_at &lt;= NOW()
+    </update>
+
+    <update id="resetStaleSending">
+        UPDATE message_log
+        SET status = 'RETRY',
+            next_retry_at = NOW(),
+            last_error = COALESCE(last_error, '发送实例超时，自动恢复重试'),
+            updated_at = NOW()
+        WHERE status = 'SENDING'
+          AND last_attempt_at &lt;= DATE_SUB(NOW(), INTERVAL #{staleMinutes} MINUTE)
+    </update>
+
+    <select id="selectByMessageId" resultMap="LocalMessageLogMap">
+        SELECT <include refid="columns"/>
+        FROM message_log
+        WHERE message_id = #{messageId}
+    </select>
+
+    <update id="markConfirmed">
+        UPDATE message_log
+        SET status = 'SENT',
+            confirmed_at = NOW(),
+            last_error = NULL,
+            updated_at = NOW()
+        WHERE message_id = #{messageId}
+          AND status = 'SENDING'
+          AND returned_at IS NULL
+    </update>
+
+    <update id="markRetry">
+        UPDATE message_log
+        SET status = 'RETRY',
+            next_retry_at = DATE_ADD(NOW(), INTERVAL #{delaySeconds} SECOND),
+            last_error = #{errorMessage},
+            returned_at = NULL,
+            updated_at = NOW()
+        WHERE message_id = #{messageId}
+          AND status IN ('SENDING', 'RETRY', 'PENDING')
+    </update>
+
+    <update id="markReturned">
+        UPDATE message_log
+        SET status = 'RETRY',
+            next_retry_at = DATE_ADD(NOW(), INTERVAL #{delaySeconds} SECOND),
+            returned_at = NOW(),
+            confirmed_at = NULL,
+            last_error = #{errorMessage},
+            updated_at = NOW()
+        WHERE message_id = #{messageId}
+          <!-- returned 回调理论上先于 ACK，但允许 SENT 兜底覆盖回调乱序 -->
+          AND status IN ('SENDING', 'SENT', 'RETRY', 'PENDING')
+    </update>
+</mapper>

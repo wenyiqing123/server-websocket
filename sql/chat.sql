@@ -532,6 +532,32 @@ CREATE TABLE `user`  (
 ) ENGINE = InnoDB AUTO_INCREMENT = 67 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
+-- Table structure for message_log
+-- ----------------------------
+DROP TABLE IF EXISTS `message_log`;
+CREATE TABLE `message_log` (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '本地消息表主键',
+  `message_id` varchar(64) CHARACTER SET ascii COLLATE ascii_bin NOT NULL COMMENT '本地消息编号，也是 RabbitMQ correlation id',
+  `message_type` varchar(64) CHARACTER SET ascii COLLATE ascii_bin NOT NULL COMMENT '消息类型',
+  `exchange_name` varchar(128) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL COMMENT 'RabbitMQ 交换机',
+  `routing_key` varchar(128) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL COMMENT 'RabbitMQ 路由键',
+  `payload` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '待发送 JSON 消息体',
+  `status` varchar(20) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL DEFAULT 'PENDING' COMMENT 'PENDING/SENDING/RETRY/SENT',
+  `attempt_count` int NOT NULL DEFAULT 0 COMMENT '投递尝试次数',
+  `next_retry_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '下一次允许投递时间',
+  `last_attempt_at` datetime NULL DEFAULT NULL COMMENT '最近一次投递时间',
+  `confirmed_at` datetime NULL DEFAULT NULL COMMENT 'RabbitMQ publisher confirm 时间',
+  `returned_at` datetime NULL DEFAULT NULL COMMENT 'RabbitMQ returned message 时间',
+  `last_error` varchar(2000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '最近一次失败或返回原因',
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uk_message_log_message_id` (`message_id` ASC) USING BTREE,
+  INDEX `idx_message_log_dispatch` (`status` ASC, `next_retry_at` ASC, `id` ASC) USING BTREE,
+  INDEX `idx_message_log_stale` (`status` ASC, `last_attempt_at` ASC) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'RabbitMQ 本地消息表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
 -- Table structure for login_audit_log
 -- ----------------------------
 DROP TABLE IF EXISTS `login_audit_log`;

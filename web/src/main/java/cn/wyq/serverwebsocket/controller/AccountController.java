@@ -32,11 +32,13 @@ public class AccountController {
         }
     }
     @GetMapping("/balance")
-    public Result getBalance() {
+    public Result getBalance(@RequestParam(value = "fresh", defaultValue = "false") boolean fresh) {
          Long currentId = BaseContext.getCurrentId();
 
-        // 调用 Service 获取余额
-        BigDecimal balance = accountService.getCurrentUserBalance(currentId);
+        // 支付成功确认后使用数据库回源，避免读取到支付事务提交前的旧缓存。
+        BigDecimal balance = fresh
+                ? accountService.getCurrentUserBalanceFresh(currentId)
+                : accountService.getCurrentUserBalance(currentId);
 
         // 使用你项目中统一定义的 Result 包装返回
         return Result.success(balance);

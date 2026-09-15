@@ -129,6 +129,13 @@ public class WebSocket {
     // 🌟 新增：发送系统广播的专属大喇叭
     // =======================================================
     public static void sendSystemBroadcast(String targetUsername, String content) {
+        sendSystemBroadcast(targetUsername, content, null);
+    }
+
+    /**
+     * 向指定用户发送系统类通知，并携带分类供前端决定是否写入系统通知列表。
+     */
+    public static void sendSystemBroadcast(String targetUsername, String content, String notificationType) {
         if (targetUsername == null || content == null) return;
         initServices(); // 确保组件已注入
 
@@ -138,6 +145,7 @@ public class WebSocket {
         sysMsg.setToName(targetUsername);
         sysMsg.setMessage(content);
         sysMsg.setTime(LocalDateTime.now());
+        sysMsg.setNotificationType(notificationType);
 
         String jsonMessage = JSON.toJSONString(sysMsg);
 

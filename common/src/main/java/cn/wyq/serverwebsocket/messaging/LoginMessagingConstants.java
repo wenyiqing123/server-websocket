@@ -12,4 +12,9 @@ public final class LoginMessagingConstants {
     public static final String AUDIT_ROUTING_KEY = "login.audit";
     public static final String MAIL_ROUTING_KEY = "login.mail";
     public static final String NOTIFICATION_ROUTING_KEY = "login.notification";
+
+    /** 本地消息表中的消息类型。 */
+    public static final String TYPE_AUDIT = "LOGIN_AUDIT";
+    public static final String TYPE_MAIL = "LOGIN_MAIL";
+    public static final String TYPE_NOTIFICATION = "LOGIN_NOTIFICATION";
 }

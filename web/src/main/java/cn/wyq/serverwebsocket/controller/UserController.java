@@ -13,7 +13,6 @@ import cn.wyq.serverwebsocket.pojo.dto.*;
 import cn.wyq.serverwebsocket.pojo.entity.UserEmailApplyEntity;
 import cn.wyq.serverwebsocket.pojo.entity.UserEntity;
 import cn.wyq.serverwebsocket.sentinel.GlobalBlockHandler;
-import cn.wyq.serverwebsocket.service.FriendService;
 import cn.wyq.serverwebsocket.service.UserService;
 import cn.wyq.serverwebsocket.socket.WebSocket;
 import cn.wyq.serverwebsocket.utils.BaseContext;
@@ -59,7 +58,6 @@ import java.util.*;
 @Slf4j
 @RequiredArgsConstructor
 public class UserController {
-    private final FriendService friendService;
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
     private final MailUtil mailUtil;
@@ -115,12 +113,6 @@ public class UserController {
                 loginEventPublisher.publishLoginSuccess(loginUser.getId(), loginUser.getUserName(),
                         userMapper.findEmailByUsername(loginUser.getUserName()), "PASSWORD_LOGIN_SUCCESS",
                         clientIp(request), request.getHeader("User-Agent"));
-                List<String> friendNames = friendService.getMyFriendsNameByUsername(username);
-                if (friendNames != null && !friendNames.isEmpty()) {
-                    for (String friendName : friendNames) {
-                        WebSocket.sendSystemBroadcast(friendName, "你的好友 [" + username + "] 刚刚上线了！");
-                    }
-                }
             } else {
                 loginEventPublisher.publishLoginFailure(loginUser == null ? null : loginUser.getId(), username,
                         "PASSWORD_LOGIN_FAILURE", clientIp(request), request.getHeader("User-Agent"),
@@ -138,6 +130,7 @@ public class UserController {
      * 注册
      */
     @PostMapping("/register")
+    @Transactional(rollbackFor = Exception.class)
     public Result register(@RequestBody UserEmailDto userEmailDto, @RequestParam Integer applyRole,
                            HttpServletRequest request) {
         try {
@@ -560,18 +553,6 @@ public class UserController {
         if (isSuccess(result) && user != null) {
             loginEventPublisher.publishLoginSuccess(user.getId(), user.getUserName(), user.getEmail(),
                     "EMAIL_LOGIN_SUCCESS", clientIp(request), request.getHeader("User-Agent"));
-            try {
-                // 因为 dto 里只有邮箱没有用户名，需要先通过邮箱查出具体的实体对象
-                String userName = user.getUserName();
-                List<String> friendsname = friendService.getMyFriendsNameByUsername(userName);
-                if (friendsname != null && !friendsname.isEmpty()) {
-                    for (String friendName : friendsname) {
-                        WebSocket.sendSystemBroadcast(friendName, "你的好友 [" + userName + "] 刚刚上线了！");
-                    }
-                }
-            } catch (Exception e) {
-                log.error("发送邮箱登录上线广播失败", e); // 捕获异常，绝不让次要的广播功能阻塞核心的登录逻辑
-            }
         } else {
             loginEventPublisher.publishLoginFailure(user == null ? null : user.getId(),
                     user == null ? (dto == null ? null : dto.getEmail()) : user.getUserName(),

@@ -4,6 +4,9 @@ import cn.wyq.serverwebsocket.annotation.LoginNotRequired;
 import cn.wyq.serverwebsocket.common.Result;
 import cn.wyq.serverwebsocket.config.AlipayConfig;
 import cn.wyq.serverwebsocket.mapper.RechargeOrderMapper;
+import cn.wyq.serverwebsocket.pojo.entity.RechargeOrder;
+import cn.wyq.serverwebsocket.pojo.vo.AlipayPaymentStatusVO;
+import cn.wyq.serverwebsocket.service.AccountService;
 import cn.wyq.serverwebsocket.service.RechargeService;
 import cn.wyq.serverwebsocket.utils.BaseContext;
 import cn.wyq.serverwebsocket.utils.CacheClient;
@@ -11,7 +14,9 @@ import com.alibaba.fastjson2.JSONObject;
 import com.alipay.api.AlipayClient;
 import com.alipay.api.internal.util.AlipaySignature;
 import com.alipay.api.request.AlipayTradePrecreateRequest;
+import com.alipay.api.request.AlipayTradeQueryRequest;
 import com.alipay.api.response.AlipayTradePrecreateResponse;
+import com.alipay.api.response.AlipayTradeQueryResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +40,8 @@ public class AlipayController {
     @Autowired
     private RechargeService rechargeService;
     @Autowired
+    private AccountService accountService;
+    @Autowired
     private AlipayConfig alipayConfig;
     @Autowired
     private RechargeOrderMapper orderMapper;
@@ -46,6 +53,15 @@ public class AlipayController {
 
     @PostMapping("/alipay/cancel/{outTradeNo}")
     public Result cancelOrder(@PathVariable String outTradeNo) {
+        Integer userId = BaseContext.getCurrentId().intValue();
+        RechargeOrder order = rechargeService.findOrderForUser(outTradeNo, userId);
+        if (order == null) {
+            return Result.error(404, "充值订单不存在");
+        }
+        if (!Integer.valueOf(0).equals(order.getStatus())) {
+            return Result.error("订单已处理，不能重复取消");
+        }
+
         // 直接在数据库中将订单状态改为 2 (已关闭/超时)
         // 注意：只更新状态为 0 (待支付) 的订单，防止误操作
         int updated = orderMapper.updateOrderStatusToClosed(outTradeNo);
@@ -158,11 +174,61 @@ public class AlipayController {
      */
     @GetMapping("/alipay/status")
     public Result checkOrderStatus(@RequestParam String outTradeNo) {
-        // 🌟 去数据库查询这笔订单的状态
-        // 假设 status: 0-未支付，1-已支付
-        // 这里需要你在 rechargeService 里写一个根据 outTradeNo 查状态的方法
-        boolean isPaid = rechargeService.checkOrderIsPaid(outTradeNo);
+        Integer userId = BaseContext.getCurrentId().intValue();
+        RechargeOrder order = rechargeService.findOrderForUser(outTradeNo, userId);
+        if (order == null) {
+            return Result.error(404, "充值订单不存在");
+        }
 
-        return Result.success(isPaid);
+        if (Integer.valueOf(1).equals(order.getStatus())) {
+            // 订单状态只有在充值事务提交后才会变为 1，此处再直接从数据库读取余额，
+            // 将已经提交的余额随支付状态一起返回，避免前端紧接着读取到 Redis 旧值。
+            BigDecimal balance = accountService.getCurrentUserBalanceFresh(order.getUserId().longValue());
+            return Result.success(paymentStatus(order, "PAID", true, true, balance));
+        }
+        if (Integer.valueOf(2).equals(order.getStatus())) {
+            return Result.success(paymentStatus(order, "CLOSED", false, false, null));
+        }
+
+        // 本地回调可能还未到达，主动查询支付宝可以及时识别“已扫码、待付款”状态。
+        String tradeStatus = queryAlipayTradeStatus(outTradeNo);
+        if ("TRADE_SUCCESS".equals(tradeStatus) || "TRADE_FINISHED".equals(tradeStatus)) {
+            return Result.success(paymentStatus(order, "CONFIRMING", false, true, null));
+        }
+        if ("WAIT_BUYER_PAY".equals(tradeStatus)) {
+            return Result.success(paymentStatus(order, "SCANNED", false, true, null));
+        }
+        if ("TRADE_CLOSED".equals(tradeStatus)) {
+            return Result.success(paymentStatus(order, "CLOSED", false, false, null));
+        }
+        return Result.success(paymentStatus(order, "WAITING_SCAN", false, false, null));
+    }
+
+    /** 查询支付宝侧交易状态；网关暂时不可用时由本地订单状态继续兜底。 */
+    private String queryAlipayTradeStatus(String outTradeNo) {
+        try {
+            AlipayTradeQueryRequest queryRequest = new AlipayTradeQueryRequest();
+            JSONObject bizContent = new JSONObject();
+            bizContent.put("out_trade_no", outTradeNo);
+            queryRequest.setBizContent(bizContent.toJSONString());
+            AlipayTradeQueryResponse response = alipayClient.execute(queryRequest);
+            return response.isSuccess() ? response.getTradeStatus() : null;
+        } catch (Exception e) {
+            log.warn("查询支付宝订单状态失败，继续等待异步通知，订单号={}", outTradeNo, e);
+            return null;
+        }
+    }
+
+    private AlipayPaymentStatusVO paymentStatus(RechargeOrder order, String status,
+                                                  boolean paid, boolean scanned,
+                                                  BigDecimal balance) {
+        return AlipayPaymentStatusVO.builder()
+                .outTradeNo(order.getOutTradeNo())
+                .status(status)
+                .paid(paid)
+                .scanned(scanned)
+                .amount(order.getAmount())
+                .balance(balance)
+                .build();
     }
 }

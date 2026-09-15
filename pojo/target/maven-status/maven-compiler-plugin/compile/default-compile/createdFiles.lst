@@ -50,7 +50,9 @@ cn\wyq\serverwebsocket\pojo\dto\AdjustBalanceDTO.class
 cn\wyq\serverwebsocket\pojo\dto\SendTransferDTO.class
 cn\wyq\serverwebsocket\pojo\dto\WsMessage.class
 cn\wyq\serverwebsocket\pojo\entity\ChatGroup.class
+cn\wyq\serverwebsocket\pojo\vo\AlipayPaymentStatusVO.class
 cn\wyq\serverwebsocket\pojo\entity\Chat$ChatBuilder.class
+cn\wyq\serverwebsocket\pojo\vo\AlipayPaymentStatusVO$AlipayPaymentStatusVOBuilder.class
 cn\wyq\serverwebsocket\pojo\User$UserBuilder.class
 cn\wyq\serverwebsocket\pojo\vo\ChatMessageVo.class
 cn\wyq\serverwebsocket\pojo\dto\WsMessage$WsMessageBuilder.class
@@ -99,6 +101,7 @@ cn\wyq\serverwebsocket\pojo\socket\MessageInfo.class
 cn\wyq\serverwebsocket\pojo\entity\LoginAuditLog.class
 cn\wyq\serverwebsocket\pojo\vo\AccountLogVO.class
 cn\wyq\serverwebsocket\pojo\dto\UserExportDTO.class
+cn\wyq\serverwebsocket\pojo\entity\LocalMessageLog.class
 cn\wyq\serverwebsocket\pojo\socket\MessageFull.class
 cn\wyq\serverwebsocket\pojo\vo\BreakdownVO.class
 cn\wyq\serverwebsocket\pojo\vo\UserVo.class
@@ -110,6 +113,7 @@ cn\wyq\serverwebsocket\pojo\dto\GrabRedPacketDTO.class
 cn\wyq\serverwebsocket\pojo\entity\UserEntity$UserEntityBuilder.class
 cn\wyq\serverwebsocket\pojo\entity\Transfer$TransferBuilder.class
 cn\wyq\serverwebsocket\pojo\dto\AiReplyDto$MessageItem.class
+cn\wyq\serverwebsocket\pojo\entity\LocalMessageLog$LocalMessageLogBuilder.class
 cn\wyq\serverwebsocket\pojo\dto\WalletQueryDTO.class
 cn\wyq\serverwebsocket\pojo\entity\RedPacket$RedPacketBuilder.class
 cn\wyq\serverwebsocket\pojo\entity\RedPacketRecord$RedPacketRecordBuilder.class

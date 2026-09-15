@@ -1,34 +1,40 @@
 package cn.wyq.serverwebsocket.messaging;
 
-import cn.wyq.serverwebsocket.utils.MailUtil;
+import cn.wyq.serverwebsocket.service.LocalMessageService;
+import cn.wyq.serverwebsocket.service.FriendService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-/** 登录模块消息生产者，将审计、邮件和通知投递到 RabbitMQ。 */
-@Slf4j
+/** 登录模块消息生产者，将消息可靠地写入本地消息表。 */
 @Component
+@Slf4j
 @RequiredArgsConstructor
 public class LoginEventPublisher {
     private static final String LAST_IP_PREFIX = "login:last-ip:";
 
-    private final RabbitTemplate rabbitTemplate;
     private final StringRedisTemplate redisTemplate;
-    private final MailUtil mailUtil;
+    private final LocalMessageService localMessageService;
+    private final ObjectMapper objectMapper;
+    private final FriendService friendService;
 
-    /** MailUtil 发布的本地事件由此转发到 RabbitMQ。 */
+    /** MailUtil 发布的本地事件也必须先落本地消息表。 */
     @EventListener
     public void forwardMailEvent(MailMessage message) {
         publishMail(message);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public void publishLoginSuccess(Integer userId, String username, String email, String eventType,
                                     String ipAddress, String userAgent) {
         String key = LAST_IP_PREFIX + userId;
@@ -51,16 +57,8 @@ public class LoginEventPublisher {
                 .occurredAt(LocalDateTime.now())
                 .build());
 
-        publishNotification(LoginNotificationMessage.builder()
-                .eventId(UUID.randomUUID().toString())
-                .userId(userId)
-                .username(username)
-                .ipAddress(ipAddress)
-                .userAgent(userAgent)
-                .content(remoteLogin
-                        ? "检测到你的账号从新的 IP 地址登录：" + safe(ipAddress)
-                        : "账号登录成功，登录 IP：" + safe(ipAddress))
-                .build());
+        // 登录成功只通知好友，不再给登录者自己发送系统通知，也不把登录 IP 放进系统公告。
+        publishFriendOnlineNotifications(userId, username, ipAddress, userAgent);
 
         if (remoteLogin && email != null && !email.isBlank()) {
             publishMail(MailMessage.builder()
@@ -74,6 +72,10 @@ public class LoginEventPublisher {
         }
     }
 
+    /**
+     * 失败审计必须独立提交。注册失败时外层业务事务会回滚，不能连带丢失这条审计记录。
+     */
+    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
     public void publishLoginFailure(Integer userId, String username, String eventType,
                                     String ipAddress, String userAgent, String reason) {
         publishAudit(LoginAuditMessage.builder()
@@ -91,20 +93,44 @@ public class LoginEventPublisher {
     }
 
     public void publishAudit(LoginAuditMessage message) {
-        try {
-            rabbitTemplate.convertAndSend(LoginMessagingConstants.EXCHANGE,
-                    LoginMessagingConstants.AUDIT_ROUTING_KEY, message);
-        } catch (Exception e) {
-            log.warn("登录审计消息投递失败，主业务继续执行，eventId={}", message == null ? null : message.getEventId(), e);
-        }
+        enqueue(LoginMessagingConstants.TYPE_AUDIT,
+                LoginMessagingConstants.AUDIT_ROUTING_KEY, message);
     }
 
     public void publishNotification(LoginNotificationMessage message) {
+        enqueue(LoginMessagingConstants.TYPE_NOTIFICATION,
+                LoginMessagingConstants.NOTIFICATION_ROUTING_KEY, message);
+    }
+
+    /** 将好友上线通知分别写入本地消息表，由 RabbitMQ 异步投递给每个好友。 */
+    private void publishFriendOnlineNotifications(Integer userId, String username,
+                                                  String ipAddress, String userAgent) {
+        if (username == null || username.isBlank()) {
+            return;
+        }
         try {
-            rabbitTemplate.convertAndSend(LoginMessagingConstants.EXCHANGE,
-                    LoginMessagingConstants.NOTIFICATION_ROUTING_KEY, message);
-        } catch (Exception e) {
-            log.warn("登录通知消息投递失败，eventId={}", message == null ? null : message.getEventId(), e);
+            java.util.List<String> friendNames = friendService.getMyFriendsNameByUsername(username);
+            if (friendNames == null) {
+                return;
+            }
+            for (String friendName : friendNames) {
+                if (friendName == null || friendName.isBlank() || username.equals(friendName)) {
+                    continue;
+                }
+                publishNotification(LoginNotificationMessage.builder()
+                        .eventId(UUID.randomUUID().toString())
+                        .userId(userId)
+                        .username(friendName)
+                        .sourceUsername(username)
+                        .notificationType("FRIEND_ONLINE")
+                        .ipAddress(ipAddress)
+                        .userAgent(userAgent)
+                        .content(username + "已上线！")
+                        .build());
+            }
+        } catch (Exception exception) {
+            // 上线提示属于附加能力，好友关系查询异常不能阻断登录主流程。
+            log.warn("生成好友上线通知失败，username={}", username, exception);
         }
     }
 
@@ -112,16 +138,11 @@ public class LoginEventPublisher {
         if (message == null) {
             return;
         }
-        try {
-            rabbitTemplate.convertAndSend(LoginMessagingConstants.EXCHANGE,
-                    LoginMessagingConstants.MAIL_ROUTING_KEY, message);
-        } catch (Exception e) {
-            // RabbitMQ 暂不可用时保留原有直发兜底，避免验证码功能完全不可用。
-            log.warn("邮件消息投递失败，使用本地异步兜底，eventId={}", message.getEventId(), e);
-            mailUtil.sendMailAsync(message.getToEmail(), message.getSubject(), message.getContent());
-        }
+        enqueue(LoginMessagingConstants.TYPE_MAIL,
+                LoginMessagingConstants.MAIL_ROUTING_KEY, message);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public void publishRegistration(Integer userId, String username, String email,
                                     String ipAddress, String userAgent) {
         publishAudit(LoginAuditMessage.builder()
@@ -146,6 +167,7 @@ public class LoginEventPublisher {
         }
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public void publishVerificationRequested(Integer userId, String email, String ipAddress, String userAgent) {
         publishAudit(LoginAuditMessage.builder()
                 .eventId(UUID.randomUUID().toString())
@@ -166,5 +188,18 @@ public class LoginEventPublisher {
 
     private String safe(String value) {
         return value == null || value.isBlank() ? "未知" : value;
+    }
+
+    /** 将业务消息序列化并写入本地消息表，实际投递由可靠消息调度器完成。 */
+    private void enqueue(String messageType, String routingKey, Object message) {
+        if (message == null) {
+            return;
+        }
+        try {
+            localMessageService.enqueue(messageType, LoginMessagingConstants.EXCHANGE,
+                    routingKey, objectMapper.writeValueAsString(message));
+        } catch (JsonProcessingException e) {
+            throw new IllegalStateException("登录消息序列化失败，无法写入本地消息表", e);
+        }
     }
 }

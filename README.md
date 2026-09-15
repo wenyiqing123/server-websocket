@@ -97,9 +97,7 @@ HTTP 服务默认监听 `8000` 端口。
    mysql -uroot -p chat < sql/chat.sql
    ```
 
-   `sql/chat.sql` 当前包含用户、好友、群组、消息、AI 会话、用户智能体、客服知识库、文档、订单、钱包、红包、转账和 `login_audit_log` 等表，并包含初始化配置/测试数据。
-
-3. 升级已有数据库时不要直接重新导入 `chat.sql`：该文件是完整初始化脚本，包含 `DROP TABLE`，只适合全新开发库。生产或已有数据环境应先备份，再根据 `SHOW CREATE TABLE` 与当前脚本做差异迁移；迁移脚本应保持幂等并单独归档。当前仓库的 `sql` 目录以 `chat.sql` 为主，不会在应用启动时自动修改表结构。
+   `sql/chat.sql` 当前包含用户、好友、群组、消息、AI 会话、用户智能体、客服知识库、文档、订单、钱包、红包、转账、`login_audit_log` 和 `message_log` 等表，并包含初始化配置/测试数据。
 
 关键数据表按领域划分如下：
 
@@ -110,6 +108,7 @@ HTTP 服务默认监听 `8000` 端口。
 | 即时通讯 | `user`、`friend`、`chat_group`、`group_member`、`message`、`conversation`、`conversation_message` |
 | 资金 | `u_account`、`u_account_log`、`u_red_packet`、`u_red_packet_record`、`u_transfer`、`recharge_order` |
 | 平台管理 | `sys_config`、`sys_document`、`login_audit_log` |
+| 消息可靠投递 | `message_log` |
 
 ## 配置
 
@@ -124,6 +123,7 @@ HTTP 服务默认监听 `8000` 端口。
 | 邮件 | `MAIL_HOST`、`MAIL_PORT`、`MAIL_USERNAME`、`MAIL_PASSWORD` | 邮件发送功能需显式配置。 |
 | 支付宝 | `ALIPAY_APP_ID`、`ALIPAY_PRIVATE_KEY`、`ALIPAY_PUBLIC_KEY`、`ALIPAY_GATEWAY_URL`、`ALIPAY_NOTIFY_URL` | 支付功能需显式配置，回调地址应为 HTTPS 公网地址。 |
 | 模型服务 | `DASHSCOPE_API_KEY`、`DASHSCOPE_BASE_URL` | 云端聊天使用 OpenAI 兼容接口；密钥不要写入前端。 |
+| 可靠消息 | `LOCAL_MESSAGE_DISPATCH_ENABLED`、`LOCAL_MESSAGE_FIXED_DELAY_MS`、`LOCAL_MESSAGE_BATCH_SIZE` | 本地消息表投递开关、扫描间隔和批量大小；默认开启、每秒扫描、每批 100 条。 |
 | 服务与文件 | `SERVER_PORT`、`APP_DOMAIN`、`IMAGE_LOCATION`、`AI_DOCUMENT_STORAGE_LOCATION` | HTTP 默认端口为 `8000`；AI 私有文档默认不落入公开图片目录。 |
 
 Spring Multipart 的传输安全上限默认是 `1GB`，普通文件和 RAG 文档的业务上限默认由 `sys_config` 控制为 `10MB`；文档服务还额外限制 PDF 页数、可提取字符数和向量切片数，具体数值在 `ai.document.limits.*` 与 `rag_*` 配置中。
@@ -225,7 +225,11 @@ Access Token 是无状态 JWT；Refresh Token 会按用户 ID 保存在 Redis �
 | `login.mail` | `login.mail.queue` | 验证码、注册欢迎邮件、异地登录提醒 |
 | `login.notification` | `login.notification.queue` | 登录成功和异地登录的 WebSocket 系统通知 |
 
-登录成功后，服务端会把最近 IP 保存在 Redis `login:last-ip:{userId}`（保留 30 天），发现新 IP 时标记异地登录并发送提醒。RabbitMQ 暂不可用时不会阻断登录主流程，邮件会走本地异步兜底；审计和通知则记录告警日志，恢复 MQ 后再继续消费新事件。审计 IP 是后端观察到的连接地址：本机访问通常是 `127.0.0.1` 或 IPv6 回环地址，反向代理部署时应正确转发 `X-Real-IP`/`X-Forwarded-For`。
+登录成功后，服务端会把最近 IP 保存在 Redis `login:last-ip:{userId}`（保留 30 天），发现新 IP 时标记异地登录并发送提醒。审计、邮件和通知不会直接依赖请求线程发送，而是先写入 `message_log`：投递器抢占记录后使用持久化消息发送，publisher ACK 才标记 `SENT`，NACK、网络异常或 mandatory return 会记录原因，并按 `1s -> 2s -> 4s` 的指数退避策略继续重试（上限可通过 `RABBIT_PRODUCER_RETRY_MAX_DELAY_MS` 调整）；应用重启后仍会扫描 `PENDING`、`RETRY` 以及超时的 `SENDING` 记录。审计消费者通过 `event_id` 幂等写入，避免重试造成重复审计。审计 IP 是后端观察到的连接地址：本机访问通常是 `127.0.0.1` 或 IPv6 回环地址，反向代理部署时应正确转发 `X-Real-IP`/`X-Forwarded-For`。
+
+业务消费者默认最多处理 3 次，采用指数退避；达到上限后由 `RepublishMessageRecoverer` 转发到持久化错误交换机 `message.error.exchange`，再路由到 `message.error.queue`。错误队列由独立消费者监听，发送包含原消息体、原交换机、路由键和异常堆栈的告警邮件到 `2402317148@qq.com`。消费者重试次数和间隔可通过 `RABBIT_CONSUMER_RETRY_*` 环境变量调整；告警邮件失败也会按 `RABBIT_ERROR_CONSUMER_RETRY_*` 做有限重试。
+
+RabbitMQ 队列 `ai_task_queue`、`login.audit.queue`、`login.mail.queue`、`login.notification.queue` 和 `message.error.queue` 均声明为持久化惰性队列（`x-queue-mode=lazy`），积压消息会优先落盘以降低内存压力。RabbitMQ 不允许修改已存在队列的参数；如果旧队列已经以非 lazy 模式创建，需要在确认消息已处理或已备份后删除旧队列，再重启应用重新声明，或使用 RabbitMQ 管理策略完成迁移。生产环境应先在备用虚拟主机验证队列迁移。
 
 ## WebSocket
 

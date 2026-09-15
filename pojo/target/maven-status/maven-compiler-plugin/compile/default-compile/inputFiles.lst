@@ -37,6 +37,7 @@ D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\dto\UserEmailDto.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\entity\AiServiceQuestion.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\vo\GroupMemberQueryVo.java
+D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\vo\AlipayPaymentStatusVO.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\vo\RencetSevenDayUsersAndMessageCount.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\vo\UserWalletVO.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\dto\RechargeDTO.java
@@ -49,6 +50,7 @@ D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\dto\MessageToolQueryDTO.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\entity\GroupMember.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\vo\UsersAndMessages.java
+D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\entity\LocalMessageLog.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\dto\ConversationMessageDTO.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\vo\UserVo.java
 D:\javawork\websocket\server-websocket\pojo\src\main\java\cn\wyq\serverwebsocket\pojo\entity\RedPacketRecord.java

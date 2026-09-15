@@ -11,6 +11,7 @@ cn\wyq\serverwebsocket\messaging\MailMessage$MailMessageBuilder.class
 cn\wyq\serverwebsocket\utils\ServletUtil.class
 cn\wyq\serverwebsocket\constant\AutoFillConstant.class
 cn\wyq\serverwebsocket\exception\GlobalExceptionHandler.class
+cn\wyq\serverwebsocket\messaging\RabbitMessagingConstants.class
 cn\wyq\serverwebsocket\messaging\LoginAuditMessage.class
 cn\wyq\serverwebsocket\common\ImagePropertis.class
 cn\wyq\serverwebsocket\common\PageResult$PageResultBuilder.class

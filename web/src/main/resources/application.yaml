@@ -3,6 +3,35 @@ app:
   domain: "${APP_DOMAIN:http://localhost:8000}"
   # 可通过 APP_ENV 切换运行环境；JWT_SECRET 未注入时使用下方固定开发密钥。
   environment: "${APP_ENV:development}"
+  messaging:
+    local-message:
+      # 本地消息表投递开关；关闭后消息仍会落库，可在恢复 RabbitMQ 后重新开启。
+      dispatch-enabled: "${LOCAL_MESSAGE_DISPATCH_ENABLED:true}"
+      fixed-delay-ms: "${LOCAL_MESSAGE_FIXED_DELAY_MS:1000}"
+      initial-delay-ms: "${LOCAL_MESSAGE_INITIAL_DELAY_MS:3000}"
+      batch-size: "${LOCAL_MESSAGE_BATCH_SIZE:100}"
+    # 生产者确认、NACK、网络异常和 mandatory return 都会回写本地消息表，
+    # 按指数退避继续投递，避免 RabbitMQ 故障时高频重试。
+    producer:
+      retry:
+        initial-delay-ms: "${RABBIT_PRODUCER_RETRY_INITIAL_DELAY_MS:1000}"
+        multiplier: "${RABBIT_PRODUCER_RETRY_MULTIPLIER:2.0}"
+        max-delay-ms: "${RABBIT_PRODUCER_RETRY_MAX_DELAY_MS:60000}"
+    # 业务消费者失败后最多尝试 3 次，之后由恢复器投递到 error exchange。
+    consumer:
+      retry:
+        max-attempts: "${RABBIT_CONSUMER_RETRY_MAX_ATTEMPTS:3}"
+        initial-interval-ms: "${RABBIT_CONSUMER_RETRY_INITIAL_INTERVAL_MS:1000}"
+        multiplier: "${RABBIT_CONSUMER_RETRY_MULTIPLIER:2.0}"
+        max-interval-ms: "${RABBIT_CONSUMER_RETRY_MAX_INTERVAL_MS:10000}"
+    # 错误告警邮件失败时也做有限重试，最终记录日志并确认该错误消息。
+    error-consumer:
+      alert-email: "${RABBIT_ERROR_ALERT_EMAIL:2402317148@qq.com}"
+      retry:
+        max-attempts: "${RABBIT_ERROR_CONSUMER_RETRY_MAX_ATTEMPTS:3}"
+        initial-interval-ms: "${RABBIT_ERROR_CONSUMER_RETRY_INITIAL_INTERVAL_MS:2000}"
+        multiplier: "${RABBIT_ERROR_CONSUMER_RETRY_MULTIPLIER:2.0}"
+        max-interval-ms: "${RABBIT_ERROR_CONSUMER_RETRY_MAX_INTERVAL_MS:30000}"
 
 # JWT_SECRET 可由部署环境覆盖；未配置时使用固定默认值，保证本地启动即可完成 JWT 初始化。
 security:
@@ -45,12 +74,17 @@ spring:
     virtual-host: /websocket
     publisher-confirm-type: correlated
     publisher-returns: true
+    template:
+      # mandatory=true 才会触发 returned callback，捕获没有绑定队列的消息。
+      mandatory: true
     listener:
       simple:
         concurrency: 3
         max-concurrency: 10
         prefetch: 1
         acknowledge-mode: auto
+        # 失败消息由监听器工厂的重试恢复器转发到 error exchange。
+        default-requeue-rejected: false
   web:
     resources:
       static-locations:
@@ -144,4 +178,4 @@ alipay:
   sign-type: RSA2
   charset: UTF-8
   format: json
-  notify-url: "${ALIPAY_NOTIFY_URL:https://49ae2e51.r3.cpolar.top/alipay/notify}"
+  notify-url: "${ALIPAY_NOTIFY_URL:https://2b193355.r3.cpolar.top/alipay/notify}"

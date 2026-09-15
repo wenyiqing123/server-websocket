@@ -20,5 +20,7 @@ public class MessageFull {
     private String toName;
     private String toPath;
     private LocalDateTime time;
+    /** 系统通知分类，例如 FRIEND_ONLINE；普通聊天消息为空。 */
+    private String notificationType;
 //    private int recalled;
 }

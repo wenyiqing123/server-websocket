@@ -10,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -72,10 +74,30 @@ public class AccountService {
         accountLogMapper.insert(accountLog);
 
         log.info("用户 [{}] 充值成功，当前余额: {}", userId, balanceAfter);
-        cacheClient.evict("account:balance", userId);
-        cacheClient.evictByPrefix("finance");
+        evictAccountCachesAfterCommit(userId);
         return balanceAfter;
     }
+
+    /**
+     * 事务提交后再删除余额缓存，避免并发查询把尚未提交的旧余额重新写入缓存。
+     */
+    private void evictAccountCachesAfterCommit(Integer userId) {
+        Runnable eviction = () -> {
+            cacheClient.evict("account:balance", userId);
+            cacheClient.evictByPrefix("finance");
+        };
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    eviction.run();
+                }
+            });
+        } else {
+            eviction.run();
+        }
+    }
+
     public BigDecimal getCurrentUserBalance(Long userId) {
         if (userId == null) {
             throw new ServiceException("无法获取用户信息，请重新登录", 401);
@@ -86,5 +108,16 @@ public class AccountService {
                     BigDecimal balance = accountMapper.selectBalanceByUserId(id);
                     return balance != null ? balance : BigDecimal.ZERO;
                 }, 30, TimeUnit.SECONDS);
+    }
+
+    /**
+     * 支付完成页使用的强一致余额查询，绕过 Redis 直接读取已提交的数据库余额。
+     */
+    public BigDecimal getCurrentUserBalanceFresh(Long userId) {
+        if (userId == null) {
+            throw new ServiceException("无法获取用户信息，请重新登录", 401);
+        }
+        BigDecimal balance = accountMapper.selectBalanceByUserId(userId);
+        return balance == null ? BigDecimal.ZERO : balance;
     }
 }

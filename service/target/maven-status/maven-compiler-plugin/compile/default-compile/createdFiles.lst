@@ -1,5 +1,6 @@
 cn\wyq\serverwebsocket\mapper\TransferMapper.class
 cn\wyq\serverwebsocket\service\impl\UserServiceImpl$2.class
+cn\wyq\serverwebsocket\service\impl\LocalMessageServiceImpl.class
 cn\wyq\serverwebsocket\mapper\RedPacketRecordMapper.class
 cn\wyq\serverwebsocket\mapper\UserMapper.class
 cn\wyq\serverwebsocket\mapper\LoginAuditLogMapper.class
@@ -14,6 +15,7 @@ cn\wyq\serverwebsocket\annotation\LoginNotRequired.class
 cn\wyq\serverwebsocket\mapper\DocumentSessionMapper.class
 cn\wyq\serverwebsocket\service\impl\DocumentServiceImpl$DocumentLimits.class
 cn\wyq\serverwebsocket\mapper\ChatGroupMapper.class
+cn\wyq\serverwebsocket\service\AccountService$1.class
 cn\wyq\serverwebsocket\mapper\AiServiceQuestionMapper.class
 cn\wyq\serverwebsocket\mapper\FinanceMapper.class
 cn\wyq\serverwebsocket\service\impl\RechargeOrderServiceImpl$1.class
@@ -63,12 +65,14 @@ cn\wyq\serverwebsocket\service\impl\AIServiceImpl.class
 cn\wyq\serverwebsocket\service\impl\MessageStatsImpl$1.class
 cn\wyq\serverwebsocket\mapper\RechargeOrderMapper.class
 cn\wyq\serverwebsocket\mapper\AiAgentMapper.class
+cn\wyq\serverwebsocket\service\LocalMessageService.class
 cn\wyq\serverwebsocket\mapper\MessageStatsMapper.class
 cn\wyq\serverwebsocket\service\impl\IMessageServiceToolImpl.class
 cn\wyq\serverwebsocket\service\impl\UserWalletServiceImpl$1.class
 cn\wyq\serverwebsocket\service\RechargeOrderService.class
 cn\wyq\serverwebsocket\mapper\RedPacketMapper.class
 cn\wyq\serverwebsocket\service\impl\DocumentServiceImpl$1.class
+cn\wyq\serverwebsocket\service\impl\RechargeOrderServiceImpl$2.class
 cn\wyq\serverwebsocket\service\MessageService.class
 cn\wyq\serverwebsocket\service\impl\FinanceServiceImpl$1.class
 cn\wyq\serverwebsocket\mapper\UserWalletMapper.class
@@ -79,6 +83,8 @@ cn\wyq\serverwebsocket\service\AccountService.class
 cn\wyq\serverwebsocket\service\impl\ChatServiceImpl.class
 cn\wyq\serverwebsocket\service\impl\LoginAuditServiceImpl.class
 cn\wyq\serverwebsocket\mapper\AccountMapper.class
+cn\wyq\serverwebsocket\service\RechargeService$1.class
+cn\wyq\serverwebsocket\mapper\LocalMessageLogMapper.class
 cn\wyq\serverwebsocket\service\impl\TransactionLogServiceImpl$1.class
 cn\wyq\serverwebsocket\mapper\IUserMapperTool.class
 cn\wyq\serverwebsocket\mapper\TransactionLogMapper.class

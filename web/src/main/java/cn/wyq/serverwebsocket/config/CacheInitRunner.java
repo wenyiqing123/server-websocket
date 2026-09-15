@@ -43,6 +43,7 @@ public class CacheInitRunner {
 
     // 🌟 1. 注入布隆过滤器需要的核心组件
     @Autowired
+    @Lazy
     private RedissonClient redissonClient;
     @Autowired
     private UserMapper userMapper;

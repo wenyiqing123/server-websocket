@@ -11,6 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -35,12 +37,20 @@ public class RechargeService {
         if (outTradeNo == null || outTradeNo.trim().isEmpty()) {
             return false;
         }
+        // 支付状态不能缓存：支付宝回调提交后，前端必须立即看到最新状态。
+        Integer status = rechargeOrderMapper.selectStatusByOutTradeNo(outTradeNo);
+        return Integer.valueOf(1).equals(status);
+    }
 
-        return cacheClient.queryWithMutex("finance:recharge-status", outTradeNo,
-                Boolean.class, ignored -> {
-                    Integer status = rechargeOrderMapper.selectStatusByOutTradeNo(outTradeNo);
-                    return status != null && status == 1;
-                }, 5, java.util.concurrent.TimeUnit.SECONDS);
+    /**
+     * 查询当前用户的充值订单，避免仅凭订单号查询到其他用户的支付状态。
+     */
+    public RechargeOrder findOrderForUser(String outTradeNo, Integer userId) {
+        if (outTradeNo == null || outTradeNo.isBlank() || userId == null) {
+            return null;
+        }
+        RechargeOrder order = rechargeOrderMapper.selectById(outTradeNo);
+        return order != null && userId.equals(order.getUserId()) ? order : null;
     }
     /**
      * 1. 扫码前：创建待支付订单
@@ -62,17 +72,26 @@ public class RechargeService {
      */
     @Transactional(rollbackFor = Exception.class)
     public void handleAlipayNotify(String outTradeNo, String alipayTradeNo, BigDecimal amount) {
-        // 1. 查询订单
-        RechargeOrder order = rechargeOrderMapper.selectById(outTradeNo);
+        // 1. 锁定订单，支付宝可能对同一订单发送多次并发通知。
+        RechargeOrder order = rechargeOrderMapper.selectOrderForUpdate(outTradeNo);
         if (order == null) {
             log.error("充值订单不存在: {}", outTradeNo);
             return;
         }
 
         // 2. 幂等性校验：如果订单已经是支付成功状态，直接返回，防止支付宝多次通知导致重复加钱
-        if (order.getStatus() == 1) {
+        if (Integer.valueOf(1).equals(order.getStatus())) {
             log.info("充值订单 {} 已处理，无需重复加钱", outTradeNo);
             return;
+        }
+        if (!Integer.valueOf(0).equals(order.getStatus())) {
+            throw new IllegalStateException("充值订单已关闭，拒绝入账: " + outTradeNo);
+        }
+        if (amount == null || order.getAmount() == null || order.getAmount().compareTo(amount) != 0) {
+            throw new IllegalArgumentException("支付宝回调金额与订单金额不一致: " + outTradeNo);
+        }
+        if (alipayTradeNo == null || alipayTradeNo.isBlank()) {
+            throw new IllegalArgumentException("支付宝交易号为空: " + outTradeNo);
         }
 
         Integer userId = order.getUserId();
@@ -111,9 +130,28 @@ public class RechargeService {
         order.setAlipayTradeNo(alipayTradeNo);
         order.setPayTime(LocalDateTime.now());
         rechargeOrderMapper.updateById(order);
-        cacheClient.evict("finance:recharge-status", outTradeNo);
-        cacheClient.evictByPrefix("finance");
+        // 事务提交前不能删除缓存，否则并发查询可能把未提交的旧数据重新写回 Redis。
+        evictPaymentCachesAfterCommit(outTradeNo, userId);
 
         log.info("【充值成功入账】用户: {}, 金额: {}", userId, amount);
+    }
+
+    /** 只有数据库事务提交后才失效支付状态、余额及管理端财务缓存。 */
+    private void evictPaymentCachesAfterCommit(String outTradeNo, Integer userId) {
+        Runnable eviction = () -> {
+            cacheClient.evict("finance:recharge-status", outTradeNo);
+            cacheClient.evict("account:balance", userId);
+            cacheClient.evictByPrefix("finance");
+        };
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    eviction.run();
+                }
+            });
+        } else {
+            eviction.run();
+        }
     }
 }

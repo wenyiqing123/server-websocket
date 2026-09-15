@@ -82,17 +82,26 @@ public class MailUtil {
     /** RabbitMQ 消费者调用的同步发信方法。 */
     public void sendMailNow(String toEmail, String subject, String content) {
         try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromEmail);
-            message.setTo(toEmail);
-            message.setSubject(subject);
-            message.setText(content);
-
-            mailSender.send(message);
+            sendMailNowOrThrow(toEmail, subject, content);
         } catch (Exception e) {
             // 异步线程中的异常只能打印日志记录，不能抛给用户
             System.err.println("邮件发送失败给：" + toEmail + "，原因：" + e.getMessage());
         }
+    }
+
+    /**
+     * RabbitMQ 消费者使用的严格发信方法。
+     *
+     * <p>发送失败必须抛出异常，交给 RabbitMQ listener 的重回队列策略处理，
+     * 不能像普通异步兜底方法一样吞掉异常。</p>
+     */
+    public void sendMailNowOrThrow(String toEmail, String subject, String content) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom(fromEmail);
+        message.setTo(toEmail);
+        message.setSubject(subject);
+        message.setText(content);
+        mailSender.send(message);
     }
 
     /**
