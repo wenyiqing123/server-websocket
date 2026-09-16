@@ -2,6 +2,8 @@ package cn.wyq.serverwebsocket.service;
 
 import cn.wyq.serverwebsocket.component.RedPacketAsyncComponent;
 import cn.wyq.serverwebsocket.constant.RedPacketConstant;
+import cn.wyq.serverwebsocket.messaging.DelayedExpiryMessage;
+import cn.wyq.serverwebsocket.messaging.ExpiryMessagingConstants;
 import cn.wyq.serverwebsocket.mapper.*;
 import cn.wyq.serverwebsocket.pojo.entity.*;
 import cn.wyq.serverwebsocket.pojo.vo.RedPacketDetailVO;
@@ -52,6 +54,9 @@ public class RedPacketService {
 
     @Autowired
     private SysConfigService sysConfigService;
+
+    @Autowired
+    private DelayedExpiryMessageScheduler expiryMessageScheduler;
 
     /**
      * 查询红包详情与领取列表
@@ -191,6 +196,11 @@ public class RedPacketService {
                 .build();
         redPacketMapper.insert(redPacket);
 
+        // 红包创建成功后先安排第一块延迟检查，后续时间块由消费者按数据库状态递进安排。
+        expiryMessageScheduler.scheduleFirst(
+                ExpiryMessagingConstants.BUSINESS_RED_PACKET,
+                String.valueOf(redPacket.getId()));
+
         // 7. 调用二倍均值算法拆分红包
         List<BigDecimal> splitAmounts = RedPacketUtils.splitRedPacket(totalAmount, totalCount);
         log.info("红包拆分完毕，共 {} 份", splitAmounts.size());
@@ -219,6 +229,28 @@ public class RedPacketService {
         cacheClient.evictByPrefix("finance");
 
         return redPacket.getId();
+    }
+
+    /** 处理红包到期检查，最后一个时间块才退回未领取余额。 */
+    @Transactional(rollbackFor = Exception.class)
+    public void processExpiryCheck(DelayedExpiryMessage message) {
+        Long redPacketId;
+        try {
+            redPacketId = Long.valueOf(message.getBusinessId());
+        } catch (NumberFormatException exception) {
+            throw new IllegalArgumentException("红包到期消息编号无效", exception);
+        }
+        RedPacket redPacket = redPacketMapper.selectById(redPacketId);
+        if (redPacket == null || redPacket.getStatus() == null || redPacket.getStatus() != 0
+                || redPacket.getRemainingAmount() == null
+                || redPacket.getRemainingAmount().compareTo(BigDecimal.ZERO) <= 0) {
+            return;
+        }
+        if (!expiryMessageScheduler.isFinalStep(message)) {
+            expiryMessageScheduler.scheduleNext(message);
+            return;
+        }
+        refundRedPacketAtMessageDeadline(redPacketId);
     }
 
     /**
@@ -293,10 +325,31 @@ public class RedPacketService {
             return false;
         }
 
-        BigDecimal refundAmount = redPacket.getRemainingAmount();
-        if (redPacketMapper.markRedPacketExpired(redPacketId, expireHours) != 1) {
+        return refundRedPacketLocked(redPacket, expireHours);
+    }
+
+    /**
+     * 最后一块 RabbitMQ 消息已经代表原订单的截止时间，不能因管理员后来修改配置而再次延长订单。
+     */
+    private boolean refundRedPacketAtMessageDeadline(Long redPacketId) {
+        RedPacket redPacket = redPacketMapper.selectByIdForUpdate(redPacketId);
+        if (redPacket == null || redPacket.getStatus() == null || redPacket.getStatus() != 0
+                || redPacket.getRemainingAmount() == null
+                || redPacket.getRemainingAmount().compareTo(BigDecimal.ZERO) <= 0) {
             return false;
         }
+        return refundRedPacketLocked(redPacket, null);
+    }
+
+    private boolean refundRedPacketLocked(RedPacket redPacket, Integer expireHours) {
+        int updated = expireHours == null
+                ? redPacketMapper.markRedPacketExpiredAtDeadline(redPacket.getId())
+                : redPacketMapper.markRedPacketExpired(redPacket.getId(), expireHours);
+        if (updated != 1) {
+            return false;
+        }
+
+        BigDecimal refundAmount = redPacket.getRemainingAmount();
 
         Account account = accountMapper.selectByUserIdForUpdate(redPacket.getSenderId());
         BigDecimal balanceAfter;
@@ -312,7 +365,7 @@ public class RedPacketService {
             accountMapper.updateById(account);
         }
 
-        String orderNo = "RPR" + redPacketId + "_" + UUID.randomUUID().toString().substring(0, 8);
+        String orderNo = "RPR" + redPacket.getId() + "_" + UUID.randomUUID().toString().substring(0, 8);
         accountLogMapper.insert(AccountLog.builder()
                 .userId(redPacket.getSenderId())
                 .type(6)
@@ -323,11 +376,11 @@ public class RedPacketService {
                 .createTime(LocalDateTime.now())
                 .build());
 
-        clearRedPacketCache(redPacketId);
+        clearRedPacketCache(redPacket.getId());
         cacheClient.evictByPrefix("redpackets:detail");
         cacheClient.evict("account:balance", redPacket.getSenderId());
         cacheClient.evictByPrefix("finance");
-        log.info("红包 [{}] 过期退回发送者 [{}]，金额 {}", redPacketId, redPacket.getSenderId(), refundAmount);
+        log.info("红包 [{}] 过期退回发送者 [{}]，金额 {}", redPacket.getId(), redPacket.getSenderId(), refundAmount);
         return true;
     }
 

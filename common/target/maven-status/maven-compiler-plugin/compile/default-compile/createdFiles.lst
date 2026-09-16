@@ -5,6 +5,7 @@ cn\wyq\serverwebsocket\messaging\LoginMessagingConstants.class
 cn\wyq\serverwebsocket\constant\RedPacketConstant.class
 cn\wyq\serverwebsocket\utils\JWTUtil.class
 cn\wyq\serverwebsocket\common\Result$ResultBuilder.class
+cn\wyq\serverwebsocket\messaging\DelayedExpiryMessage$DelayedExpiryMessageBuilder.class
 cn\wyq\serverwebsocket\constant\ResultConstant.class
 cn\wyq\serverwebsocket\common\Result.class
 cn\wyq\serverwebsocket\messaging\MailMessage$MailMessageBuilder.class
@@ -12,6 +13,7 @@ cn\wyq\serverwebsocket\utils\ServletUtil.class
 cn\wyq\serverwebsocket\constant\AutoFillConstant.class
 cn\wyq\serverwebsocket\exception\GlobalExceptionHandler.class
 cn\wyq\serverwebsocket\messaging\RabbitMessagingConstants.class
+cn\wyq\serverwebsocket\messaging\ExpiryMessagingConstants.class
 cn\wyq\serverwebsocket\messaging\LoginAuditMessage.class
 cn\wyq\serverwebsocket\common\ImagePropertis.class
 cn\wyq\serverwebsocket\common\PageResult$PageResultBuilder.class
@@ -33,5 +35,6 @@ cn\wyq\serverwebsocket\utils\ImageUtils.class
 cn\wyq\serverwebsocket\common\JacksonObjectMapper.class
 cn\wyq\serverwebsocket\common\PageResult.class
 cn\wyq\serverwebsocket\utils\SystemConfigUtils.class
+cn\wyq\serverwebsocket\messaging\DelayedExpiryMessage.class
 cn\wyq\serverwebsocket\common\AjaxResult.class
 cn\wyq\serverwebsocket\messaging\LoginNotificationMessage.class

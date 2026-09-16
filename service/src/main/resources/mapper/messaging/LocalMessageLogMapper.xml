@@ -34,6 +34,16 @@
          #{attemptCount}, #{nextRetryAt}, NOW(), NOW())
     </insert>
 
+    <insert id="insertPendingIdempotent" parameterType="cn.wyq.serverwebsocket.pojo.entity.LocalMessageLog">
+        INSERT INTO message_log
+        (message_id, message_type, exchange_name, routing_key, payload, status,
+         attempt_count, next_retry_at, created_at, updated_at)
+        VALUES
+        (#{messageId}, #{messageType}, #{exchangeName}, #{routingKey}, #{payload}, #{status},
+         #{attemptCount}, #{nextRetryAt}, NOW(), NOW())
+        ON DUPLICATE KEY UPDATE message_id = message_id
+    </insert>
+
     <select id="selectDispatchable" resultMap="LocalMessageLogMap">
         SELECT <include refid="columns"/>
         FROM message_log

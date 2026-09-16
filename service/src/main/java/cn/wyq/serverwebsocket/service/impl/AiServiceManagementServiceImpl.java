@@ -817,6 +817,10 @@ public class AiServiceManagementServiceImpl implements AiServiceManagementServic
     }
 
     private void validateSetting(String key, String value) {
+        if ("ai_service_avatar".equals(key) && !value.isEmpty()
+                && !value.matches("^(https?://|/|data:|blob:).+")) {
+            throw new ServiceException("客服头像地址格式不正确", 400);
+        }
         if ((key.endsWith("status") || key.endsWith("enabled"))
                 && !("true".equalsIgnoreCase(value) || "false".equalsIgnoreCase(value)
                 || "1".equals(value) || "0".equals(value))) {

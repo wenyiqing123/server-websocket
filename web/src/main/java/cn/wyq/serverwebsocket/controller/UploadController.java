@@ -32,8 +32,9 @@ public class UploadController {
     @Value("${image.location}")
     private String location;
 
-    @Value("${server.port}")
-    private String serverPort;
+    /** 对外访问地址，生产环境通过 APP_DOMAIN 配置，避免把 localhost 写入数据库。 */
+    @Value("${app.domain:}")
+    private String appDomain;
 
     @Autowired
     private SysConfigService sysConfigService;
@@ -78,8 +79,7 @@ public class UploadController {
             file.transferTo(targetFile);
 
             // 5. 拼接返回路径
-            String fileUrl = "http://localhost:" + serverPort + mapping + fileNewName;
-//            String fileUrl = "https://6af2e2eb.r3.cpolar.top/" + fileNewName;
+            String fileUrl = buildFileUrl(fileNewName);
             log.info("文件上传成功，已保存至硬盘: {}, 生成访问路径: {}", targetFile.getAbsolutePath(), fileUrl);
 
             return Result.success(fileUrl);
@@ -88,6 +88,17 @@ public class UploadController {
             log.error("文件上传失败，原文件名: {}", filename, e);
             return Result.error("文件上传失败");
         }
+    }
+
+    private String buildFileUrl(String fileName) {
+        String path = (mapping == null ? "/file/" : mapping.trim());
+        if (path.isEmpty()) path = "/file/";
+        if (!path.startsWith("/")) path = "/" + path;
+        if (!path.endsWith("/")) path += "/";
+        String domain = appDomain == null ? "" : appDomain.trim();
+        if (domain.isEmpty()) return path + fileName;
+        while (domain.endsWith("/")) domain = domain.substring(0, domain.length() - 1);
+        return domain + path + fileName;
     }
 
     /** 读取平台配置中的普通文件大小上限，配置不可用时回退到 10 MB。 */

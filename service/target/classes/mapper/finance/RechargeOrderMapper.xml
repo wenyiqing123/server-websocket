@@ -40,12 +40,6 @@
     <select id="getUserBalance" resultType="java.math.BigDecimal">
         SELECT balance FROM u_account WHERE user_id = #{userId}
     </select>
-    <update id="closeExpiredOrders">
-        UPDATE recharge_order
-        SET status = 2
-        WHERE status = 0
-          AND create_time &lt;= DATE_SUB(NOW(), INTERVAL #{minutes} MINUTE)
-    </update>
     <insert id="insertAccountLog">
         INSERT INTO u_account_log
             (user_id, type, amount, balance_after, order_no, remark, create_time)

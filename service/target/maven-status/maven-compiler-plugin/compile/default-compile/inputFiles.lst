@@ -35,6 +35,7 @@ D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsoc
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\mapper\MessageIntentionMapper.java
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\service\impl\DocumentServiceImpl.java
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\util\MessageUtils.java
+D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\service\DelayedExpiryMessageScheduler.java
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\mapper\RedPacketRecordMapper.java
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\service\AiAgentService.java
 D:\javawork\websocket\server-websocket\service\src\main\java\cn\wyq\serverwebsocket\service\LoginAuditService.java

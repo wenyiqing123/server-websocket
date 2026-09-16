@@ -9,6 +9,7 @@ D:\javawork\websocket\server-websocket\common\src\main\java\cn\wyq\serverwebsock
 D:\javawork\websocket\server-websocket\common\src\main\java\cn\wyq\serverwebsocket\utils\ImageNetClassLoader.java
 D:\javawork\websocket\server-websocket\common\src\main\java\cn\wyq\serverwebsocket\constant\RedisKeyConstants.java
 D:\javawork\websocket\server-websocket\common\src\main\java\cn\wyq\serverwebsocket\constant\BloomConstant.java
+D:\javawork\websocket\server-websocket\common\src\main\java\cn\wyq\serverwebsocket\messaging\ExpiryMessagingConstants.java
 D:\javawork\websocket\server-websocket\common\src\main\java\cn\wyq\serverwebsocket\common\JacksonObjectMapper.java
 D:\javawork\websocket\server-websocket\common\src\main\java\cn\wyq\serverwebsocket\messaging\LoginAuditMessage.java
 D:\javawork\websocket\server-websocket\common\src\main\java\cn\wyq\serverwebsocket\messaging\RabbitMessagingConstants.java
@@ -16,6 +17,7 @@ D:\javawork\websocket\server-websocket\common\src\main\java\cn\wyq\serverwebsock
 D:\javawork\websocket\server-websocket\common\src\main\java\cn\wyq\serverwebsocket\constant\RedPacketConstant.java
 D:\javawork\websocket\server-websocket\common\src\main\java\cn\wyq\serverwebsocket\common\AjaxResult.java
 D:\javawork\websocket\server-websocket\common\src\main\java\cn\wyq\serverwebsocket\exception\ServiceException.java
+D:\javawork\websocket\server-websocket\common\src\main\java\cn\wyq\serverwebsocket\messaging\DelayedExpiryMessage.java
 D:\javawork\websocket\server-websocket\common\src\main\java\cn\wyq\serverwebsocket\exception\GlobalExceptionHandler.java
 D:\javawork\websocket\server-websocket\common\src\main\java\cn\wyq\serverwebsocket\utils\JWTUtil.java
 D:\javawork\websocket\server-websocket\common\src\main\java\cn\wyq\serverwebsocket\common\PageResult.java

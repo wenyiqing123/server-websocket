@@ -10,6 +10,7 @@ cn\wyq\serverwebsocket\service\impl\MessageServiceImpl$1.class
 cn\wyq\serverwebsocket\service\impl\MessageStatsImpl$3.class
 cn\wyq\serverwebsocket\service\impl\ServiceQuestionSuggestionServiceImpl$QuestionFeatures.class
 cn\wyq\serverwebsocket\mapper\SysDocumentMapper.class
+cn\wyq\serverwebsocket\service\DelayedExpiryMessageScheduler.class
 cn\wyq\serverwebsocket\service\impl\FriendServiceImpl.class
 cn\wyq\serverwebsocket\annotation\LoginNotRequired.class
 cn\wyq\serverwebsocket\mapper\DocumentSessionMapper.class

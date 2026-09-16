@@ -1,5 +1,7 @@
 package cn.wyq.serverwebsocket.service;
 
+import cn.wyq.serverwebsocket.messaging.DelayedExpiryMessage;
+import cn.wyq.serverwebsocket.messaging.ExpiryMessagingConstants;
 import cn.wyq.serverwebsocket.mapper.AccountLogMapper;
 import cn.wyq.serverwebsocket.mapper.AccountMapper;
 import cn.wyq.serverwebsocket.mapper.TransferMapper;
@@ -33,6 +35,7 @@ public class TransferService {
     private final UserMapper userMapper;
     private final CacheClient cacheClient;
     private final SysConfigService sysConfigService;
+    private final DelayedExpiryMessageScheduler expiryMessageScheduler;
 
     @Transactional(rollbackFor = Exception.class)
     public Transfer sendTransfer(Integer senderId, String receiverName, BigDecimal amount, String remark) {
@@ -82,6 +85,10 @@ public class TransferService {
                 .createTime(LocalDateTime.now())
                 .build();
         transferMapper.insert(transfer);
+        // 转账创建成功后先安排第一块延迟检查，后续由 RabbitMQ 消费者递进处理。
+        expiryMessageScheduler.scheduleFirst(
+                ExpiryMessagingConstants.BUSINESS_TRANSFER,
+                String.valueOf(transfer.getId()));
         cacheClient.evict("account:balance", senderId);
         cacheClient.evictByPrefix("finance");
         return transfer;
@@ -155,6 +162,26 @@ public class TransferService {
         return true;
     }
 
+    /** 处理转账到期检查，最后一个时间块才执行原路退回。 */
+    @Transactional(rollbackFor = Exception.class)
+    public void processExpiryCheck(DelayedExpiryMessage message) {
+        Long transferId;
+        try {
+            transferId = Long.valueOf(message.getBusinessId());
+        } catch (NumberFormatException exception) {
+            throw new IllegalArgumentException("转账到期消息编号无效", exception);
+        }
+        Transfer transfer = transferMapper.selectByIdForUpdate(transferId);
+        if (transfer == null || transfer.getStatus() == null || transfer.getStatus() != 0) {
+            return;
+        }
+        if (!expiryMessageScheduler.isFinalStep(message)) {
+            expiryMessageScheduler.scheduleNext(message);
+            return;
+        }
+        refundTransferAtMessageDeadline(transferId);
+    }
+
     public Transfer getTransfer(String transferNo) {
         Transfer transfer = cacheClient.queryWithMutex("transfers:detail", transferNo,
                 Transfer.class, transferMapper::selectByTransferNo,
@@ -165,8 +192,26 @@ public class TransferService {
         return transfer;
     }
 
-    private void returnTransferLocked(Transfer transfer, int expireHours) {
-        if (transferMapper.markTransferReturned(transfer.getId(), expireHours) != 1) {
+    /** 最后一块 RabbitMQ 消息已经代表原转账的截止时间，不再读取当前过期配置。 */
+    private boolean refundTransferAtMessageDeadline(Long transferId) {
+        Transfer transfer = transferMapper.selectByIdForUpdate(transferId);
+        if (transfer == null || transfer.getStatus() == null || transfer.getStatus() != 0) {
+            return false;
+        }
+        returnTransferLocked(transfer, null);
+        cacheClient.evict("account:balance", transfer.getSenderId());
+        cacheClient.evict("transfers:detail", transfer.getTransferNo());
+        cacheClient.evictByPrefix("finance");
+        log.info("转账 [{}] 经 RabbitMQ 分段延迟检查后退回发送者 [{}]，金额 {}",
+                transfer.getTransferNo(), transfer.getSenderId(), transfer.getAmount());
+        return true;
+    }
+
+    private void returnTransferLocked(Transfer transfer, Integer expireHours) {
+        int updated = expireHours == null
+                ? transferMapper.markTransferReturnedAtDeadline(transfer.getId())
+                : transferMapper.markTransferReturned(transfer.getId(), expireHours);
+        if (updated != 1) {
             throw new IllegalStateException("该转账已处理");
         }
 

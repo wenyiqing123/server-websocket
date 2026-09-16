@@ -8,7 +8,6 @@ import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 /**
  * RedPacketMapper：MyBatis 数据访问接口，负责数据库查询与持久化操作。
@@ -33,14 +32,15 @@ public interface RedPacketMapper extends BaseMapper<RedPacket> {
             "WHERE id = #{id} AND status = 0 AND remaining_count = 0")
     int markRedPacketFinished(@Param("id") Long id);
 
-    @Select("SELECT id FROM u_red_packet " +
-            "WHERE status = 0 AND remaining_amount > 0 " +
-            "AND create_time <= DATE_SUB(NOW(), INTERVAL #{expireHours} HOUR)")
-    List<Long> selectExpiredRedPacketIds(@Param("expireHours") int expireHours);
-
     @Update("UPDATE u_red_packet SET status = 2, remaining_amount = 0, " +
             "remaining_count = 0, finish_time = NOW() " +
             "WHERE id = #{id} AND status = 0 AND remaining_amount > 0 " +
             "AND create_time <= DATE_SUB(NOW(), INTERVAL #{expireHours} HOUR)")
     int markRedPacketExpired(@Param("id") Long id, @Param("expireHours") int expireHours);
+
+    /** RabbitMQ 最后一块到期消息触发的原子关单，不重新读取可能已变更的过期配置。 */
+    @Update("UPDATE u_red_packet SET status = 2, remaining_amount = 0, " +
+            "remaining_count = 0, finish_time = NOW() " +
+            "WHERE id = #{id} AND status = 0 AND remaining_amount > 0")
+    int markRedPacketExpiredAtDeadline(@Param("id") Long id);
 }

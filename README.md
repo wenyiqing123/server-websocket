@@ -318,9 +318,9 @@ Content-Type: application/json
 - 公共 `CacheClient` 提供空值缓存防穿透、随机 TTL 防雪崩、带 Token 的互斥锁防击穿、有限重试和缓存损坏回源。
 - 缓存清理使用 Redis `SCAN`，避免生产环境使用 `KEYS` 阻塞 Redis。
 - Redisson 布隆过滤器在启动时预热用户 ID，用于拦截明显不存在的用户查询；验证码、Refresh Token、最近登录 IP、离线通知和推荐缓存使用 Redis。
-- `MoneyExpiryScheduleTask` 每分钟扫描一次，默认将 24 小时未领取红包的剩余金额、24 小时未接受转账原路退回；过期小时数由 `red_packet_expire_hours` 和 `transfer_expire_hours` 控制。
-- `OrderScheduleTask` 每 10 秒扫描一次，默认 5 分钟未支付的充值订单自动关闭，窗口由 `recharge_close_minutes` 控制。
-- 部署多实例时应为定时任务增加分布式锁，或只允许运行一个调度实例，避免重复扫描。
+- 充值订单、红包和转账的过期处理使用 RabbitMQ 分段延迟消息，不再依赖全表定时扫描。业务事务提交时先写入 `message_log`，投递器发送第一个时间块；到期消费者查询数据库，未完成则幂等地安排下一个时间块，最后一块才关闭订单或原路退款。
+- 延迟消息使用持久化惰性队列和消息 TTL + 死信路由：充值默认按 `recharge_close_minutes` 切成 1:2:3 三段，红包和转账分别按 `red_packet_expire_hours`、`transfer_expire_hours` 切分。充值也可用 `RABBIT_RECHARGE_EXPIRY_DELAY_SECONDS=10,20,30` 覆盖时间块（单位：秒）。
+- 生产者确认、消息返回、本地消息表唯一 ID 和消费者重试共同保证消息可补偿；资金到期消息的 `CorrelationData.id`、`MessageProperties.messageId` 和业务消息头始终使用同一个 ID。部署多实例时无需额外的过期扫描锁，但必须保证所有实例连接同一 RabbitMQ 和数据库。
 
 ## 平台运行配置
 

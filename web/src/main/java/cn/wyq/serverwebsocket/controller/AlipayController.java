@@ -8,8 +8,10 @@ import cn.wyq.serverwebsocket.pojo.entity.RechargeOrder;
 import cn.wyq.serverwebsocket.pojo.vo.AlipayPaymentStatusVO;
 import cn.wyq.serverwebsocket.service.AccountService;
 import cn.wyq.serverwebsocket.service.RechargeService;
+import cn.wyq.serverwebsocket.service.SysConfigService;
 import cn.wyq.serverwebsocket.utils.BaseContext;
 import cn.wyq.serverwebsocket.utils.CacheClient;
+import cn.wyq.serverwebsocket.utils.SystemConfigUtils;
 import com.alibaba.fastjson2.JSONObject;
 import com.alipay.api.AlipayClient;
 import com.alipay.api.internal.util.AlipaySignature;
@@ -47,6 +49,8 @@ public class AlipayController {
     private RechargeOrderMapper orderMapper;
     @Autowired
     private CacheClient cacheClient;
+    @Autowired
+    private SysConfigService sysConfigService;
     /** 支付宝异步回调地址，只能由部署环境配置。 */
     @Value("${alipay.notify-url:}")
     private String notifyUrl;
@@ -98,7 +102,8 @@ public class AlipayController {
         bizContent.put("out_trade_no", outTradeNo);
         bizContent.put("total_amount", amount);
         bizContent.put("subject", "聊天系统余额充值");
-        bizContent.put("timeout_express", "1m");
+        // 支付宝侧超时与 RabbitMQ 分段消息使用同一配置，避免外部订单先过期而本地仍可支付。
+        bizContent.put("timeout_express", rechargeTimeoutExpress());
         request.setBizContent(bizContent.toJSONString());
 
         AlipayTradePrecreateResponse response = alipayClient.execute(request);
@@ -202,6 +207,13 @@ public class AlipayController {
             return Result.success(paymentStatus(order, "CLOSED", false, false, null));
         }
         return Result.success(paymentStatus(order, "WAITING_SCAN", false, false, null));
+    }
+
+    /** 读取充值订单关闭窗口，按支付宝支持的分钟格式生成超时参数。 */
+    private String rechargeTimeoutExpress() {
+        int minutes = SystemConfigUtils.intValue(sysConfigService.getConfigMap(),
+                "recharge_close_minutes", 1, 1, 24 * 60);
+        return minutes + "m";
     }
 
     /** 查询支付宝侧交易状态；网关暂时不可用时由本地订单状态继续兜底。 */

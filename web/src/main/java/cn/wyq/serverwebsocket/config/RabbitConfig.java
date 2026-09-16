@@ -4,6 +4,7 @@ import cn.wyq.serverwebsocket.messaging.RabbitMessagingConstants;
 import org.springframework.amqp.core.AcknowledgeMode;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
+import org.springframework.amqp.core.Declarables;
 import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.core.QueueBuilder;
@@ -92,6 +93,48 @@ public class RabbitConfig {
                                             @Qualifier("loginEventExchange") DirectExchange loginEventExchange) {
         return BindingBuilder.bind(loginNotificationQueue).to(loginEventExchange)
                 .with(cn.wyq.serverwebsocket.messaging.LoginMessagingConstants.NOTIFICATION_ROUTING_KEY);
+    }
+
+    /**
+     * 资金到期延迟消息拓扑。
+     *
+     * <p>消息先进入带死信路由的延迟队列，生产者通过 MessageProperties.expiration
+     * 设置每条消息的等待时间；过期后统一路由到检查队列。充值和红包/转账分开使用
+     * 延迟队列，避免长时间的资金消息阻塞短时充值消息。</p>
+     */
+    @Bean
+    public Declarables expiryMessagingTopology() {
+        DirectExchange exchange = new DirectExchange(
+                cn.wyq.serverwebsocket.messaging.ExpiryMessagingConstants.EXCHANGE, true, false);
+        Queue checkQueue = lazyQueue(
+                cn.wyq.serverwebsocket.messaging.ExpiryMessagingConstants.CHECK_QUEUE);
+        Queue rechargeDelayQueue = expiryDelayQueue(
+                cn.wyq.serverwebsocket.messaging.ExpiryMessagingConstants.RECHARGE_DELAY_QUEUE);
+        Queue moneyDelayQueue = expiryDelayQueue(
+                cn.wyq.serverwebsocket.messaging.ExpiryMessagingConstants.MONEY_DELAY_QUEUE);
+
+        return new Declarables(
+                exchange,
+                checkQueue,
+                rechargeDelayQueue,
+                moneyDelayQueue,
+                BindingBuilder.bind(checkQueue).to(exchange)
+                        .with(cn.wyq.serverwebsocket.messaging.ExpiryMessagingConstants.CHECK_ROUTING_KEY),
+                BindingBuilder.bind(rechargeDelayQueue).to(exchange)
+                        .with(cn.wyq.serverwebsocket.messaging.ExpiryMessagingConstants.RECHARGE_DELAY_ROUTING_KEY),
+                BindingBuilder.bind(moneyDelayQueue).to(exchange)
+                        .with(cn.wyq.serverwebsocket.messaging.ExpiryMessagingConstants.MONEY_DELAY_ROUTING_KEY));
+    }
+
+    /** 创建消息过期后转发到统一检查队列的惰性延迟队列。 */
+    private Queue expiryDelayQueue(String name) {
+        return QueueBuilder.durable(name)
+                .withArgument("x-queue-mode", "lazy")
+                .withArgument("x-dead-letter-exchange",
+                        cn.wyq.serverwebsocket.messaging.ExpiryMessagingConstants.EXCHANGE)
+                .withArgument("x-dead-letter-routing-key",
+                        cn.wyq.serverwebsocket.messaging.ExpiryMessagingConstants.CHECK_ROUTING_KEY)
+                .build();
     }
 
     // 2. 使用 JSON 序列化消息（强烈推荐）

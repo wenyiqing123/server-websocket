@@ -32,6 +32,10 @@ app:
         initial-interval-ms: "${RABBIT_ERROR_CONSUMER_RETRY_INITIAL_INTERVAL_MS:2000}"
         multiplier: "${RABBIT_ERROR_CONSUMER_RETRY_MULTIPLIER:2.0}"
         max-interval-ms: "${RABBIT_ERROR_CONSUMER_RETRY_MAX_INTERVAL_MS:30000}"
+    # 到期检查的充值时间块可由环境变量覆盖，例如 10,20,30（单位：秒）。
+    # 未覆盖时按 sys_config.recharge_close_minutes 自动切成 1:2:3 三段。
+    expiry:
+      recharge-delay-seconds: "${RABBIT_RECHARGE_EXPIRY_DELAY_SECONDS:}"
 
 # JWT_SECRET 可由部署环境覆盖；未配置时使用固定默认值，保证本地启动即可完成 JWT 初始化。
 security:

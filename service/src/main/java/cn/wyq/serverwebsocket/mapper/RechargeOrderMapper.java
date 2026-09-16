@@ -31,7 +31,7 @@ public interface RechargeOrderMapper extends BaseMapper<RechargeOrder> {
      * @return 订单信息
      */
     RechargeOrder selectOrderForUpdate(@Param("outTradeNo") String outTradeNo);
-   int updateOrderStatusToClosed(String outTradeNo);
+    int updateOrderStatusToClosed(@Param("outTradeNo") String outTradeNo);
     /**
      * 更新订单状态为支付成功
      * @param outTradeNo 内部订单号
@@ -72,5 +72,4 @@ public interface RechargeOrderMapper extends BaseMapper<RechargeOrder> {
             @Param("orderNo") String orderNo,
             @Param("remark") String remark
     );
-    int closeExpiredOrders(@Param("minutes") int minutes);
 }

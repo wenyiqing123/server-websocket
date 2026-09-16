@@ -1,5 +1,7 @@
 package cn.wyq.serverwebsocket.service;
 
+import cn.wyq.serverwebsocket.messaging.DelayedExpiryMessage;
+import cn.wyq.serverwebsocket.messaging.ExpiryMessagingConstants;
 import cn.wyq.serverwebsocket.mapper.AccountLogMapper;
 import cn.wyq.serverwebsocket.mapper.AccountMapper;
 import cn.wyq.serverwebsocket.mapper.RechargeOrderMapper;
@@ -33,6 +35,8 @@ public class RechargeService {
     private AccountLogMapper accountLogMapper;
     @Autowired
     private CacheClient cacheClient;
+    @Autowired
+    private DelayedExpiryMessageScheduler expiryMessageScheduler;
     public boolean checkOrderIsPaid(String outTradeNo) {
         if (outTradeNo == null || outTradeNo.trim().isEmpty()) {
             return false;
@@ -55,6 +59,7 @@ public class RechargeService {
     /**
      * 1. 扫码前：创建待支付订单
      */
+    @Transactional(rollbackFor = Exception.class)
     public void createOrder(String outTradeNo, Integer userId, BigDecimal amount) {
         RechargeOrder order = RechargeOrder.builder()
                 .outTradeNo(outTradeNo)
@@ -64,7 +69,30 @@ public class RechargeService {
                 .createTime(LocalDateTime.now())
                 .build();
         rechargeOrderMapper.insert(order);
+        // 订单和第一条延迟检查消息在同一个事务中落库，避免只创建订单却没有取消保障。
+        expiryMessageScheduler.scheduleFirst(
+                ExpiryMessagingConstants.BUSINESS_RECHARGE_ORDER, outTradeNo);
         cacheClient.evict("finance:recharge-status", outTradeNo);
+    }
+
+    /**
+     * 处理充值订单到期检查：非最后时间块只安排下一次检查，最后一块才关闭未支付订单。
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void processExpiryCheck(DelayedExpiryMessage message) {
+        RechargeOrder order = rechargeOrderMapper.selectOrderForUpdate(message.getBusinessId());
+        if (order == null || !Integer.valueOf(0).equals(order.getStatus())) {
+            return;
+        }
+        if (!expiryMessageScheduler.isFinalStep(message)) {
+            expiryMessageScheduler.scheduleNext(message);
+            return;
+        }
+        if (rechargeOrderMapper.updateOrderStatusToClosed(order.getOutTradeNo()) > 0) {
+            cacheClient.evict("finance:recharge-status", order.getOutTradeNo());
+            cacheClient.evictByPrefix("finance");
+            log.info("充值订单 [{}] 经 RabbitMQ 分段延迟检查后自动关闭", order.getOutTradeNo());
+        }
     }
 
     /**

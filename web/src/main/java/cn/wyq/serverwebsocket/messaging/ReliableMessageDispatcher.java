@@ -91,13 +91,27 @@ public class ReliableMessageDispatcher {
 
     private void send(LocalMessageLog localMessage) {
         try {
+            // 发送前只认本地消息表中的唯一业务 ID，禁止 RabbitTemplate 自动生成另一套 ID。
+            String businessMessageId = requireBusinessMessageId(localMessage);
             Object payload = objectMapper.readValue(localMessage.getPayload(), payloadType(localMessage.getMessageType()));
-            CorrelationData correlationData = new CorrelationData(localMessage.getMessageId());
+            CorrelationData correlationData = new CorrelationData(businessMessageId);
             MessagePostProcessor postProcessor = message -> {
-                message.getMessageProperties().setMessageId(localMessage.getMessageId());
-                message.getMessageProperties().setType(localMessage.getMessageType());
-                message.getMessageProperties().setDeliveryMode(MessageDeliveryMode.PERSISTENT);
-                message.getMessageProperties().setHeader("x-local-message-id", localMessage.getMessageId());
+                var properties = message.getMessageProperties();
+                // 手动双重绑定：CorrelationData.id 与 AMQP MessageProperties 使用同一个业务 ID。
+                properties.setMessageId(businessMessageId);
+                properties.setCorrelationId(businessMessageId);
+                properties.setType(localMessage.getMessageType());
+                properties.setDeliveryMode(MessageDeliveryMode.PERSISTENT);
+                properties.setHeader(RabbitMessagingConstants.BUSINESS_MESSAGE_ID_HEADER, businessMessageId);
+                // 保留旧头名称，兼容已经部署的错误队列告警和运维脚本。
+                properties.setHeader("x-local-message-id", businessMessageId);
+                if (payload instanceof DelayedExpiryMessage expiryMessage
+                        && expiryMessage.getDelaySeconds() != null) {
+                    long expirationMillis = Math.max(1L,
+                            Math.min(365L * 24 * 60 * 60 * 1000,
+                                    expiryMessage.getDelaySeconds() * 1000L));
+                    properties.setExpiration(String.valueOf(expirationMillis));
+                }
                 return message;
             };
             rabbitTemplate.convertAndSend(localMessage.getExchangeName(), localMessage.getRoutingKey(),
@@ -131,9 +145,14 @@ public class ReliableMessageDispatcher {
         if (returnedMessage == null || returnedMessage.getMessage() == null) {
             return;
         }
-        String messageId = returnedMessage.getMessage().getMessageProperties().getMessageId();
+        var properties = returnedMessage.getMessage().getMessageProperties();
+        String messageId = properties.getMessageId();
         if (messageId == null || messageId.isBlank()) {
-            Object header = returnedMessage.getMessage().getMessageProperties().getHeader("x-local-message-id");
+            Object header = properties.getHeader(RabbitMessagingConstants.BUSINESS_MESSAGE_ID_HEADER);
+            messageId = header == null ? null : String.valueOf(header);
+        }
+        if (messageId == null || messageId.isBlank()) {
+            Object header = properties.getHeader("x-local-message-id");
             messageId = header == null ? null : String.valueOf(header);
         }
         if (messageId == null || messageId.isBlank()) {
@@ -182,6 +201,7 @@ public class ReliableMessageDispatcher {
             case LoginMessagingConstants.TYPE_AUDIT -> LoginAuditMessage.class;
             case LoginMessagingConstants.TYPE_MAIL -> MailMessage.class;
             case LoginMessagingConstants.TYPE_NOTIFICATION -> LoginNotificationMessage.class;
+            case ExpiryMessagingConstants.MESSAGE_TYPE -> DelayedExpiryMessage.class;
             default -> throw new IllegalArgumentException("不支持的本地消息类型：" + messageType);
         };
     }
@@ -198,5 +218,14 @@ public class ReliableMessageDispatcher {
             return "未知原因";
         }
         return message.length() <= 500 ? message : message.substring(0, 500);
+    }
+
+    /** 校验本地消息表中的业务 ID，确保确认和返回回调可以准确回写原记录。 */
+    private String requireBusinessMessageId(LocalMessageLog localMessage) {
+        if (localMessage == null || localMessage.getMessageId() == null
+                || localMessage.getMessageId().isBlank()) {
+            throw new IllegalStateException("本地消息缺少业务消息 ID，拒绝投递");
+        }
+        return localMessage.getMessageId().trim();
     }
 }

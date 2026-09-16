@@ -19,6 +19,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class LocalMessageLog {
     private Long id;
+    /** 本地消息表生成的业务唯一 ID，同时绑定到 RabbitMQ correlation id 和 messageId。 */
     private String messageId;
     private String messageType;
     private String exchangeName;

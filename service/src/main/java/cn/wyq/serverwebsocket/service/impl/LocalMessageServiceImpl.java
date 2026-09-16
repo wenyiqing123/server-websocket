@@ -22,11 +22,18 @@ public class LocalMessageServiceImpl implements LocalMessageService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public String enqueue(String messageType, String exchangeName, String routingKey, String payload) {
-        if (isBlank(messageType) || isBlank(exchangeName) || isBlank(routingKey) || payload == null) {
+        return enqueueWithMessageId(UUID.randomUUID().toString(), messageType, exchangeName, routingKey, payload);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public String enqueueWithMessageId(String messageId, String messageType, String exchangeName,
+                                       String routingKey, String payload) {
+        if (isBlank(messageId) || isBlank(messageType) || isBlank(exchangeName)
+                || isBlank(routingKey) || payload == null) {
             throw new IllegalArgumentException("本地消息参数不完整");
         }
-        String messageId = UUID.randomUUID().toString();
-        mapper.insertPending(LocalMessageLog.builder()
+        mapper.insertPendingIdempotent(LocalMessageLog.builder()
                 .messageId(messageId)
                 .messageType(messageType)
                 .exchangeName(exchangeName)

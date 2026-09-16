@@ -5,7 +5,9 @@ import cn.wyq.serverwebsocket.socket.WebSocket;
 import cn.wyq.serverwebsocket.utils.MailUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.support.AmqpHeaders;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
 
 /** 登录模块 RabbitMQ 消费者：落库审计、发送邮件和实时通知。 */
@@ -15,22 +17,51 @@ import org.springframework.stereotype.Component;
 public class LoginRabbitConsumer {
     private final LoginAuditService loginAuditService;
     private final MailUtil mailUtil;
+    private final RabbitMessageIdempotencyService idempotencyService;
 
     @RabbitListener(queues = LoginMessagingConstants.AUDIT_QUEUE)
-    public void consumeAudit(LoginAuditMessage message) {
-        loginAuditService.save(message);
+    public void consumeAudit(LoginAuditMessage message,
+                             @Header(name = AmqpHeaders.MESSAGE_ID, required = false) String messageId) {
+        if (message == null) {
+            return;
+        }
+        String idempotencyId = resolveMessageId(messageId, message.getEventId());
+        if (!idempotencyService.tryAcquire("login-audit", idempotencyId)) {
+            log.debug("跳过重复登录审计消息，messageId={}", idempotencyId);
+            return;
+        }
+        try {
+            loginAuditService.save(message);
+            idempotencyService.markSuccess("login-audit", idempotencyId);
+        } catch (RuntimeException | Error exception) {
+            idempotencyService.release("login-audit", idempotencyId);
+            throw exception;
+        }
     }
 
     @RabbitListener(queues = LoginMessagingConstants.MAIL_QUEUE)
-    public void consumeMail(MailMessage message) {
+    public void consumeMail(MailMessage message,
+                            @Header(name = AmqpHeaders.MESSAGE_ID, required = false) String messageId) {
         if (message == null || message.getToEmail() == null || message.getToEmail().isBlank()) {
             return;
         }
-        mailUtil.sendMailNowOrThrow(message.getToEmail(), message.getSubject(), message.getContent());
+        String idempotencyId = resolveMessageId(messageId, message.getEventId());
+        if (!idempotencyService.tryAcquire("login-mail", idempotencyId)) {
+            log.debug("跳过重复登录邮件消息，messageId={}", idempotencyId);
+            return;
+        }
+        try {
+            mailUtil.sendMailNowOrThrow(message.getToEmail(), message.getSubject(), message.getContent());
+            idempotencyService.markSuccess("login-mail", idempotencyId);
+        } catch (RuntimeException | Error exception) {
+            idempotencyService.release("login-mail", idempotencyId);
+            throw exception;
+        }
     }
 
     @RabbitListener(queues = LoginMessagingConstants.NOTIFICATION_QUEUE)
-    public void consumeNotification(LoginNotificationMessage message) {
+    public void consumeNotification(LoginNotificationMessage message,
+                                    @Header(name = AmqpHeaders.MESSAGE_ID, required = false) String messageId) {
         if (message == null || message.getUsername() == null || message.getUsername().isBlank()) {
             return;
         }
@@ -41,10 +72,17 @@ public class LoginRabbitConsumer {
                     message.getEventId(), message.getUsername());
             return;
         }
+        String idempotencyId = resolveMessageId(messageId, message.getEventId());
+        if (!idempotencyService.tryAcquire("login-notification", idempotencyId)) {
+            log.debug("跳过重复登录通知消息，messageId={}", idempotencyId);
+            return;
+        }
         try {
             WebSocket.sendSystemBroadcast(message.getUsername(), message.getContent(),
                     message.getNotificationType());
+            idempotencyService.markSuccess("login-notification", idempotencyId);
         } catch (Exception e) {
+            idempotencyService.release("login-notification", idempotencyId);
             log.warn("登录实时通知发送失败，username={}", message.getUsername(), e);
             throw new IllegalStateException("登录实时通知发送失败，等待 RabbitMQ 重试", e);
         }
@@ -59,5 +97,10 @@ public class LoginRabbitConsumer {
         return content != null
                 && (content.startsWith("账号登录成功，登录 IP：")
                 || content.startsWith("检测到你的账号从新的 IP 地址登录："));
+    }
+
+    /** 优先使用生产者绑定到 AMQP 属性的本地消息 ID，旧消息回退到业务事件 ID。 */
+    private String resolveMessageId(String messageId, String eventId) {
+        return messageId == null || messageId.isBlank() ? eventId : messageId;
     }
 }

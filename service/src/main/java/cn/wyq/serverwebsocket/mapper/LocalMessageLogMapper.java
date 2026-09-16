@@ -13,6 +13,9 @@ public interface LocalMessageLogMapper {
     /** 插入一条待投递消息。 */
     int insertPending(LocalMessageLog message);
 
+    /** 按业务消息 ID 幂等插入一条待投递消息。 */
+    int insertPendingIdempotent(LocalMessageLog message);
+
     /** 查询当前需要投递的消息。 */
     List<LocalMessageLog> selectDispatchable(@Param("limit") int limit);
 

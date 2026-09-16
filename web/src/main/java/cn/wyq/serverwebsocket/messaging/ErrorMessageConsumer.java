@@ -25,6 +25,7 @@ public class ErrorMessageConsumer {
     private static final int MAX_EMAIL_CONTENT_LENGTH = 12000;
 
     private final MailUtil mailUtil;
+    private final RabbitMessageIdempotencyService idempotencyService;
 
     /** 默认运维告警邮箱，可由部署环境覆盖。 */
     @Value("${app.messaging.error-consumer.alert-email:2402317148@qq.com}")
@@ -47,8 +48,14 @@ public class ErrorMessageConsumer {
                 : new String(message.getBody(), StandardCharsets.UTF_8);
         String messageId = firstNonBlank(
                 properties == null ? null : properties.getMessageId(),
+                header(headers, RabbitMessagingConstants.BUSINESS_MESSAGE_ID_HEADER),
                 header(headers, "x-local-message-id"),
                 "未知");
+        String idempotencyId = "未知".equals(messageId) ? null : messageId;
+        if (!idempotencyService.tryAcquire("error-alert", idempotencyId)) {
+            log.debug("跳过重复 RabbitMQ 错误告警，messageId={}", idempotencyId);
+            return;
+        }
         String originalExchange = firstNonBlank(
                 header(headers, "x-original-exchange"),
                 header(headers, "x-first-death-exchange"),
@@ -72,12 +79,18 @@ public class ErrorMessageConsumer {
                 + "原始消息体：\n" + safe(body, "<空消息体>");
 
         // 邮件正文设置上限，避免异常堆栈过长阻塞错误队列消费者。
-        mailUtil.sendMailNowOrThrow(
-                alertEmail,
-                "【云聊告警】RabbitMQ 消息消费失败",
-                truncate(content, MAX_EMAIL_CONTENT_LENGTH));
-        log.error("RabbitMQ 错误消息已发送告警邮件，messageId={}，exchange={}，routingKey={}",
-                messageId, originalExchange, originalRoutingKey);
+        try {
+            mailUtil.sendMailNowOrThrow(
+                    alertEmail,
+                    "【云聊告警】RabbitMQ 消息消费失败",
+                    truncate(content, MAX_EMAIL_CONTENT_LENGTH));
+            idempotencyService.markSuccess("error-alert", idempotencyId);
+            log.error("RabbitMQ 错误消息已发送告警邮件，messageId={}，exchange={}，routingKey={}",
+                    messageId, originalExchange, originalRoutingKey);
+        } catch (RuntimeException | Error exception) {
+            idempotencyService.release("error-alert", idempotencyId);
+            throw exception;
+        }
     }
 
     private String header(Map<String, Object> headers, String name) {

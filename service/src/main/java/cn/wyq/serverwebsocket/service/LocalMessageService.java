@@ -14,6 +14,10 @@ public interface LocalMessageService {
      */
     String enqueue(String messageType, String exchangeName, String routingKey, String payload);
 
+    /** 按稳定业务 ID 幂等保存待投递消息。 */
+    String enqueueWithMessageId(String messageId, String messageType, String exchangeName,
+                                String routingKey, String payload);
+
     /** 查询一批可以投递的消息。 */
     List<LocalMessageLog> findDispatchable(int limit);
 
