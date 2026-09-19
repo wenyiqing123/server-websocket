@@ -112,14 +112,26 @@ HTTP 服务默认监听 `8000` 端口。
 
 ## 配置
 
-主配置文件为 `web/src/main/resources/application.yaml`。当前文件包含便于本地开发的默认值，生产环境必须通过环境变量、外部配置中心或 Secret 覆盖，不能直接沿用开发凭据。常用配置如下：
+主配置文件为 `web/src/main/resources/application.yaml`。敏感配置不写入 Java、前端代码或 YAML 文件：本地开发使用后端项目根目录的 `.env`，生产环境使用部署平台的环境变量、外部配置中心或 Secret。`.env` 已被 `.gitignore` 忽略，不能提交到版本库。
+
+首次启动前，在 `server-websocket` 根目录执行：
+
+```powershell
+Copy-Item .env.example .env
+# 然后编辑 .env，至少填写 DASHSCOPE_API_KEY、JWT_SECRET、DB_USERNAME、DB_PASSWORD，
+# 以及实际启用的 RabbitMQ、邮件和支付宝配置。
+```
+
+`.env.example` 只包含占位符，可以提交到版本库；`.env` 只保存在本机或部署主机。Spring Boot 会通过 `spring.config.import` 自动加载当前目录的 `.env`，从 `web` 模块目录启动时也会尝试加载上一级目录；操作系统环境变量优先级更高。也可以不使用 `.env`，直接在部署环境注入同名变量。
+
+常用配置如下：
 
 | 配置类别 | 环境变量 | 说明 |
 | --- | --- | --- |
-| JWT | `JWT_SECRET`、`APP_ENV` | 未注入 `JWT_SECRET` 时使用 `jwt_secret_for_server_websocket`；生产部署建议通过环境变量覆盖为随机高强度密钥。 |
-| MySQL | `DB_URL`、`DB_USERNAME`、`DB_PASSWORD` | 本地 URL 和用户名有无密码默认值；生产应使用专用最小权限账户。 |
+| JWT | `JWT_SECRET`、`APP_ENV` | `JWT_SECRET` 必须配置；生产部署应使用随机、高强度且不复用的密钥。 |
+| MySQL | `DB_URL`、`DB_USERNAME`、`DB_PASSWORD` | URL 默认指向本机 `chat` 库，密码不提供默认值；生产应使用专用最小权限账户。 |
 | Redis | `REDIS_HOST`、`REDIS_PORT`、`REDIS_DATABASE`、`REDIS_PASSWORD` | 默认连接本机的 database `1`，密码默认为空。 |
-| RabbitMQ | `RABBITMQ_HOST`、`RABBITMQ_PORT`、`RABBITMQ_USERNAME`、`RABBITMQ_PASSWORD` | 默认连接 `/websocket` 虚拟主机和 `websocket/websocket` 开发账号；生产环境必须覆盖并限制权限。 |
+| RabbitMQ | `RABBITMQ_HOST`、`RABBITMQ_PORT`、`RABBITMQ_USERNAME`、`RABBITMQ_PASSWORD`、`RABBITMQ_VIRTUAL_HOST` | 主机和端口默认指向本机；账号、密码不提供默认值，生产环境必须使用限制权限的账号。 |
 | 邮件 | `MAIL_HOST`、`MAIL_PORT`、`MAIL_USERNAME`、`MAIL_PASSWORD` | 邮件发送功能需显式配置。 |
 | 支付宝 | `ALIPAY_APP_ID`、`ALIPAY_PRIVATE_KEY`、`ALIPAY_PUBLIC_KEY`、`ALIPAY_GATEWAY_URL`、`ALIPAY_NOTIFY_URL` | 支付功能需显式配置，回调地址应为 HTTPS 公网地址。 |
 | 模型服务 | `DASHSCOPE_API_KEY`、`DASHSCOPE_BASE_URL` | 云端聊天使用 OpenAI 兼容接口；密钥不要写入前端。 |
@@ -158,7 +170,13 @@ spring:
 
 应用启动时由 `KnowledgeDataLoader` 加载或构建向量缓存。用户文档保存在 `private-ai-documents/`，客服运营知识库默认保存在 `private-ai-knowledge/`，均与公开 `/file/**` 上传目录隔离；文档上传后会进行扩展名、大小、内容 SHA-256、PDF 页数、文本长度、切片数量校验，再写入向量存储。
 
-建议通过部署平台的密钥管理或环境变量注入凭据。PowerShell 示例：
+建议通过部署平台的密钥管理或环境变量注入凭据。若使用 `.env`，无需把密钥写入 PowerShell 历史；直接在项目根目录启动即可：
+
+```powershell
+mvn -pl web -am spring-boot:run
+```
+
+也可以临时用环境变量覆盖 `.env` 中的值：
 
 ```powershell
 $env:JWT_SECRET = "<strong-random-secret>"
@@ -344,9 +362,9 @@ Content-Type: application/json
 
 ## 安全与生产部署建议
 
-当前代码库的 `application.yaml` 仍包含本地开发默认值，不能视为生产安全配置。部署前务必：
+部署前务必：
 
-- 通过环境变量、外部配置中心或独立的生产 profile 提供凭据；生产部署应覆盖默认的 `jwt_secret_for_server_websocket`，改用足够随机且未复用的 `JWT_SECRET`。
+- 通过 `.env`（仅限本地/受控主机）或环境变量、外部配置中心、独立的生产 profile 提供凭据；`JWT_SECRET`、`DASHSCOPE_API_KEY`、数据库、邮件、RabbitMQ 和支付宝密钥均不得回填到 `application.yaml`。
 - 立即轮换任何曾写入本地配置、日志、截图或版本控制历史的数据库、邮箱、JWT、支付宝和模型密钥。
 - 文档上传、列表、删除、下载和文档分析接口已经要求登录并校验资源归属；仍应在网关层设置请求体限制、审计和速率限制。
 - WebSocket 握手已经强制校验 Access Token、路径用户与令牌用户的一致性；生产环境仍应根据容量增加连接数、消息大小和频率限制。

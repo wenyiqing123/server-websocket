@@ -5,58 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="68dfcc89-984c-4e29-8ce5-b393bae2b8b7" name="Changes" comment="2026-9-13">
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/72206479-9d00-4031-91c3-f9dbec787e69.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/8ae9bcfb-3b07-4be0-926d-1fe9fce340cb.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/java/cn/wyq/serverwebsocket/messaging/RabbitMessagingConstants.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/cn/wyq/serverwebsocket/messaging/RabbitMessagingConstants.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/target/classes/cn/wyq/serverwebsocket/messaging/RabbitMessagingConstants.class" beforeDir="false" afterPath="$PROJECT_DIR$/common/target/classes/cn/wyq/serverwebsocket/messaging/RabbitMessagingConstants.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/common/target/common-0.0.1.jar" beforeDir="false" afterPath="$PROJECT_DIR$/common/target/common-0.0.1.jar" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/common/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/common/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logs/mylog.log" beforeDir="false" afterPath="$PROJECT_DIR$/logs/mylog.log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pojo/src/main/java/cn/wyq/serverwebsocket/pojo/entity/LocalMessageLog.java" beforeDir="false" afterPath="$PROJECT_DIR$/pojo/src/main/java/cn/wyq/serverwebsocket/pojo/entity/LocalMessageLog.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pojo/target/classes/cn/wyq/serverwebsocket/pojo/entity/LocalMessageLog.class" beforeDir="false" afterPath="$PROJECT_DIR$/pojo/target/classes/cn/wyq/serverwebsocket/pojo/entity/LocalMessageLog.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pojo/target/pojo-0.0.1.jar" beforeDir="false" afterPath="$PROJECT_DIR$/pojo/target/pojo-0.0.1.jar" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/src/main/java/cn/wyq/serverwebsocket/mapper/LocalMessageLogMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/service/src/main/java/cn/wyq/serverwebsocket/mapper/LocalMessageLogMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/src/main/java/cn/wyq/serverwebsocket/mapper/RechargeOrderMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/service/src/main/java/cn/wyq/serverwebsocket/mapper/RechargeOrderMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/src/main/java/cn/wyq/serverwebsocket/mapper/RedPacketMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/service/src/main/java/cn/wyq/serverwebsocket/mapper/RedPacketMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/src/main/java/cn/wyq/serverwebsocket/mapper/TransferMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/service/src/main/java/cn/wyq/serverwebsocket/mapper/TransferMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/src/main/java/cn/wyq/serverwebsocket/service/LocalMessageService.java" beforeDir="false" afterPath="$PROJECT_DIR$/service/src/main/java/cn/wyq/serverwebsocket/service/LocalMessageService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/src/main/java/cn/wyq/serverwebsocket/service/RechargeService.java" beforeDir="false" afterPath="$PROJECT_DIR$/service/src/main/java/cn/wyq/serverwebsocket/service/RechargeService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/src/main/java/cn/wyq/serverwebsocket/service/RedPacketService.java" beforeDir="false" afterPath="$PROJECT_DIR$/service/src/main/java/cn/wyq/serverwebsocket/service/RedPacketService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/src/main/java/cn/wyq/serverwebsocket/service/TransferService.java" beforeDir="false" afterPath="$PROJECT_DIR$/service/src/main/java/cn/wyq/serverwebsocket/service/TransferService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/src/main/java/cn/wyq/serverwebsocket/service/impl/AiServiceManagementServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/service/src/main/java/cn/wyq/serverwebsocket/service/impl/AiServiceManagementServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/src/main/java/cn/wyq/serverwebsocket/service/impl/LocalMessageServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/service/src/main/java/cn/wyq/serverwebsocket/service/impl/LocalMessageServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/src/main/resources/mapper/finance/RechargeOrderMapper.xml" beforeDir="false" afterPath="$PROJECT_DIR$/service/src/main/resources/mapper/finance/RechargeOrderMapper.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/src/main/resources/mapper/messaging/LocalMessageLogMapper.xml" beforeDir="false" afterPath="$PROJECT_DIR$/service/src/main/resources/mapper/messaging/LocalMessageLogMapper.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/mapper/LocalMessageLogMapper.class" beforeDir="false" afterPath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/mapper/LocalMessageLogMapper.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/mapper/RechargeOrderMapper.class" beforeDir="false" afterPath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/mapper/RechargeOrderMapper.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/mapper/RedPacketMapper.class" beforeDir="false" afterPath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/mapper/RedPacketMapper.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/mapper/TransferMapper.class" beforeDir="false" afterPath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/mapper/TransferMapper.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/service/LocalMessageService.class" beforeDir="false" afterPath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/service/LocalMessageService.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/service/RechargeService$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/service/RechargeService$1.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/service/RechargeService.class" beforeDir="false" afterPath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/service/RechargeService.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/service/RedPacketService.class" beforeDir="false" afterPath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/service/RedPacketService.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/service/TransferService.class" beforeDir="false" afterPath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/service/TransferService.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/service/impl/AiServiceManagementServiceImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/service/impl/AiServiceManagementServiceImpl.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/service/impl/LocalMessageServiceImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/service/target/classes/cn/wyq/serverwebsocket/service/impl/LocalMessageServiceImpl.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/target/classes/mapper/finance/RechargeOrderMapper.xml" beforeDir="false" afterPath="$PROJECT_DIR$/service/target/classes/mapper/finance/RechargeOrderMapper.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/target/classes/mapper/messaging/LocalMessageLogMapper.xml" beforeDir="false" afterPath="$PROJECT_DIR$/service/target/classes/mapper/messaging/LocalMessageLogMapper.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/service/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/service/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/service/target/generated-sources/annotations/cn/wyq/serverwebsocket/mapper/MessageStructMapperImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/service/target/generated-sources/annotations/cn/wyq/serverwebsocket/mapper/MessageStructMapperImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/service/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/service/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/service/target/service-0.0.1.jar" beforeDir="false" afterPath="$PROJECT_DIR$/service/target/service-0.0.1.jar" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sql/chat.sql" beforeDir="false" afterPath="$PROJECT_DIR$/sql/chat.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/main/java/cn/wyq/serverwebsocket/config/RabbitConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/main/java/cn/wyq/serverwebsocket/config/RabbitConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/main/java/cn/wyq/serverwebsocket/controller/AlipayController.java" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/main/java/cn/wyq/serverwebsocket/controller/AlipayController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/main/java/cn/wyq/serverwebsocket/controller/UploadController.java" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/main/java/cn/wyq/serverwebsocket/controller/UploadController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/main/java/cn/wyq/serverwebsocket/messaging/ErrorMessageConsumer.java" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/main/java/cn/wyq/serverwebsocket/messaging/ErrorMessageConsumer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/main/java/cn/wyq/serverwebsocket/messaging/LoginRabbitConsumer.java" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/main/java/cn/wyq/serverwebsocket/messaging/LoginRabbitConsumer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/main/java/cn/wyq/serverwebsocket/messaging/ReliableMessageDispatcher.java" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/main/java/cn/wyq/serverwebsocket/messaging/ReliableMessageDispatcher.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/main/java/cn/wyq/serverwebsocket/task/MoneyExpiryScheduleTask.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/main/java/cn/wyq/serverwebsocket/task/OrderScheduleTask.java" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/web/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/main/resources/application.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -627,7 +583,10 @@
       <workItem from="1789370432282" duration="2567000" />
       <workItem from="1789466263086" duration="11603000" />
       <workItem from="1789524627985" duration="4361000" />
-      <workItem from="1789551474932" duration="1737000" />
+      <workItem from="1789551474932" duration="1893000" />
+      <workItem from="1789618558134" duration="2513000" />
+      <workItem from="1789645981294" duration="4200000" />
+      <workItem from="1789790002141" duration="782000" />
     </task>
     <task id="LOCAL-00026" summary="2026-3-19&#10;优化日志">
       <option name="closed" value="true" />

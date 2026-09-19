@@ -1,7 +1,7 @@
 app:
   # 对外服务地址；生产环境请覆盖为 HTTPS 公网地址。
   domain: "${APP_DOMAIN:http://localhost:8000}"
-  # 可通过 APP_ENV 切换运行环境；JWT_SECRET 未注入时使用下方固定开发密钥。
+  # 可通过 APP_ENV 切换运行环境；敏感配置统一从 .env 或部署环境注入。
   environment: "${APP_ENV:development}"
   messaging:
     local-message:
@@ -37,12 +37,18 @@ app:
     expiry:
       recharge-delay-seconds: "${RABBIT_RECHARGE_EXPIRY_DELAY_SECONDS:}"
 
-# JWT_SECRET 可由部署环境覆盖；未配置时使用固定默认值，保证本地启动即可完成 JWT 初始化。
+# JWT_SECRET 必须由 .env 或部署环境注入，禁止在配置文件中保留固定密钥。
 security:
   jwt:
-    secret: "${JWT_SECRET:jwt_secret_for_server_websocket}"
+    secret: "${JWT_SECRET:}"
 
 spring:
+  # Spring Boot 原生加载项目根目录 .env；从 web 模块目录启动时兼容上一级目录。
+  # 操作系统环境变量优先级更高，可在生产环境直接由 Secret 注入覆盖本地文件。
+  config:
+    import:
+      - "optional:file:.env[.properties]"
+      - "optional:file:../.env[.properties]"
   application:
     name: server-websocket
   # Spring 的 multipart 限制必须位于 spring.servlet 下；具体业务上限由 sys_config
@@ -61,7 +67,7 @@ spring:
     host: "${MAIL_HOST:smtp.qq.com}"
     port: ${MAIL_PORT:465}
     username: "${MAIL_USERNAME:2402317148@qq.com}"
-    password: "${MAIL_PASSWORD:gfhmjyhutnhrdieh}"
+    password: "${MAIL_PASSWORD:}"
     default-encoding: UTF-8
     properties:
       mail:
@@ -73,9 +79,9 @@ spring:
     # localhost/websocket 仅作为未暴露到公网的本地开发默认值；生产环境必须覆盖。
     host: ${RABBITMQ_HOST:localhost}
     port: ${RABBITMQ_PORT:5672}
-    username: ${RABBITMQ_USERNAME:websocket}
-    password: ${RABBITMQ_PASSWORD:websocket}
-    virtual-host: /websocket
+    username: "${RABBITMQ_USERNAME:}"
+    password: "${RABBITMQ_PASSWORD:}"
+    virtual-host: "${RABBITMQ_VIRTUAL_HOST:/websocket}"
     publisher-confirm-type: correlated
     publisher-returns: true
     template:
@@ -97,15 +103,36 @@ spring:
     pathmatch:
       matching-strategy: ant_path_matcher
   datasource:
-    # 本地默认值不含密码；生产环境应使用权限最小化的专用数据库账户。
+    type: com.alibaba.druid.pool.DruidDataSource
     url: "${DB_URL:jdbc:mysql://127.0.0.1:3306/chat?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&sessionVariables=sql_mode='ANSI_QUOTES'}"
-    username: ${DB_USERNAME:root}
-    password: "${DB_PASSWORD:yq040809}"
+    username: "${DB_USERNAME:root}"
+    password: "${DB_PASSWORD:}"
     driver-class-name: com.mysql.cj.jdbc.Driver
-    hikari:
-      max-lifetime: 120000
-      idle-timeout: 60000
-      keepalive-time: 30000
+
+    # 🌟 删除了无效的 hikari，直接配置 druid，且与 url, username 平级
+    druid:
+      # 连接池基础性能配置（替代你原来的 hikari 参数）
+      initial-size: 5
+      min-idle: 5
+      max-active: 20
+      max-wait: 60000
+      time-between-eviction-runs-millis: 60000
+      min-evictable-idle-time-millis: 300000
+
+      # 监控与慢 SQL 配置
+      filter:
+        stat:
+          log-slow-sql: true
+          slow-sql-millis: 1000
+          merge-sql: true
+
+      # Web 监控面板
+      stat-view-servlet:
+        enabled: true
+        url-pattern: /druid/*
+        login-username: "${DRUID_CONSOLE_USERNAME:admin}"
+        login-password: "${DRUID_CONSOLE_PASSWORD:}"
+        allow: ''
   data:
     redis:
       database: ${REDIS_DATABASE:1}
@@ -118,11 +145,11 @@ spring:
           max-active: 8
           max-idle: 8
           min-idle: 0
-          max-wait: -1
+          max-wait: 3000ms
   ai:
     openai:
       # 使用阿里云百炼 OpenAI 兼容接口；密钥不能提交到仓库。
-      api-key: "${DASHSCOPE_API_KEY:sk-ws-H.PMPYMRX.iWOs.MEUCIQCYypOzo4Q4bFSVam8quwBCS2YIgDav5KgCuliFRo2hYAIgWdkrf5iCZEkWjG_0Xg7L8puVbATgeX1kYlb_XAqgFN0}"
+      api-key: "${DASHSCOPE_API_KEY:}"
       base-url: "${DASHSCOPE_BASE_URL:https://dashscope.aliyuncs.com/compatible-mode}"
       chat:
         options:
@@ -175,11 +202,11 @@ ai:
 
 alipay:
   # 支付宝沙箱或生产凭据必须由部署环境注入，不能保存在仓库中。
-  app-id: "${ALIPAY_APP_ID:9021000163616415}"
-  private-key: "${ALIPAY_PRIVATE_KEY:MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCS6Zy5aSpI4oGtmwkbBHul+5SygmqVs0f1/aBg2wLN6eqtOSPgJaF0e4LB1N/Gk1pWsHFDi6CrAUXVbqBaWrQ+BBdaIJxZW4LJ7qbhNVbHEAjjJN/j06rmfzPozcuSoBzwfSOtXBGtNkQQRjfWJCBN3mw86u/Pdx8fLR00P2j4WZvNSvyoIOTlIQDcHOgPiMe71R99a79g6dzu/2jzWpCsG7f9sOo7G4/P8HRlWEbH4QCoXUt6Cy5+pRoYLShh2H+33iLt0tLXB17emk08T33SXuOc5er1fG5OSWALb1uaIadA0VKKvWXyUFKyL+MfQX20mQLj83jEN3ZRawmGgy8RAgMBAAECggEAPQsCiuvOnRA4r8juhKJdOj+Jro6P+PnQWb7zx6rYxHSAhU9rv7QDHSJA14c7IAiUDdcsiNNYhBV4TdG0oTZ1FBuhFFrefCaQ9pTKFGOUVgwslSz6NnD53uJV0FLKVnde7vIgQ+UwlxcoOtbiVoEWRyS3NqyrzjmB3fNh4hbC6AW3Gm8u+/i+vftxRvBEGI86euK/cloiMVeUVM2LNxZjTN+yLLBX5E5q7pw3Sc7Oqpcd0P66GH6cstXNcaKXTGhsSSDLnvX8vkC7F+AdCXVjuKliqKdmqIQW5W5Hmt2PUw5D/D6j4RZcy3T6cToDvSLhyITn5u/0HoM6FWiYCRDgzQKBgQDunkIrjVKUe5t0tQ8o6tC+80TBKxo4hIWGhKaFSKHM9gMzSM4p4OZKF0v49Z0ZajGUkSay5okex7zRud474pwNQ0sMFmFH61kOkYqsKwTouaFrTpQDathyfhBKyIWV7r/q7bkBDpSXjCScJZ82+j4YW7H15VogL10VKXl6KHs6wwKBgQCdnTsZXn77OPHYWpg0esXmhmNHIzuIWehSbP/e4DVCS0MkbUOAZBOHnOrcAPn7Le4RJzyoqMkOabXrK/JQj9J7OKuZoZt+MHks+b87cjsgGZ9womIxjCNATfXbFhjI9qQbTtlnwja4jYHDCCDUFpYSY321QYks+ZnRID9GOvdJmwKBgQDspCJ3UqYM/zDCYzVvnL/8PwF2mKpeVn6dUzxZfhiITYoK+C8NNS7tV4FOmzZ7l+cnsXOxhBOEZQ2K6EvPFAMy3AO3LxK24l3lpszhxaAOtNmys7DyWqnhkcfSgl6IvMez0qHgvHb8fE1qVZ06Rp4CRh2NATGKLa6gaAtC7JaZRQKBgHyk/zvM0zbxjbC/1GaMQT1RQencHxRxpZypvqAPR48p3etMzXkXq6ovmjxqOUc+x2qhUQNAl9/iEY/trS+wzY/M/Uf92e4tf2bmCymD6OY13TVB9c2hOa9899VO4ELtalJ+RMgdexDwN5J5Nx0Cz6OzMpLJRSZgLhiIHAH6V93JAoGAU1q/XbZXL+pUs/t4Xvk22deLdChXsdpxRhv67f7Q86hm9q9xIWQSHGt2hcrBRbtUxfGAFpSp/fj5cf/7DUv3Xek71DuzzlHrTclYpUVa5MIc8CoSSE5ceyRMLEzu+ARhujLJCWgogCBS+24iUAKjyMj5OHS2S43eUfNZu104fd0=}"
-  alipay-public-key: "${ALIPAY_PUBLIC_KEY:MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAk4fYKvREA/RgpZwYpBALb+A4/Pi/4Ap7dQ9fx29L+rtnPNvxDgoWH9dppX5vjf6mwhzHPKWl2QIqqkPOS2yMTP1HwDMvjC89Ez3XVT3ypO79rS1g25kfGdpxnusMzYsGtsSVyDcGyDXbB97oXexO/7DUNXLT9tIXUCGHtl4Iey9DUr0Q2yz5SsZRSAwkCnarhhpub7dVVpkDQ14Ke3quxSEM0lFgz9sOix6TTBoICz5SsRrjuwQAIJ0b7tJw2nacD2kNP/XO/CVE5+qp9RYERqGw37Or95QYFeHiDZQKwcM7H/ug5HRjwQc78u/RyBOCRNwMbwylNYq/pqOS5gz57wIDAQAB}"
+  app-id: "${ALIPAY_APP_ID:}"
+  private-key: "${ALIPAY_PRIVATE_KEY:}"
+  alipay-public-key: "${ALIPAY_PUBLIC_KEY:}"
   gateway-url: "${ALIPAY_GATEWAY_URL:https://openapi-sandbox.dl.alipaydev.com/gateway.do}"
   sign-type: RSA2
   charset: UTF-8
   format: json
-  notify-url: "${ALIPAY_NOTIFY_URL:https://2b193355.r3.cpolar.top/alipay/notify}"
+  notify-url: "${ALIPAY_NOTIFY_URL:}"
