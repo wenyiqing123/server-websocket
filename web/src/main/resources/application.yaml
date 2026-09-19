@@ -110,6 +110,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
 
     # 🌟 删除了无效的 hikari，直接配置 druid，且与 url, username 平级
+    # http://localhost:8000/druid/sql.html
     druid:
       # 连接池基础性能配置（替代你原来的 hikari 参数）
       initial-size: 5
@@ -122,6 +123,9 @@ spring:
       # 监控与慢 SQL 配置
       filter:
         stat:
+          # Druid Starter 默认不创建 StatFilter；必须显式启用，SQL 统计页才会有数据。
+          enabled: true
+          db-type: mysql
           log-slow-sql: true
           slow-sql-millis: 1000
           merge-sql: true
