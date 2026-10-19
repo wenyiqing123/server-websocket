@@ -27,6 +27,8 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,6 +38,9 @@ import java.util.Map;
 @Slf4j
 @RestController
 public class AlipayController {
+
+    private static final long ALIPAY_QUERY_GRACE_SECONDS = 3L;
+    private static final long ALIPAY_QUERY_RETRY_DELAY_MILLIS = 120L;
 
     @Autowired
     private AlipayClient alipayClient;
@@ -118,7 +123,7 @@ public class AlipayController {
      * 2. 支付宝异步回调通知接口
      */
     @LoginNotRequired
-    @PostMapping("/alipay/notify")
+    @PostMapping({"/alipay/notify", "/notify"})
     public String notify(HttpServletRequest request) {
         log.info("============== 收到支付宝异步通知 ==============");
         try {
@@ -195,6 +200,10 @@ public class AlipayController {
             return Result.success(paymentStatus(order, "CLOSED", false, false, null));
         }
 
+        if (isWithinAlipayQueryGracePeriod(order)) {
+            return Result.success(paymentStatus(order, "WAITING_SCAN", false, false, null));
+        }
+
         // 本地回调可能还未到达，主动查询支付宝可以及时识别“已扫码、待付款”状态。
         String tradeStatus = queryAlipayTradeStatus(outTradeNo);
         if ("TRADE_SUCCESS".equals(tradeStatus) || "TRADE_FINISHED".equals(tradeStatus)) {
@@ -216,19 +225,62 @@ public class AlipayController {
         return minutes + "m";
     }
 
+    private boolean isWithinAlipayQueryGracePeriod(RechargeOrder order) {
+        LocalDateTime createTime = order.getCreateTime();
+        if (createTime == null) {
+            return false;
+        }
+        Duration age = Duration.between(createTime, LocalDateTime.now());
+        return !age.isNegative() && age.compareTo(Duration.ofSeconds(ALIPAY_QUERY_GRACE_SECONDS)) < 0;
+    }
+
     /** 查询支付宝侧交易状态；网关暂时不可用时由本地订单状态继续兜底。 */
     private String queryAlipayTradeStatus(String outTradeNo) {
-        try {
-            AlipayTradeQueryRequest queryRequest = new AlipayTradeQueryRequest();
-            JSONObject bizContent = new JSONObject();
-            bizContent.put("out_trade_no", outTradeNo);
-            queryRequest.setBizContent(bizContent.toJSONString());
-            AlipayTradeQueryResponse response = alipayClient.execute(queryRequest);
-            return response.isSuccess() ? response.getTradeStatus() : null;
-        } catch (Exception e) {
-            log.warn("查询支付宝订单状态失败，继续等待异步通知，订单号={}", outTradeNo, e);
-            return null;
+        for (int attempt = 0; attempt < 2; attempt++) {
+            try {
+                AlipayTradeQueryRequest queryRequest = new AlipayTradeQueryRequest();
+                JSONObject bizContent = new JSONObject();
+                bizContent.put("out_trade_no", outTradeNo);
+                queryRequest.setBizContent(bizContent.toJSONString());
+                AlipayTradeQueryResponse response = alipayClient.execute(queryRequest);
+                if (response == null) {
+                    return null;
+                }
+                if (response.isSuccess()) {
+                    return response.getTradeStatus();
+                }
+                if ("ACQ.TRADE_NOT_EXIST".equals(response.getSubCode())) {
+                    log.debug("支付宝暂未识别订单，继续等待扫码，订单号={}", outTradeNo);
+                } else {
+                    log.warn("支付宝订单查询返回业务失败，继续等待异步通知，订单号={}, code={}, subCode={}, subMsg={}",
+                            outTradeNo, response.getCode(), response.getSubCode(), response.getSubMsg());
+                }
+                return null;
+            } catch (Exception ex) {
+                if (attempt == 0) {
+                    try {
+                        Thread.sleep(ALIPAY_QUERY_RETRY_DELAY_MILLIS);
+                    } catch (InterruptedException interrupted) {
+                        Thread.currentThread().interrupt();
+                        return null;
+                    }
+                    continue;
+                }
+                log.warn("支付宝订单查询暂时不可用，继续等待异步通知，订单号={}, errorType={}, message={}",
+                        outTradeNo, ex.getClass().getSimpleName(), summarizeException(ex));
+                return null;
+            }
         }
+        return null;
+    }
+
+    private String summarizeException(Exception exception) {
+        String message = exception.getMessage();
+        if (message == null || message.isBlank()) {
+            return "unknown";
+        }
+        String firstLine = message.replace('\r', ' ').replace('\n', ' ').trim();
+        return firstLine.length() > 240 ? firstLine.substring(0, 240) : firstLine;
     }
 
     private AlipayPaymentStatusVO paymentStatus(RechargeOrder order, String status,
